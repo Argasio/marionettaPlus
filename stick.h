@@ -11,12 +11,15 @@ public:
     QGraphicsLineItem* lineObj(void);
     void setLine(QLineF* line);
     void rotate(QPointF* point);
+    stick * parent;
+    QList<stick*> children;
     ~stick();
-    int parent;
+    QPointF getP2(QLineF* line);
+    //int parent;
 private:
     float angleBuffer;
     void  calcAngle();
-    QGraphicsLineItem* lineobject;
+    QGraphicsLineItem lineobject;
 
 };
 

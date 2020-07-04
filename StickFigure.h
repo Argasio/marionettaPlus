@@ -4,6 +4,7 @@
 #include <QLineF>
 #include <QtMath>
 #include <stick.h>
+#include <QGraphicsScene>
 class StickFigure
 {
 public:
@@ -11,18 +12,22 @@ public:
     QGraphicsLineItem * startDrawing(QPointF* point);
     QGraphicsLineItem * previewDrawing(QPointF* point);
     QGraphicsLineItem * endDrawing(QPointF* point);
+
     QGraphicsLineItem * returnLine();
     void  cancelDrawing();
+    void deleteStick(int idx);
     int drawCount;
     QList<stick*>stickList;
     QList<QGraphicsItem*>itemList;
-private:
     QLineF lineBuffer;
+private:
+
     QPointF p0;
     QPointF p1;
     stick* stickBuffer;
     QPointF selectOrigin( QPointF * point);
-    int parentBuffer;
+    stick* parentBuffer = NULL;
+    QGraphicsScene * myScene ;
 
 };
 

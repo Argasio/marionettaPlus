@@ -9,6 +9,7 @@ QPointF coord; //current mouse pos
 float   rotationBuffer; //selected item Rotation buffer
 QPen myPen;
 QBrush myBrush;
+
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     drawStk = new StickFigure();
@@ -52,17 +53,31 @@ void myView::keyPressEvent(QKeyEvent *event)
         case(Qt::Key_Cancel):
         case(Qt::Key_Delete):
         {
-
             if(scene()->selectedItems().count() == 1)
             {
-                QGraphicsItem *item = scene()->selectedItems()[0]; //oggetto selezionato nella scnea
-                int idx = drawStk->itemList.indexOf(item);          // indice corrispondente nella lista ordinata degli oggetti
-                scene()->removeItem(scene()->selectedItems()[0]); //rimuovi l'oggetto dalla scena
-                stick *selectedStick = drawStk->stickList[idx];   //oggetto stick che contiene l'oggetto grafico
-                drawStk->itemList.removeAt(idx);                //rimuovi dalla lista degli stick e dalla lista  degli oggetti grafici
-                drawStk->stickList.removeAt(idx);
-                delete selectedStick;                           // distruggi l'oggetto
+                QGraphicsItem *item = scene()->selectedItems()[0];//oggetto selezionato nella scnea
+                int idx = drawStk->itemList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
+                //stick *selectedStick = drawStk->stickList[idx];
+                //selectedStick->deleteStick(QGraphicsScene* scene);
+                drawStk->deleteStick( idx);
+                // distruggi l'oggetto
                 qDebug("item deleted");
+            }
+            break;
+        }
+        case(Qt::Key_Escape):
+        {
+            switch(tool)
+            {
+                case(DRAW):
+                {
+                    if(drawStk->drawCount==1)
+                    {
+                        scene()->removeItem(drawStk->returnLine());
+                        drawStk->cancelDrawing();
+                    }
+                    break;
+                }
             }
             break;
         }
@@ -129,7 +144,6 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         {
             if(isPressed)
             {
-
                 if(scene()->selectedItems().count() == 1)
                 {
                     //trova l'indice dello stick selezionato dentro la lista nella scena cercando il puntatore nelle liste
