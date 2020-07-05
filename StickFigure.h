@@ -20,6 +20,7 @@ public:
     QList<stick*>stickList;
     QList<QGraphicsItem*>itemList;
     QLineF lineBuffer;
+    stick* currentStick;
 private:
 
     QPointF p0;

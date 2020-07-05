@@ -1,12 +1,15 @@
 #ifndef FRAME_H
 #define FRAME_H
 #include <StickFigure.h>
-
+#include <QGraphicsScene>
 class Frame
 {
 public:
     Frame();
-    QList<StickFigure> stickFigures;
+    StickFigure* addStickFigure();
+    QList<StickFigure*> stickFigures;
+    StickFigure* stickFigureBuffer;
+    StickFigure* currentStickFigure;
 };
 
 #endif // FRAME_H

@@ -3,6 +3,7 @@
 #include <QGraphicsItem>
 #include <math.h>
 #include <style.h>
+
 class stick
 {
 
@@ -15,6 +16,7 @@ public:
     QList<stick*> children;
     ~stick();
     QPointF getP2(QLineF* line);
+    //StickFigure* myStickFigure;
     //int parent;
 private:
     float angleBuffer;

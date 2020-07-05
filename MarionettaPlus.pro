@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     StickFigure.cpp \
+    animation.cpp \
     frame.cpp \
     main.cpp \
     myrect.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 
 HEADERS += \
     StickFigure.h \
+    animation.h \
     frame.h \
     myrect.h \
     myview.h \

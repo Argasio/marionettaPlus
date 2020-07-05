@@ -20,6 +20,8 @@ private slots:
 
     void on_cursor_clicked();
 
+    void on_addStickBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };

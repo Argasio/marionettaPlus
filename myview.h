@@ -8,8 +8,10 @@
 #include <QGraphicsItem>
 #include <QLineF>
 #include <StickFigure.h>
+#include <animation.h>
 #define DRAW 5
 #define NOTOOL 4
+
 class myView : public QGraphicsView
 {
     Q_OBJECT
@@ -31,7 +33,6 @@ private:
     void rotate(QGraphicsLineItem* item);
     void updateRotationBuffer();
     void changeTool();
-    StickFigure* drawStk;
 
     // QWidget interface
 

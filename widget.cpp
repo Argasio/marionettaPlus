@@ -4,6 +4,8 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include "myview.h"
+#include <frame.h>
+#include <animation.h>
 #include <QPen>
 QGraphicsScene *scene;
 myView *view;
@@ -39,4 +41,10 @@ void Widget::on_drawBtn_clicked()
 void Widget::on_cursor_clicked()
 {
     view->setTool(NOTOOL);
+}
+
+void Widget::on_addStickBtn_clicked()
+{
+    //myAnimation->frameList
+
 }
