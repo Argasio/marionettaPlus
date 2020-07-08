@@ -24,7 +24,10 @@ void myView::setTool(int Tool)
     changeTool();
     tool = Tool;
 }
-
+StickFigure * myView::addStickFigure()
+{
+    return myAnimation->currentFrame->addStickFigure();
+}
 void myView::mousePressEvent(QMouseEvent *event)
 {
     isPressed       = true; //segnala che è premuto
@@ -32,11 +35,13 @@ void myView::mousePressEvent(QMouseEvent *event)
     startingCoord   = coord; //buffer per il dragghing del mouse premuto
     switch(tool)
     {
+        QGraphicsView::mousePressEvent(event);
         case NOTOOL:
         {
-            if(scene()->selectedItems().count() == 1)
-            {
-            }
+            scene()->clearSelection();
+            myAnimation->currentFrame->selectStick(coord);
+
+
             break;
         }
         case DRAW:
@@ -45,7 +50,7 @@ void myView::mousePressEvent(QMouseEvent *event)
             break;
         }
     }
-    QGraphicsView::mousePressEvent(event);
+
 }
 
 void myView::keyPressEvent(QKeyEvent *event)
@@ -57,8 +62,8 @@ void myView::keyPressEvent(QKeyEvent *event)
         {
             if(scene()->selectedItems().count() == 1)
             {
-                QGraphicsItem *item = scene()->selectedItems()[0];//oggetto selezionato nella scnea
-                int idx = myAnimation->frameBuffer->stickFigureBuffer->itemList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
+                stick *item = (stick*)scene()->selectedItems()[0];//oggetto selezionato nella scnea
+                int idx = myAnimation->frameBuffer->stickFigureBuffer->stickList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
                 //stick *selectedStick = myAnimation->frameBuffer->stickFigureBuffer->stickList[idx];
                 //selectedStick->deleteStick(QGraphicsScene* scene);
                 myAnimation->frameBuffer->stickFigureBuffer->deleteStick( idx);
@@ -75,7 +80,7 @@ void myView::keyPressEvent(QKeyEvent *event)
                 {
                     if(myAnimation->frameBuffer->stickFigureBuffer->drawCount==1)
                     {
-                        scene()->removeItem(myAnimation->frameBuffer->stickFigureBuffer->returnLine());
+                        scene()->removeItem((QGraphicsItem*)myAnimation->frameBuffer->stickFigureBuffer);
                         myAnimation->frameBuffer->stickFigureBuffer->cancelDrawing();
                     }
                     break;
@@ -94,14 +99,15 @@ void myView::keyPressEvent(QKeyEvent *event)
 void myView::drawCmd(QPointF* point)
 {
     if(myAnimation->frameBuffer->stickFigureBuffer->drawCount == 0){
+        myAnimation->currentFrame->currentStickFigure->startDrawing(point);
+        myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
         //aggiungi il nuovo elemento alla scena mediante puntatore dell'elemento linea dell'oggetto stick
-       QGraphicsLineItem * item =  myAnimation->frameBuffer->stickFigureBuffer->startDrawing(point);
-       scene()->addItem(qgraphicsitem_cast<QGraphicsLineItem*>(item));
+       scene()->addItem(myAnimation->currentFrame->currentStickFigure->currentStick);
        qDebug("Draw 1 = %f, %f",point->x(),point->y());
     }
     else if(myAnimation->frameBuffer->stickFigureBuffer->drawCount >0)
     {
-        myAnimation->frameBuffer->stickFigureBuffer->endDrawing(point);
+        myAnimation->currentFrame->currentStickFigure->endDrawing(point);
         qDebug("Draw 2 = %f, %f",point->x(),point->y());
     }
 }
@@ -119,7 +125,7 @@ void myView::changeTool()
             // se stavi disegnando uno stick e cambi prima di averlo finito, cancellalo!
             if(myAnimation->frameBuffer->stickFigureBuffer->drawCount==1)
             {
-                scene()->removeItem(myAnimation->frameBuffer->stickFigureBuffer->returnLine());
+                scene()->removeItem((QGraphicsItem*)myAnimation->frameBuffer->stickFigureBuffer);
                 myAnimation->frameBuffer->stickFigureBuffer->cancelDrawing();
             }
             break;
@@ -131,6 +137,7 @@ void myView::changeTool()
 void myView::mouseReleaseEvent(QMouseEvent *event)
 {
     isPressed = false;
+    myAnimation->currentFrame->currentStickFigure->currentStick->endRotation();
     QGraphicsView::mouseReleaseEvent(event);
 }
 
@@ -149,8 +156,8 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                 if(scene()->selectedItems().count() == 1)
                 {
                     //trova l'indice dello stick selezionato dentro la lista nella scena cercando il puntatore nelle liste
-                    QGraphicsItem* item = scene()->selectedItems()[0];
-                    myAnimation->updateSelection((QGraphicsLineItem*)item);
+                    stick* item = (stick*)scene()->selectedItems()[0];
+                    myAnimation->updateSelection(item);
                     //qDebug("selected item %d", idx);
                     // Ora ruota lo stick
                     myAnimation->currentFrame->currentStickFigure->currentStick->rotate(&coord);

@@ -5,22 +5,26 @@
 #include <QtMath>
 #include <stick.h>
 #include <QGraphicsScene>
+#include <QListWidgetItem>
 class StickFigure
 {
 public:
     StickFigure();
-    QGraphicsLineItem * startDrawing(QPointF* point);
-    QGraphicsLineItem * previewDrawing(QPointF* point);
-    QGraphicsLineItem * endDrawing(QPointF* point);
+    void  startDrawing(QPointF* point);
+    void  previewDrawing(QPointF* point);
+    void  endDrawing(QPointF* point);
 
-    QGraphicsLineItem * returnLine();
+    void  returnLine();
     void  cancelDrawing();
     void deleteStick(int idx);
     int drawCount;
+    int selectStick( QPointF * point);
     QList<stick*>stickList;
-    QList<QGraphicsItem*>itemList;
+    void setLineFromPoint(QPointF *point);
     QLineF lineBuffer;
     stick* currentStick;
+    stick* masterStick;
+    qreal baseZ;
 private:
 
     QPointF p0;

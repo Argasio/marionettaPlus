@@ -2,17 +2,18 @@
 // StickFigure work in the one active scene
 extern QGraphicsScene * scene;
 
-StickFigure::StickFigure()
+StickFigure::
+StickFigure()
 {
     p0          =  QPointF(0,0);
     p1          =  QPointF(0,0);
     lineBuffer  =  QLineF(p0,p1);
     drawCount   =  0;
-
+    masterStick =   NULL;
 }
 
 //inizio disegno di una linea stick
-QGraphicsLineItem* StickFigure::startDrawing(QPointF *point)
+void StickFigure::startDrawing(QPointF *point)
 {
     if(stickList.isEmpty()) // se è il primo stick dello stickfigure
     {
@@ -26,42 +27,43 @@ QGraphicsLineItem* StickFigure::startDrawing(QPointF *point)
     //crea e alloca l'oggetto stick associato
     lineBuffer      = QLineF(p0,p0); // all'inizio la linea ha lunghezza zero
     stick *stk      = new stick(&lineBuffer);
+    stk->Z = baseZ+stickList.count()/1000;
     stickBuffer     = stk;
+    currentStick    = stk;
+    if(masterStick == NULL){
+        masterStick = currentStick;
+        masterStick->master = true;
+    }
     drawCount       = 1; // segnala che un disegno è in atto
-    return stickBuffer->lineObj();
+    stickBuffer->refresh(0);
 }
 // aggiorna uno stick il cui disegno è già avviato
-QGraphicsLineItem *StickFigure::previewDrawing(QPointF *point)
+void StickFigure::previewDrawing(QPointF *point)
+{
+    setLineFromPoint(point);
+    stickBuffer->refresh(1);
+}
+void StickFigure::setLineFromPoint(QPointF *point)
 {
     p1              = *point;
     lineBuffer      = QLineF(p0,p1);
     // lo stick si fonda sulla linea che connette starting point e endpoint
     stickBuffer->setLine(&lineBuffer);
-    return stickBuffer->lineObj();
 }
-
-QGraphicsLineItem *StickFigure::endDrawing(QPointF *point)
+void StickFigure::endDrawing(QPointF *point)
 {
-    previewDrawing(point);          //aggiorna il disegno
+    setLineFromPoint(point);
     drawCount = 0;                  //segnala la fine
     stickList.append(stickBuffer);  //disegno finito, aggiungilo alla lista
-    itemList.append(stickBuffer->lineObj());
+    //itemList.append(stickBuffer->lineObj());
     stickBuffer->parent = parentBuffer;
+    stickBuffer->refresh(0);
     // INSERISCILO COME FIGLIO DI TUTTA LA GERARCHIA PRECEDENTE
     while(parentBuffer){
         parentBuffer->children.append(stickBuffer);
         parentBuffer = parentBuffer->parent;
     }
-
-
-    return stickBuffer->lineObj();
 }
-
-QGraphicsLineItem *StickFigure::returnLine()
-{
-    return stickBuffer->lineObj();
-}
-
 void StickFigure::cancelDrawing()
 {
     delete stickBuffer;
@@ -72,18 +74,38 @@ void StickFigure::cancelDrawing()
 //scegli come origine lo stick più vicino al mouse fra gli stick dello stickfigure
 QPointF StickFigure::selectOrigin( QPointF * point)
 {
+    //return stickList[selectStick(point)]->myLine.p2();
+
+    int idx = selectStick(point);
+    if(stickList[idx] == masterStick)
+    {
+        if(QLineF(stickList[idx]->myLine.p2(),*point).length() >
+               QLineF(stickList[idx]->myLine.p1(),*point).length() )
+            return stickList[idx]->myLine.p1();
+        else{
+            return stickList[idx]->myLine.p2();
+        }
+    }
+    else{
+        stickList[idx]->myLine.p2();
+        return stickList[idx]->myLine.p2();
+    }
+}
+int StickFigure::selectStick( QPointF * point)
+{
     int idx         = 0;
     float  minDist  = 0;
     parentBuffer    = NULL;
+    int chosenIdx = 0;
     QPointF pBuf1,pBuf2,pBufOut;
-    //inizializziamo a partire dall'origine del primo stick;
-    pBufOut = qgraphicsitem_cast<QGraphicsLineItem*>(stickList[idx]->lineObj())->line().p1();
+    //inizializziamo a partire dall'origine del masterStick
+    pBufOut = masterStick->myLine.p1();
     minDist = QLineF(pBufOut,*point).length();
-    while(idx< itemList.length())
+    while(idx< stickList.length())
     {
         // i punti inizio-fine dello stick corrente
-        pBuf1 = qgraphicsitem_cast<QGraphicsLineItem*>(stickList[idx]->lineObj())->line().p1();
-        pBuf2 = qgraphicsitem_cast<QGraphicsLineItem*>(stickList[idx]->lineObj())->line().p2();
+        pBuf1 = stickList[idx]->myLine.p1();
+        pBuf2 = stickList[idx]->myLine.p2();
         // se la distanza è più bassa di quella minima registrata dal luogo del mouse
         if(QLineF(pBuf2,*point).length()<= minDist)
         {
@@ -91,22 +113,23 @@ QPointF StickFigure::selectOrigin( QPointF * point)
             pBufOut         = pBuf2;
             minDist         = QLineF(pBuf2,*point).length();
             parentBuffer    = stickList[idx];
+            chosenIdx = idx;
         }
         idx++;
     }
-    return pBufOut;
+    return chosenIdx;
 }
-
 void StickFigure::deleteStick(int idx)
 {
     stick *selectedStick        = stickList[idx];   //oggetto stick che contiene l'oggetto grafico
-    scene->removeItem(itemList[idx]); //rimuovi l'oggetto dalla scena
+    scene->removeItem(stickList[idx]); //rimuovi l'oggetto dalla scena
+    if(stickList[idx]->master)
+        this->masterStick = NULL;
     //per ogni figlio dell'oggetto, rimuovi gli oggetti dalla scena e cancellali
     for(stick * s : selectedStick->children){
-        int childIndex          = itemList.indexOf(s->lineObj());
+        int childIndex          = stickList.indexOf(s);
         stick *childStick       = stickList[childIndex];   //oggetto stick che contiene l'oggetto grafico
-        scene->removeItem(itemList[childIndex]); //rimuovi l'oggetto dalla scena
-        itemList.removeAt(childIndex);                  //rimuovi dalla lista degli stick e dalla lista  degli oggetti grafici
+        scene->removeItem(stickList[childIndex]); //rimuovi l'oggetto dalla scena
         stickList.removeAt(childIndex);
         stick * parent          = selectedStick->parent;
         // rimuovi a ritroso ciascuno stick figlio di quello selezionato dalle listte figli di tutti gli altri sitck presenti genitori di esso
@@ -119,7 +142,6 @@ void StickFigure::deleteStick(int idx)
         delete childStick;
     }
     // rimuovi lo stick selezionato dalla lista dei suoi genitori
-    itemList.removeAt(idx);                  //rimuovi dalla lista degli stick e dalla lista  degli oggetti grafici
     stickList.removeAt(idx);
     stick * parent = selectedStick->parent;
     while(parent != NULL)

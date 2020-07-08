@@ -2,7 +2,7 @@
 #define WIDGET_H
 
 #include <QWidget>
-
+#include <QListWidget>
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
@@ -21,6 +21,11 @@ private slots:
     void on_cursor_clicked();
 
     void on_addStickBtn_clicked();
+
+    void on_thicknessSpinBox_valueChanged(int arg1);
+
+    void on_stickLayerView_itemClicked(QListWidgetItem *item);
+
 
 private:
     Ui::Widget *ui;

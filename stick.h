@@ -3,26 +3,33 @@
 #include <QGraphicsItem>
 #include <math.h>
 #include <style.h>
-
-class stick
+#include <QPainter>
+class stick:public QGraphicsItem
 {
 
 public:
     stick(QLineF *line);
-    QGraphicsLineItem* lineObj(void);
     void setLine(QLineF* line);
     void rotate(QPointF* point);
     stick * parent;
     QList<stick*> children;
     ~stick();
+    QLineF myLine;
     QPointF getP2(QLineF* line);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QRectF boundingRect() const ;
+    QRectF br;
+    void refresh(int mode);
+    void endRotation();
+    bool master;
+    QPen Pen;
+    qreal Z;
     //StickFigure* myStickFigure;
     //int parent;
 private:
     float angleBuffer;
+    QRectF updateBr(int mode);
     void  calcAngle();
-    QGraphicsLineItem lineobject;
-
 };
 
 #endif // STICK_H

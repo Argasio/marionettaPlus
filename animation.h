@@ -10,7 +10,8 @@ public:
     Frame *frameBuffer;
     Frame * addFrame();
     Frame* currentFrame;
-    void updateSelection(QGraphicsLineItem* item);
+    void updateSelection(stick* item);
+    void updateSelection(StickFigure* item);
 };
 
 #endif // ANIMATION_H

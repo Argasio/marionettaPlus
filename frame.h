@@ -10,6 +10,7 @@ public:
     QList<StickFigure*> stickFigures;
     StickFigure* stickFigureBuffer;
     StickFigure* currentStickFigure;
+    stick *selectStick(QPointF point);
 };
 
 #endif // FRAME_H

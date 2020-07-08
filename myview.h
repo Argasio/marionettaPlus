@@ -19,6 +19,7 @@ public:
     explicit myView(QWidget *parent = nullptr);
     unsigned int tool = NOTOOL;
     void setTool(int Tool);
+    StickFigure *addStickFigure();
 signals:
 
 

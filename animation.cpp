@@ -6,14 +6,14 @@ Animation::Animation()
     currentFrame = frameBuffer;
     frameList.append(frameBuffer);
 }
-void Animation::updateSelection(QGraphicsLineItem* item)
+void Animation::updateSelection(stick* item)
 {
     //update current frame
 
     // update current stickfigure
     for(StickFigure *S : currentFrame->stickFigures)
     {
-        if(S->itemList.contains(item))
+        if(S->stickList.contains(item))
         {
             currentFrame->currentStickFigure = S;
             break;
@@ -21,6 +21,19 @@ void Animation::updateSelection(QGraphicsLineItem* item)
     }
     // update current stick
 
-    int idx = frameBuffer->currentStickFigure->itemList.indexOf(item);
-    currentFrame->currentStickFigure->currentStick = currentFrame->currentStickFigure->stickList[idx];
+    //int idx = frameBuffer->currentStickFigure->itemList.indexOf(item);
+
+}
+void Animation::updateSelection(StickFigure* item)
+{
+    //update current frame
+
+    // update current stickfigure
+
+    currentFrame->currentStickFigure = item;
+
+    // update current stick
+
+    //int idx = frameBuffer->currentStickFigure->itemList.indexOf(item);
+
 }
