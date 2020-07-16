@@ -6,7 +6,7 @@ stick::stick(QLineF *line)
 {
     this->setFlag(QGraphicsItem::ItemIsSelectable,true);
     QPen Pen = QPen();
-
+    highlight = true;
     setLine(line);
 }
 void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -16,7 +16,10 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     painter->setPen(Pen);
     painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
     //Pen.setColor(Qt::red); //draw bounding box
-    painter->setPen(QPen(Qt::red,10));
+    if(this->highlight)
+        painter->setPen(QPen(Qt::green,10));
+    else
+        painter->setPen(QPen(Qt::red,10));
     painter->drawEllipse(myLine.p2().x()-5,myLine.p2().y()-5,10,10);
     //painter->drawRect(br);
 }

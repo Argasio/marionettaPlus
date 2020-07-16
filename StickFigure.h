@@ -6,14 +6,15 @@
 #include <stick.h>
 #include <QGraphicsScene>
 #include <QListWidgetItem>
+
 class StickFigure
 {
 public:
-    StickFigure();
+    ~StickFigure();
+    StickFigure(QListWidgetItem* item);
     void  startDrawing(QPointF* point);
     void  previewDrawing(QPointF* point);
     void  endDrawing(QPointF* point);
-
     void  returnLine();
     void  cancelDrawing();
     void deleteStick(int idx);
@@ -25,6 +26,9 @@ public:
     stick* currentStick;
     stick* masterStick;
     qreal baseZ;
+    void highlight(bool setting);
+    QListWidgetItem* linkedItem;
+    QGraphicsScene * scene;
 private:
 
     QPointF p0;
@@ -35,5 +39,6 @@ private:
     QGraphicsScene * myScene ;
 
 };
-
+// to use QVariant in order to insert a stickfigure pointer into the widget list
+Q_DECLARE_METATYPE(StickFigure*)
 #endif // StickFigure_H

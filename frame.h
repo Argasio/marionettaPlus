@@ -6,11 +6,13 @@ class Frame
 {
 public:
     Frame();
-    StickFigure* addStickFigure();
+    StickFigure* addStickFigure(QListWidgetItem* item);
     QList<StickFigure*> stickFigures;
     StickFigure* stickFigureBuffer;
     StickFigure* currentStickFigure;
     stick *selectStick(QPointF point);
+    stick *selectStick(StickFigure* S);
+    StickFigure* removeStickFigure(StickFigure* toRemove);
 };
 
 #endif // FRAME_H

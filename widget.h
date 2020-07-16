@@ -26,6 +26,13 @@ private slots:
 
     void on_stickLayerView_itemClicked(QListWidgetItem *item);
 
+    void on_stickLayerView_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+
+    void on_deleteStickFigureBtn_clicked();
+
+    void on_moveLayerUpBtn_clicked();
+
+    void on_moveLayerDownBtn_clicked();
 
 private:
     Ui::Widget *ui;

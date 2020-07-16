@@ -19,7 +19,10 @@ public:
     explicit myView(QWidget *parent = nullptr);
     unsigned int tool = NOTOOL;
     void setTool(int Tool);
-    StickFigure *addStickFigure();
+    StickFigure *addStickFigure(QListWidgetItem* item);
+    Animation * myAnimation;
+    void deleteStickFigure();
+    void moveStickFigureZ(int increment);
 signals:
 
 

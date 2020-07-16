@@ -1,15 +1,26 @@
 #include "StickFigure.h"
 // StickFigure work in the one active scene
-extern QGraphicsScene * scene;
+
+
+StickFigure::~StickFigure()
+{
+    for(stick* s: stickList)
+    {
+        scene->removeItem(s);
+        delete s;
+
+    }
+}
 
 StickFigure::
-StickFigure()
+StickFigure(QListWidgetItem* item)
 {
     p0          =  QPointF(0,0);
     p1          =  QPointF(0,0);
     lineBuffer  =  QLineF(p0,p1);
     drawCount   =  0;
     masterStick =   NULL;
+    linkedItem  = item;
 }
 
 //inizio disegno di una linea stick
@@ -49,6 +60,15 @@ void StickFigure::setLineFromPoint(QPointF *point)
     lineBuffer      = QLineF(p0,p1);
     // lo stick si fonda sulla linea che connette starting point e endpoint
     stickBuffer->setLine(&lineBuffer);
+}
+
+void StickFigure::highlight(bool setting)
+{
+    for(stick* s:this->stickList)
+    {
+        s->highlight = setting;
+        s->refresh(0);
+    }
 }
 void StickFigure::endDrawing(QPointF *point)
 {

@@ -8,11 +8,12 @@
 #include <animation.h>
 #include <QPen>
 #include <QIcon>
+#include <QVariant>
+#include <QDebug>
 QGraphicsScene *scene;
 myView *view;
-QListWidget *stickListView;
-extern Animation myAnimation;
 QList <StickFigure*> layerList;
+QListWidget * myStickFigureWidgetList;
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -23,13 +24,16 @@ Widget::Widget(QWidget *parent)
     //crea il pannello e collegalo alla scena
     view = new myView(this);
     view->setScene(scene);
+    view->myAnimation->scene = scene;
     //inserisci il pannello nella finestra
     ui->viewLayout->addWidget(view);
     //crea la cornice
     QGraphicsRectItem *item = new QGraphicsRectItem(0, 0, 600, 600);
     scene->addItem(item);
+    myStickFigureWidgetList = ui->stickLayerView;
     on_addStickBtn_clicked();
-    stickListView = ui->stickLayerView;
+
+
 }
 
 Widget::~Widget()
@@ -50,18 +54,18 @@ void Widget::on_cursor_clicked()
 
 void Widget::on_addStickBtn_clicked()
 {
-    QString pointer;
+    static unsigned int intName = 0;
+    intName++;
     QString name;
-    name.sprintf("%d",ui->stickLayerView->count());
-
-    //intptr_t myPointer = (intptr_t)stickFigurePtr;
-    //pointer.sprintf("%p",(void*)stickFigurePtr);
-    QIcon myIco = QIcon(QString("C:/Users/Argasio/Pictures/atteya.jpg"));
-    ui->stickLayerView->addItem(myIco,name);
-
-    int idx = ui->stickLayerView->count()-1;
-    layerList.insert(idx,view->addStickFigure());
-
+    name.sprintf("%d",intName);
+    QListWidgetItem * addedItem = new QListWidgetItem(ui->stickLayerView);
+    StickFigure* addedStickFigure = view->addStickFigure( addedItem);
+    QVariant newData(QVariant::fromValue(addedStickFigure));
+    addedItem->setData(Qt::UserRole,newData);
+    addedItem->setData(Qt::DisplayRole,name);
+    view->myAnimation->updateSelection(addedStickFigure);
+    ui->stickLayerView->clearSelection();
+    ui->stickLayerView->setItemSelected(addedItem, true);
 }
 
 void Widget::on_thicknessSpinBox_valueChanged(int arg1)
@@ -69,12 +73,33 @@ void Widget::on_thicknessSpinBox_valueChanged(int arg1)
     myPen.setWidth(arg1);
 }
 
+void Widget::on_stickLayerView_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    if(current != nullptr)
+    {
+        qDebug("layer clicked");
+        QVariant  retrievedData = (current->data(Qt::UserRole));
+        StickFigure* cs = qvariant_cast<StickFigure*>(retrievedData);
+        view->myAnimation->updateSelection(cs);
+    }
+}
 
 void Widget::on_stickLayerView_itemClicked(QListWidgetItem *item)
 {
-    int idx = (item->data(Qt::DisplayRole).toString()).toInt();
-    //layerList[idx]->currentStick->Pen.setColor(Qt::green);
-    //layerList[idx]->currentStick->refresh(0);
-    myAnimation.updateSelection(layerList[idx]);
 
+}
+
+void Widget::on_deleteStickFigureBtn_clicked()
+{
+    view->deleteStickFigure();
+}
+
+void Widget::on_moveLayerUpBtn_clicked()
+{
+    view->moveStickFigureZ(1);
+}
+
+void Widget::on_moveLayerDownBtn_clicked()
+{
+    view->moveStickFigureZ(-1);
 }

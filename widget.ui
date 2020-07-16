@@ -78,6 +78,27 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="deleteStickFigureBtn">
+                <property name="text">
+                 <string>Delete StickFigure</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="moveLayerUpBtn">
+                <property name="text">
+                 <string>Move Up</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="moveLayerDownBtn">
+                <property name="text">
+                 <string>Move Down</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QSpinBox" name="thicknessSpinBox">
                 <property name="minimumSize">
                  <size>

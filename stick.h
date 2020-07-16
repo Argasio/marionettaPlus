@@ -24,6 +24,7 @@ public:
     bool master;
     QPen Pen;
     qreal Z;
+    bool highlight;
     //StickFigure* myStickFigure;
     //int parent;
 private:

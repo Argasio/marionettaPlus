@@ -1,19 +1,43 @@
 #include "frame.h"
 #include <QListWidget>
-extern QListWidget *stickListView;
+#include <QDebug>
 Frame::Frame()
 {
 }
-StickFigure* Frame::addStickFigure()
+StickFigure* Frame::addStickFigure(QListWidgetItem* item)
 {
-    stickFigureBuffer = new StickFigure();
-    stickFigureBuffer->baseZ = stickFigures.count();
+    if(!stickFigures.isEmpty())
+        currentStickFigure->highlight(false); //de highlight old selection
+    stickFigureBuffer = new StickFigure(item);
     stickFigures.append(stickFigureBuffer);
+    stickFigureBuffer->baseZ = stickFigures.count();
     currentStickFigure = stickFigureBuffer;
-
     return stickFigureBuffer;
 }
-
+StickFigure* Frame::removeStickFigure(StickFigure* toRemove)
+{
+    if(stickFigures.count() > 0)
+    {
+        stickFigures.removeAll(toRemove);
+        delete toRemove;
+        if(!stickFigures.isEmpty())
+            currentStickFigure = stickFigures[0];
+        else
+        {
+            qDebug("removed all sticks");
+            //currentStickFigure = NULL;
+        }
+        stickFigureBuffer = currentStickFigure;
+        return currentStickFigure;
+    }
+}
+stick *Frame::selectStick(StickFigure* S)
+{
+    int stickIdx = 0;
+    S->stickList[stickIdx]->setSelected(true);
+    S->currentStick = S->stickList[stickIdx];
+    return S->stickList[stickIdx];
+}
 stick *Frame::selectStick(QPointF point)
 {
     float distBuffer;
@@ -21,7 +45,7 @@ stick *Frame::selectStick(QPointF point)
     int idxBuffer;
     int selectedIdx = -1;
     StickFigure *selectedStickFigure;
-    for(StickFigure * S: this->stickFigures)
+    for(StickFigure * S: stickFigures)
     {
             idxBuffer = S->selectStick( &point);
             distBuffer = QLineF(S->stickList[idxBuffer]->myLine.p2(),point).length();
@@ -32,9 +56,6 @@ stick *Frame::selectStick(QPointF point)
                 selectedStickFigure = S;
             }
     }
-    //stickListView->setItemSelected((QListWidgetItem*)selectedStickFigure->layerName,true);
-    // stickListView->setCurrentItem((QListWidgetItem*)selectedStickFigure->layerName);
-     //   stickListView->setItemSelected((QListWidgetItem*)selectedStickFigure->layerName,true);
     selectedStickFigure->stickList[selectedIdx]->setSelected(true);
     return selectedStickFigure->stickList[selectedIdx];
 }
