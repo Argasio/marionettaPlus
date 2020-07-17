@@ -36,10 +36,15 @@ void myView::deleteStickFigure()
 {
     if(myStickFigureWidgetList->selectedItems().count() == 1 && myAnimation->currentFrame->stickFigures.count()>1)
     {
+        //scegli lo stickfigure selzionato dalla lista grafica
         QListWidgetItem *current = myStickFigureWidgetList->selectedItems()[0];
+        // estrai il dato utente salvato in esso, puntatore ad uno stickfigure
         QVariant  retrievedData = (current->data(Qt::UserRole));
+        //riconverti il dato
         StickFigure* cs = qvariant_cast<StickFigure*>(retrievedData);
+        //rimuovilo dal frame e distruggilo
         StickFigure* ns = myAnimation->currentFrame->removeStickFigure(cs);
+        //distruggi l'oggetto della lista
         myStickFigureWidgetList->takeItem(myStickFigureWidgetList->row(current));
         delete current;
         if(ns!=NULL)
@@ -51,7 +56,7 @@ void myView::deleteStickFigure()
 
     }
 }
-
+//cambia l'ordine di profondità dello stickfigure selezionato
 void myView::moveStickFigureZ(int increment)
 {
     if(myStickFigureWidgetList->count()>0)
@@ -61,11 +66,10 @@ void myView::moveStickFigureZ(int increment)
         int currentIndex = myStickFigureWidgetList->currentRow();
         if(!(increment>0 && currentIndex == myStickFigureWidgetList->count()-1) && !(increment<0 && currentIndex == 0))
         {
+            //sposta nella lista grafica il layer dello stickfigure
             QListWidgetItem * item = myStickFigureWidgetList->takeItem(currentIndex);
             myStickFigureWidgetList->insertItem(currentIndex+increment,item);
             myStickFigureWidgetList->setItemSelected(item,true);
-
-            //myStickFigureWidgetList->setItemSelected(myAnimation->currentFrame->currentStickFigure->linkedItem,true);
         }
     }
 
@@ -111,9 +115,11 @@ void myView::keyPressEvent(QKeyEvent *event)
                 if(myAnimation->frameBuffer->currentStickFigure->stickList[idx]->master &&
                         myAnimation->frameBuffer->stickFigures.count()>1)
                 {
+                    //estrai dalla lista grafica l'elemento selezionato collegato allo stickfigure
                     QListWidgetItem * associatedItem = myAnimation->frameBuffer->currentStickFigure->linkedItem;
                     myStickFigureWidgetList->clearSelection();
                     myStickFigureWidgetList->setItemSelected(associatedItem,true);
+                    //cancella lo stickfigure
                     deleteStickFigure();
                 }
                 else
@@ -207,6 +213,7 @@ void myView::mouseReleaseEvent(QMouseEvent *event)
     {
         if(myAnimation->currentFrame->currentStickFigure->stickList.count()>0)
         {
+            //termina una rotazione di stick al rilascio
             myAnimation->currentFrame->currentStickFigure->currentStick->endRotation();
         }
     }

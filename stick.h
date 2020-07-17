@@ -4,6 +4,7 @@
 #include <math.h>
 #include <style.h>
 #include <QPainter>
+#define STEPCHILD -1
 class stick:public QGraphicsItem
 {
 
@@ -25,6 +26,7 @@ public:
     QPen Pen;
     qreal Z;
     bool highlight;
+    bool stepchild;
     //StickFigure* myStickFigure;
     //int parent;
 private:

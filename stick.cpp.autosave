@@ -115,8 +115,6 @@ void stick::rotate(QPointF *point)
     //agisci sull'oggetto linea
     QPointF pBuf        = getP2(&myLine);
     //setta il pivot dello stick
-    //lineobject.setTransformOriginPoint(lineobject.line().p1());
-    //qDebug("X %f, Y %f", lineobject.line().p2().x(),lineobject.line().p2().y());
     //progettiamo lóffset degli stick figlio
     QPointF oldEndPos   = myLine.p2();
     // lo stick punta al cursore che lo trascina
@@ -124,8 +122,10 @@ void stick::rotate(QPointF *point)
     refresh(1);
     for(int i= 0; i<children.length();i++)
     {
+        // se non è uno stepchild oppure lo è ma stai ruotando uno stepchild a sua volta
         if( (children[i]->stepchild == false) || (this->stepchild == true && children[i]->stepchild == true)) // dall'altra estremità del master non spostare gli stick quando il master è ruotato
         {
+            //effettua la traslazione dovuta alla rotazione dell'estremo libero
             float DX = oldEndPos.x()-myLine.p2().x();
             float DY = oldEndPos.y()-myLine.p2().y();
             qDebug("DX %f, DY %f", DX,DY);
@@ -136,9 +136,12 @@ void stick::rotate(QPointF *point)
     }
 
 }
+// è stato rilasciato il mouse termina la rotazione
 void stick::endRotation()
 {
+    // refresha con l'opzione di ridimensionare i box
     refresh(0);
+    // anche per tutti i children
     for(int i= 0; i<children.length();i++)
     {
         children[i]->refresh(0);

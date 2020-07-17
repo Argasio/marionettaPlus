@@ -37,6 +37,7 @@ private:
     QPointF selectOrigin( QPointF * point);
     stick* parentBuffer = NULL;
     QGraphicsScene * myScene ;
+    bool selectingOrigin = false;
 
 };
 // to use QVariant in order to insert a stickfigure pointer into the widget list
