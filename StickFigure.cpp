@@ -144,9 +144,9 @@ QPointF StickFigure::selectOrigin( QPointF * point)
         if(QLineF(stickList[idx]->myLine.p2(),*point).length() >
                QLineF(stickList[idx]->myLine.p1(),*point).length() )
         {
-            return stickList[idx]->myLine.p1();
             // segnala che stiamo toccando l'orgine
             selectingOrigin = true;
+            return stickList[idx]->myLine.p1();
         }
         else{
             return stickList[idx]->myLine.p2();

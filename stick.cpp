@@ -39,14 +39,14 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
     }
     //Pen.setColor(Qt::red); //draw bounding box
-    if(this->master){ // il master ha entrambe le estremità disegnate
+    if(this->master || (stepchild && parent->master)){ // il master ha entrambe le estremità disegnate
         if(this->highlight)
             painter->setPen(QPen(Qt::green,10));
         else
             painter->setPen(QPen(Qt::darkGreen,10));
         painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
     }
-    else{
+    else {
         if(this->highlight)
             painter->setPen(QPen(Qt::red,10));
         else
