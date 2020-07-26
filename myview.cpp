@@ -18,6 +18,7 @@ myView::myView(QWidget *parent) : QGraphicsView(parent)
     myAnimation->scene = scene();
     setMouseTracking(true);
     myPen.setWidth(10);
+    myPen.setCapStyle(Qt::RoundCap);
 }
 
 void myView::setTool(int Tool)
@@ -29,46 +30,60 @@ StickFigure * myView::addStickFigure(QListWidgetItem* item)
 {
     StickFigure *S = myAnimation->currentFrame->addStickFigure(item);
     S->scene = this->scene();
-
+    return S;
 }
 
 void myView::deleteStickFigure()
 {
     if(myStickFigureWidgetList->selectedItems().count() == 1 && myAnimation->currentFrame->stickFigures.count()>1)
     {
+        //scegli lo stickfigure selzionato dalla lista grafica
         QListWidgetItem *current = myStickFigureWidgetList->selectedItems()[0];
+        // estrai il dato utente salvato in esso, puntatore ad uno stickfigure
         QVariant  retrievedData = (current->data(Qt::UserRole));
+        //riconverti il dato
         StickFigure* cs = qvariant_cast<StickFigure*>(retrievedData);
-        StickFigure* ns = myAnimation->currentFrame->removeStickFigure(cs);
+        
+        //distruggi l'oggetto della lista
         myStickFigureWidgetList->takeItem(myStickFigureWidgetList->row(current));
         delete current;
+        //rimuovilo dal frame e distruggilo
+        StickFigure* ns = myAnimation->currentFrame->removeStickFigure(cs);
+        // Ora controlliamo la nuova selezione non sia nulla e aggiorniamo la selezione
+        // dell'elenco del widget
         if(ns!=NULL)
         {
             myAnimation->updateSelection(ns);
+            myStickFigureWidgetList->clearSelection();
+            myStickFigureWidgetList->setItemSelected(ns->linkedItem,true);
         }
     }
     else{
 
     }
-}
 
+}
+//cambia l'ordine di profondità dello stickfigure selezionato
 void myView::moveStickFigureZ(int increment)
 {
     if(myStickFigureWidgetList->count()>0)
     {
-        myAnimation->currentFrame->currentStickFigure->baseZ+increment;
         myStickFigureWidgetList->clearSelection();
         int currentIndex = myStickFigureWidgetList->currentRow();
-        if(!(increment>0 && currentIndex == myStickFigureWidgetList->count()-1) && !(increment<0 && currentIndex == 0))
+        if(!(currentIndex+1 == myStickFigureWidgetList->count() && increment>0)||
+                !(currentIndex == 0 && increment<0))
         {
-            QListWidgetItem * item = myStickFigureWidgetList->takeItem(currentIndex);
-            myStickFigureWidgetList->insertItem(currentIndex+increment,item);
-            myStickFigureWidgetList->setItemSelected(item,true);
-
-            //myStickFigureWidgetList->setItemSelected(myAnimation->currentFrame->currentStickFigure->linkedItem,true);
+            myAnimation->currentFrame->currentStickFigure->baseZ+=increment;
+            myAnimation->currentFrame->currentStickFigure->updateZ();
+            if(!(increment>0 && currentIndex == myStickFigureWidgetList->count()-1) && !(increment<0 && currentIndex == 0))
+            {
+                //sposta nella lista grafica il layer dello stickfigure
+                QListWidgetItem * item = myStickFigureWidgetList->takeItem(currentIndex);
+                myStickFigureWidgetList->insertItem(currentIndex+increment,item);
+                myStickFigureWidgetList->setItemSelected(item,true);
+            }
         }
     }
-
 }
 void myView::mousePressEvent(QMouseEvent *event)
 {
@@ -87,8 +102,9 @@ void myView::mousePressEvent(QMouseEvent *event)
                 break;
             }
             case DRAW:
+            case DRAWCIRCLE:
             {
-                drawCmd(&coord);
+                drawCmd(&coord,(int)tool);
                 break;
             }
         }
@@ -108,16 +124,24 @@ void myView::keyPressEvent(QKeyEvent *event)
             {
                 stick *item = (stick*)scene()->selectedItems()[0];//oggetto selezionato nella scnea
                 int idx = myAnimation->frameBuffer->currentStickFigure->stickList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
+                // se si tratta dello stick master e ci sono altri stickfigure, cancella l'intero stickfigure
                 if(myAnimation->frameBuffer->currentStickFigure->stickList[idx]->master &&
                         myAnimation->frameBuffer->stickFigures.count()>1)
                 {
+                    //estrai dalla lista grafica l'elemento selezionato collegato allo stickfigure
                     QListWidgetItem * associatedItem = myAnimation->frameBuffer->currentStickFigure->linkedItem;
                     myStickFigureWidgetList->clearSelection();
                     myStickFigureWidgetList->setItemSelected(associatedItem,true);
+                    //cancella lo stickfigure
                     deleteStickFigure();
                 }
+                //altrimenti cancella il singolo stick e aggiorna l'iconea del livello
                 else
+                {
                     myAnimation->frameBuffer->currentStickFigure->deleteStick( idx);
+                    myAnimation->currentFrame->currentStickFigure->updateIcon();
+                    myStickFigureWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->currentStickFigure->stickFigureIcon);
+                }
                 // distruggi l'oggetto
                 qDebug("item deleted");
             }
@@ -128,6 +152,7 @@ void myView::keyPressEvent(QKeyEvent *event)
             switch(tool)
             {
                 case(DRAW):
+                case DRAWCIRCLE:
                 {
                     if(myAnimation->frameBuffer->currentStickFigure->drawCount==1)
                     {
@@ -147,12 +172,17 @@ void myView::keyPressEvent(QKeyEvent *event)
 // il disegno di una linea conta 2 click
 // il primo determina lo starting point
 // il secondo l'end point
-void myView::drawCmd(QPointF* point)
+void myView::drawCmd(QPointF* point, int mode)
 {
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
     {
         if(myAnimation->currentFrame->currentStickFigure->drawCount == 0){
             myAnimation->currentFrame->currentStickFigure->startDrawing(point);
+            // se stiamo usando il tool per generare cerchi cambiamo il tipo dello stick
+            if(mode == DRAWCIRCLE){
+                myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::CIRCLE;
+            }
+
             myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
             //aggiungi il nuovo elemento alla scena mediante puntatore dell'elemento linea dell'oggetto stick
            scene()->addItem(myAnimation->currentFrame->currentStickFigure->currentStick);
@@ -181,6 +211,7 @@ void myView::changeTool()
             break;
         }
         case(DRAW):
+        case(DRAWCIRCLE):
         {
             if(!myAnimation->currentFrame->stickFigures.isEmpty())
             {
@@ -207,7 +238,11 @@ void myView::mouseReleaseEvent(QMouseEvent *event)
     {
         if(myAnimation->currentFrame->currentStickFigure->stickList.count()>0)
         {
+            //termina una rotazione di stick al rilascio
             myAnimation->currentFrame->currentStickFigure->currentStick->endRotation();
+            myAnimation->currentFrame->currentStickFigure->updateIcon();
+            myStickFigureWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->currentStickFigure->stickFigureIcon);
+
         }
     }
     QGraphicsView::mouseReleaseEvent(event);
@@ -234,12 +269,14 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                     //qDebug("selected item %d", idx);
                     // Ora ruota lo stick
                     if(myAnimation->currentFrame->currentStickFigure->stickList.count()>0)
+
                         myAnimation->currentFrame->currentStickFigure->currentStick->rotate(&coord);
                 }
             }
             break;
         }
         case DRAW:
+        case DRAWCIRCLE:
         {
         // durante il disegno,l'estremo libero della linea segue il mouse
             if(myAnimation->currentFrame->currentStickFigure != NULL)

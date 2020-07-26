@@ -71,6 +71,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="drawCircleBtn">
+                <property name="text">
+                 <string>Draw Circle</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="addStickBtn">
                 <property name="text">
                  <string>Add StickFigure</string>
@@ -118,8 +125,8 @@
                 </property>
                 <property name="iconSize">
                  <size>
-                  <width>20</width>
-                  <height>20</height>
+                  <width>50</width>
+                  <height>50</height>
                  </size>
                 </property>
                </widget>

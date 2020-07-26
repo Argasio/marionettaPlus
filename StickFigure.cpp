@@ -8,10 +8,36 @@ StickFigure::~StickFigure()
     {
         scene->removeItem(s);
         delete s;
-
+    }
+    delete iconImg;
+    delete stickFigureIcon;
+}
+// questa funzione aggiorna l'iconea del livello
+void StickFigure::updateIcon()
+{
+    //crea una scena fittizia, falla bianca e delle stesse dimensioni di quella principale
+    QGraphicsScene icoScene;
+    iconImg->fill(Qt::white);
+    icoScene.setBackgroundBrush(QBrush(QColor(Qt::white)));
+    icoScene.setSceneRect(scene->sceneRect());
+    // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
+    QList<stick*> tempList;
+    for(stick* S: stickList){
+        stick* clone = new stick(S);
+        tempList.append(clone);
+        icoScene.addItem(clone);
+    }
+    // crea un painter che disegni sull'immagine
+    QPainter painter(iconImg);
+    // renderizza dalla scena sull'immagine mediante il painter
+    icoScene.render(&painter);
+    // imposta l'iconea
+    *stickFigureIcon = QIcon(*iconImg);
+    // cancella gli elementi costruiti
+    for(stick* S: tempList){
+        delete S;
     }
 }
-
 StickFigure::StickFigure(QListWidgetItem* item)
 {
     p0          =  QPointF(0,0);
@@ -20,6 +46,8 @@ StickFigure::StickFigure(QListWidgetItem* item)
     drawCount   =  0;
     masterStick =   NULL;
     linkedItem  = item;
+    stickFigureIcon = new QIcon();
+    iconImg         = new QPixmap(50,50);
 }
 
 //inizio disegno di una linea stick
@@ -31,15 +59,18 @@ void StickFigure::startDrawing(QPointF *point)
     }
     else //se ci sono altri stick in questo stickfigure i dalla estremità più vicinaz al click
     {
-        p0 = selectOrigin(point);
+        p0 = selectOrigin(point); //seleziona punto di origine
+        parentBuffer = stickList[selectStick(point)]; //seleziona genitore (potremmo già farlo al rigo precedente visto che la funzione viene chiamata)
     }
 
     //crea e alloca l'oggetto stick associato
     lineBuffer      = QLineF(p0,p0); // all'inizio la linea ha lunghezza zero
     stick *stk      = new stick(&lineBuffer);
+    //assegna l'ordine di profondità
     stk->Z = baseZ+stickList.count()/1000;
     stickBuffer     = stk;
     currentStick    = stk;
+    // seè il primo stick ad essere disegnato
     if(masterStick == NULL){
         masterStick = currentStick;
         masterStick->master = true;
@@ -69,18 +100,23 @@ void StickFigure::highlight(bool setting)
         s->refresh(0);
     }
 }
+void StickFigure::updateZ(void){
+    for(stick* S : stickList){
+        S->Z = baseZ;
+    }
+}
 void StickFigure::endDrawing(QPointF *point)
 {
     setLineFromPoint(point);
     drawCount = 0;                  //segnala la fine
     stickList.append(stickBuffer);  //disegno finito, aggiungilo alla lista
-    //itemList.append(stickBuffer->lineObj());
+    // assegna l'elemento padre
     stickBuffer->parent = parentBuffer;
     stickBuffer->refresh(0);
     // INSERISCILO COME FIGLIO DI TUTTA LA GERARCHIA PRECEDENTE
     while(parentBuffer){
         parentBuffer->children.append(stickBuffer);
-        if(selectingOrigin || parentBuffer->stepchild){ // the state of stepchild is inherited!
+        if(selectingOrigin || parentBuffer->stepchild){ // children of a stepchild is also a stepchild!
             stickBuffer->stepchild = true;
         }
         parentBuffer = parentBuffer->parent;
@@ -88,29 +124,35 @@ void StickFigure::endDrawing(QPointF *point)
 }
 void StickFigure::cancelDrawing()
 {
+    if(stickBuffer==masterStick)
+        masterStick = NULL;
     delete stickBuffer;
     lineBuffer  = QLineF();
     drawCount   = 0;
+
 }
 
 //scegli come origine lo stick più vicino al mouse fra gli stick dello stickfigure
 QPointF StickFigure::selectOrigin( QPointF * point)
 {
-    //return stickList[selectStick(point)]->myLine.p2();
-
+    //seleziona lo stick più vicino
     int idx = selectStick(point);
+    // se è il master stick
     if(stickList[idx] == masterStick)
     {
+        //controlla quale estremità è la più vicina e aseconda di quale essa sia restituisci il punto
         if(QLineF(stickList[idx]->myLine.p2(),*point).length() >
                QLineF(stickList[idx]->myLine.p1(),*point).length() )
         {
             return stickList[idx]->myLine.p1();
+            // segnala che stiamo toccando l'orgine
             selectingOrigin = true;
         }
         else{
             return stickList[idx]->myLine.p2();
         }
     }
+    // se non è il master stick ignora P1
     else{
         stickList[idx]->myLine.p2();
         return stickList[idx]->myLine.p2();
@@ -144,13 +186,13 @@ int StickFigure::selectStick( QPointF * point)
         else if(QLineF(pBuf1,*point).length()<= minDist && stickList[idx]->master)
         {
             parentBuffer    = stickList[idx];
-            //chosenIdx = idx;
             selectingOrigin = true;
         }
         idx++;
     }
     return chosenIdx;
 }
+// delete selected stick and all its children, if this is the master stick delete everything
 void StickFigure::deleteStick(int idx)
 {
     stick *selectedStick        = stickList[idx];   //oggetto stick che contiene l'oggetto grafico
@@ -169,13 +211,14 @@ void StickFigure::deleteStick(int idx)
         {
             int removefromparentIdx = parent->children.indexOf(childStick);
             parent->children.removeAt(removefromparentIdx);
-            parent = parent->parent;
+            parent = parent->parent; // update parent pointer
         }
         delete childStick;
         parentBuffer = NULL;
     }
-    // rimuovi lo stick selezionato dalla lista dei suoi genitori
+    // epura lo stick dalla lista sticklist
     stickList.removeAt(idx);
+    // rimuovi lo stick selezionato dalla lista dei suoi genitori
     stick * parent = selectedStick->parent;
     while(parent != NULL)
     {
@@ -183,8 +226,8 @@ void StickFigure::deleteStick(int idx)
         parent->children.removeAt(removefromparentIdx);
         parent                  = parent->parent;
     }
-    delete selectedStick;
-    lineBuffer = QLineF();
+    delete selectedStick; // distruggi l'oggetto
+    lineBuffer = QLineF(); // svuota linebuffer
 
 }
 

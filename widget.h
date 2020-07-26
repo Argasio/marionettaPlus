@@ -34,6 +34,8 @@ private slots:
 
     void on_moveLayerDownBtn_clicked();
 
+    void on_drawCircleBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };

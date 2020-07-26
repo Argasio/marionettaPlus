@@ -13,6 +13,7 @@ public:
     stick *selectStick(QPointF point);
     stick *selectStick(StickFigure* S);
     StickFigure* removeStickFigure(StickFigure* toRemove);
+    QIcon* frameIcon;
 };
 
 #endif // FRAME_H

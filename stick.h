@@ -9,11 +9,16 @@ class stick:public QGraphicsItem
 {
 
 public:
+    enum stickType{
+        LINE = 0,
+        CIRCLE = 1
+    };
     stick(QLineF *line);
     void setLine(QLineF* line);
     void rotate(QPointF* point);
     stick * parent;
     QList<stick*> children;
+    int type = stickType::LINE;
     ~stick();
     QLineF myLine;
     QPointF getP2(QLineF* line);
@@ -22,13 +27,14 @@ public:
     QRectF br;
     void refresh(int mode);
     void endRotation();
-    bool master;
+    bool master = false;
     QPen Pen;
     qreal Z;
-    bool highlight;
-    bool stepchild;
+    bool highlight = false;
+    bool stepchild = false;
     //StickFigure* myStickFigure;
     //int parent;
+    stick(stick *S);
 private:
     float angleBuffer;
     QRectF updateBr(int mode);

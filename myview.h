@@ -10,6 +10,7 @@
 #include <StickFigure.h>
 #include <animation.h>
 #define DRAW 5
+#define DRAWCIRCLE 6
 #define NOTOOL 4
 
 class myView : public QGraphicsView
@@ -33,7 +34,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event) override;
     virtual void keyPressEvent(QKeyEvent *event) override;
 private:
-    void drawCmd(QPointF* point);
+    void drawCmd(QPointF* point, int mode);
     void rotate(QGraphicsLineItem* item);
     void updateRotationBuffer();
     void changeTool();

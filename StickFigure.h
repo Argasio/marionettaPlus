@@ -29,6 +29,10 @@ public:
     void highlight(bool setting);
     QListWidgetItem* linkedItem;
     QGraphicsScene * scene;
+    void updateZ();
+    QIcon*stickFigureIcon;
+    QPixmap * iconImg;
+    void updateIcon();
 private:
 
     QPointF p0;

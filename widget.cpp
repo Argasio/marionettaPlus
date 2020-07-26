@@ -63,6 +63,7 @@ void Widget::on_addStickBtn_clicked()
     QVariant newData(QVariant::fromValue(addedStickFigure));
     addedItem->setData(Qt::UserRole,newData);
     addedItem->setData(Qt::DisplayRole,name);
+    addedItem->setIcon(*addedStickFigure->stickFigureIcon);
     view->myAnimation->updateSelection(addedStickFigure);
     ui->stickLayerView->clearSelection();
     ui->stickLayerView->setItemSelected(addedItem, true);
@@ -102,4 +103,9 @@ void Widget::on_moveLayerUpBtn_clicked()
 void Widget::on_moveLayerDownBtn_clicked()
 {
     view->moveStickFigureZ(-1);
+}
+
+void Widget::on_drawCircleBtn_clicked()
+{
+    view->setTool(DRAWCIRCLE);
 }
