@@ -337,6 +337,7 @@ QDataStream &operator>>(QDataStream & myStream,  StickFigure* myStickFigure)
     }
     return myStream;
 }
+/*
 void StickFigure::deSerialize(QDataStream * myStream)
 {
 
@@ -347,4 +348,4 @@ void StickFigure::deSerialize(QDataStream * myStream)
            this->masterStick = newAdd;
        }
     }
-}
+}*/

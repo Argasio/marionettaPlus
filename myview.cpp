@@ -295,5 +295,33 @@ void myView::mouseMoveEvent(QMouseEvent *event)
     }
     QGraphicsView::mouseMoveEvent(event);
 }
+// Per serializzare le classi Qt occorre dichiarare gli operatori di overload per la serializzazione
+QDataStream &operator<<(QDataStream &, const stick&);
+QDataStream &operator>>(QDataStream &, stick&);
 
+void myView::saveStickFigure(QString name){
+    QFile file(name);
+    if(!file.open(QIODevice::WriteOnly))
+        return;
+    QDataStream dataStream(&file);
+    QByteArray read;
+    myAnimation->currentFrame->currentStickFigure->serialize(&dataStream);
+    //dataStream<<*(myAnimation->currentFrame->currentStickFigure->stickList[0]);
+    //read = reinterpret_cast<QByteArray>(*myAnimation->currentFrame->currentStickFigure)
+    //dataStream<<
+    file.close();
+}
 
+StickFigure* myView::loadStickFigure(QString Name)
+{
+    QFile file(Name);
+    if(!file.open(QIODevice::ReadOnly))
+        return NULL;
+    QDataStream dataStream(&file);
+    myAnimation->currentFrame->currentStickFigure->deSerialize(&dataStream);
+    //QByteArray *read = new QByteArray();
+    //dataStream>>*read;
+    //StickFigure *loaded = reinterpret_cast<StickFigure*>(read);
+    file.close();
+    return myAnimation->currentFrame->currentStickFigure;
+}

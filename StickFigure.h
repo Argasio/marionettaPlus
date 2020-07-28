@@ -33,6 +33,10 @@ public:
     QIcon*stickFigureIcon;
     QPixmap * iconImg;
     void updateIcon();
+    void copyData(StickFigure *toCopy);
+    void serialize(QDataStream *myStream);
+    void deSerialize(QDataStream *myStream);
+
 private:
 
     QPointF p0;
@@ -44,6 +48,13 @@ private:
     bool selectingOrigin = false;
 
 };
+QDataStream &operator<<(QDataStream & myStream, const StickFigure* myStickFigure);
+QDataStream &operator>>(QDataStream & myStream,  StickFigure* myStickFigure);
+QDataStream &operator>>(QDataStream & myStream, const QList<stick*> mySticks);
+QDataStream &operator<<(QDataStream & myStream, const QList<stick*>& mySticks);
+QDataStream &operator>>(QDataStream & myStream, stick& myStick);
+QDataStream &operator<<(QDataStream & myStream, const stick& myStick);
+
 // to use QVariant in order to insert a stickfigure pointer into the widget list
 Q_DECLARE_METATYPE(StickFigure*)
 #endif // StickFigure_H

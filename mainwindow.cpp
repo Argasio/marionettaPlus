@@ -1,3 +1,6 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <widget.h>
 #include "widget.h"
 #include "ui_widget.h"
 #include <QGraphicsRectItem>
@@ -7,6 +10,7 @@
 #include <frame.h>
 #include <animation.h>
 #include <QPen>
+#include <QFileDialog>
 #include <QIcon>
 #include <QVariant>
 #include <QDebug>
@@ -15,9 +19,9 @@ QGraphicsScene *scene;
 myView *view;
 QList <StickFigure*> layerList;
 QListWidget * myStickFigureWidgetList;
-Widget::Widget(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::Widget)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     //crea la scena virtuale
@@ -36,23 +40,31 @@ Widget::Widget(QWidget *parent)
 
 }
 
-Widget::~Widget()
+MainWindow::~MainWindow()
 {
     delete ui;
 }
 
 
-void Widget::on_drawBtn_clicked()
+
+
+void MainWindow::on_drawBtn_released()
+{
+    static int i = 0;
+    i++;
+}
+
+void MainWindow::on_drawBtn_clicked()
 {
     view->setTool(DRAW);
 }
 
-void Widget::on_cursor_clicked()
+void MainWindow::on_cursor_clicked()
 {
     view->setTool(NOTOOL);
 }
 
-void Widget::on_addStickBtn_clicked()
+void MainWindow::on_addStickBtn_clicked()
 {
     static unsigned int intName = 0;
     intName++;
@@ -69,12 +81,12 @@ void Widget::on_addStickBtn_clicked()
     ui->stickLayerView->setItemSelected(addedItem, true);
 }
 
-void Widget::on_thicknessSpinBox_valueChanged(int arg1)
+void MainWindow::on_thicknessSpinBox_valueChanged(int arg1)
 {
     myPen.setWidth(arg1);
 }
 
-void Widget::on_stickLayerView_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+void MainWindow::on_stickLayerView_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
     if(current != nullptr)
     {
@@ -85,28 +97,44 @@ void Widget::on_stickLayerView_currentItemChanged(QListWidgetItem *current, QLis
     }
 }
 
-void Widget::on_stickLayerView_itemClicked(QListWidgetItem *item)
+void MainWindow::on_stickLayerView_itemClicked(QListWidgetItem *item)
 {
 
 }
 
-void Widget::on_deleteStickFigureBtn_clicked()
+void MainWindow::on_deleteStickFigureBtn_clicked()
 {
     view->deleteStickFigure();
 }
 
-void Widget::on_moveLayerUpBtn_clicked()
+void MainWindow::on_moveLayerUpBtn_clicked()
 {
     view->moveStickFigureZ(1);
 }
 
-void Widget::on_moveLayerDownBtn_clicked()
+void MainWindow::on_moveLayerDownBtn_clicked()
 {
     view->moveStickFigureZ(-1);
 }
 
-void Widget::on_drawCircleBtn_clicked()
+void MainWindow::on_drawCircleBtn_clicked()
 {
     view->setTool(DRAWCIRCLE);
 }
 
+void MainWindow::on_actionsave_stickfigure_triggered()
+{
+    QString fileName = "";
+    fileName = QFileDialog::getSaveFileName(this,"save StickFigure","C://",tr("Marionetta (*.mar)"));
+    view->saveStickFigure(fileName);
+}
+
+void MainWindow::on_actionopen_stickfigure_triggered()
+{
+    QString fileName = "";
+    fileName = QFileDialog::getOpenFileName(this,"load StickFigure","C://",tr("Marionetta (*.mar)"));
+    on_addStickBtn_clicked();
+    view->loadStickFigure(fileName);
+
+
+}

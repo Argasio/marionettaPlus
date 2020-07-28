@@ -24,6 +24,8 @@ public:
     Animation * myAnimation;
     void deleteStickFigure();
     void moveStickFigureZ(int increment);
+    void saveStickFigure(QString name);
+    StickFigure* loadStickFigure(QString Name);
 signals:
 
 
