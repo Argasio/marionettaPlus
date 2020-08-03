@@ -33,15 +33,16 @@ public:
     QIcon*stickFigureIcon;
     QPixmap * iconImg;
     void updateIcon();
+    bool selectingOrigin = false;
 private:
 
     QPointF p0;
     QPointF p1;
     stick* stickBuffer;
     QPointF selectOrigin( QPointF * point);
-    stick* parentBuffer = NULL;
+    stick* parentBuffer = nullptr;
     QGraphicsScene * myScene ;
-    bool selectingOrigin = false;
+
 
 };
 // to use QVariant in order to insert a stickfigure pointer into the widget list

@@ -1,11 +1,12 @@
 #include "widget.h"
-
 #include <QApplication>
-
+#include "mymainwindow.h"
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Widget w;
+    myMainWindow w;
+    Widget* myW = new Widget();
+    w.setCentralWidget(myW);
     w.show();
     return a.exec();
 }

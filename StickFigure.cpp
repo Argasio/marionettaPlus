@@ -44,10 +44,11 @@ StickFigure::StickFigure(QListWidgetItem* item)
     p1          =  QPointF(0,0);
     lineBuffer  =  QLineF(p0,p1);
     drawCount   =  0;
-    masterStick =   NULL;
+    masterStick =   nullptr;
     linkedItem  = item;
     stickFigureIcon = new QIcon();
     iconImg         = new QPixmap(50,50);
+    masterStick = nullptr;
 }
 
 //inizio disegno di una linea stick
@@ -71,9 +72,10 @@ void StickFigure::startDrawing(QPointF *point)
     stickBuffer     = stk;
     currentStick    = stk;
     // seè il primo stick ad essere disegnato
-    if(masterStick == NULL){
+    if(masterStick == nullptr){
         masterStick = currentStick;
         masterStick->master = true;
+        masterStick->parent = nullptr;
     }
     drawCount       = 1; // segnala che un disegno è in atto
     stickBuffer->refresh(0);
@@ -125,7 +127,7 @@ void StickFigure::endDrawing(QPointF *point)
 void StickFigure::cancelDrawing()
 {
     if(stickBuffer==masterStick)
-        masterStick = NULL;
+        masterStick = nullptr;
     delete stickBuffer;
     lineBuffer  = QLineF();
     drawCount   = 0;
@@ -144,9 +146,10 @@ QPointF StickFigure::selectOrigin( QPointF * point)
         if(QLineF(stickList[idx]->myLine.p2(),*point).length() >
                QLineF(stickList[idx]->myLine.p1(),*point).length() )
         {
-            return stickList[idx]->myLine.p1();
             // segnala che stiamo toccando l'orgine
             selectingOrigin = true;
+            return stickList[idx]->myLine.p1();
+
         }
         else{
             return stickList[idx]->myLine.p2();
@@ -162,7 +165,7 @@ int StickFigure::selectStick( QPointF * point)
 {
     int idx         = 0;
     float  minDist  = 0;
-    parentBuffer    = NULL;
+    //parentBuffer    = nullptr;
     int chosenIdx = 0;
     QPointF pBuf1,pBuf2,pBufOut;
     //inizializziamo a partire dall'origine del masterStick
@@ -179,13 +182,13 @@ int StickFigure::selectStick( QPointF * point)
             // quello è l'origine
             pBufOut         = pBuf2;
             minDist         = QLineF(pBuf2,*point).length();
-            parentBuffer    = stickList[idx];
+            //parentBuffer    = stickList[idx];
             chosenIdx = idx;
             selectingOrigin = false;
         }
         else if(QLineF(pBuf1,*point).length()<= minDist && stickList[idx]->master)
         {
-            parentBuffer    = stickList[idx];
+            //parentBuffer    = stickList[idx];
             selectingOrigin = true;
         }
         idx++;
@@ -198,7 +201,7 @@ void StickFigure::deleteStick(int idx)
     stick *selectedStick        = stickList[idx];   //oggetto stick che contiene l'oggetto grafico
     scene->removeItem(stickList[idx]); //rimuovi l'oggetto dalla scena
     if(stickList[idx]->master)
-        this->masterStick = NULL;
+        this->masterStick = nullptr;
     //per ogni figlio dell'oggetto, rimuovi gli oggetti dalla scena e cancellali
     for(stick * s : selectedStick->children){
         int childIndex          = stickList.indexOf(s);
@@ -207,20 +210,20 @@ void StickFigure::deleteStick(int idx)
         stickList.removeAt(childIndex);
         stick * parent          = selectedStick->parent;
         // rimuovi a ritroso ciascuno stick figlio di quello selezionato dalle listte figli di tutti gli altri sitck presenti genitori di esso
-        while(parent != NULL )
+        while(parent != nullptr )
         {
             int removefromparentIdx = parent->children.indexOf(childStick);
             parent->children.removeAt(removefromparentIdx);
             parent = parent->parent; // update parent pointer
         }
         delete childStick;
-        parentBuffer = NULL;
+        parentBuffer = nullptr;
     }
     // epura lo stick dalla lista sticklist
     stickList.removeAt(idx);
     // rimuovi lo stick selezionato dalla lista dei suoi genitori
     stick * parent = selectedStick->parent;
-    while(parent != NULL)
+    while(parent != nullptr)
     {
         int removefromparentIdx = parent->children.indexOf(selectedStick);
         parent->children.removeAt(removefromparentIdx);

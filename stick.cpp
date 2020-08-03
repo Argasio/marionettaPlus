@@ -10,6 +10,7 @@ stick::stick(QLineF *line)
     highlight = true;
     setLine(line);
     stepchild = false;
+
 }
 stick::stick(stick* S)
 {
@@ -46,12 +47,19 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
             painter->setPen(QPen(Qt::darkGreen,10));
         painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
     }
-    else{
-        if(this->highlight)
+    else if(this->parent != nullptr){
+        if(this->highlight){
             painter->setPen(QPen(Qt::red,10));
-        else
+            if(this->stepchild && this->parent->master)
+                painter->setPen(QPen(Qt::green,10));
+        }
+        else{
             painter->setPen(QPen(Qt::blue,10));
-        painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
+            if(this->stepchild && this->parent->master)
+                painter->setPen(QPen(Qt::darkGreen,10));
+        }
+        //if(this->parent->master == false)
+            painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
     }
     if(this->highlight)
         painter->setPen(QPen(Qt::red,10));

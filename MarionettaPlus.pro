@@ -20,6 +20,8 @@ SOURCES += \
     animation.cpp \
     frame.cpp \
     main.cpp \
+    mainwindow.cpp \
+    mymainwindow.cpp \
     myrect.cpp \
     myview.cpp \
     stick.cpp \
@@ -29,6 +31,8 @@ HEADERS += \
     StickFigure.h \
     animation.h \
     frame.h \
+    mainwindow.h \
+    mymainwindow.h \
     myrect.h \
     myview.h \
     stick.h \
@@ -36,6 +40,8 @@ HEADERS += \
     widget.h
 
 FORMS += \
+    mainwindow.ui \
+    mymainwindow.ui \
     widget.ui
 
 # Default rules for deployment.

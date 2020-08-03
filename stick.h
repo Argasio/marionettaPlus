@@ -16,7 +16,7 @@ public:
     stick(QLineF *line);
     void setLine(QLineF* line);
     void rotate(QPointF* point);
-    stick * parent;
+    stick * parent = nullptr;
     QList<stick*> children;
     int type = stickType::LINE;
     ~stick();

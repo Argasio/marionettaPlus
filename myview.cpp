@@ -51,7 +51,7 @@ void myView::deleteStickFigure()
         StickFigure* ns = myAnimation->currentFrame->removeStickFigure(cs);
         // Ora controlliamo la nuova selezione non sia nulla e aggiorniamo la selezione
         // dell'elenco del widget
-        if(ns!=NULL)
+        if(ns!=NULL && ns!=nullptr)
         {
             myAnimation->updateSelection(ns);
             myStickFigureWidgetList->clearSelection();
@@ -279,7 +279,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         case DRAWCIRCLE:
         {
         // durante il disegno,l'estremo libero della linea segue il mouse
-            if(myAnimation->currentFrame->currentStickFigure != NULL)
+            if(myAnimation->currentFrame->currentStickFigure != NULL && myAnimation->currentFrame->currentStickFigure != nullptr)
             {
                 if(myAnimation->frameBuffer->currentStickFigure->drawCount > 0)
                 {
