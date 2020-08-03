@@ -12,6 +12,11 @@ stick::stick(QLineF *line)
     stepchild = false;
 
 }
+stick::stick()
+{
+    this->setFlag(QGraphicsItem::ItemIsSelectable,true);
+    Pen = QPen();
+}
 stick::stick(stick* S)
 {
     this->setFlag(QGraphicsItem::ItemIsSelectable,true);

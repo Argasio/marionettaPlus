@@ -18,7 +18,9 @@ public:
     void  returnLine();
     void  cancelDrawing();
     void deleteStick(int idx);
+    void saveStickFigure(QString name);
     int drawCount;
+    int stickNum = 0;
     int selectStick( QPointF * point);
     QList<stick*>stickList;
     void setLineFromPoint(QPointF *point);
@@ -34,6 +36,7 @@ public:
     QPixmap * iconImg;
     void updateIcon();
     bool selectingOrigin = false;
+    void loadStickFigure(QString name);
 private:
 
     QPointF p0;

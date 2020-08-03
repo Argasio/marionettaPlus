@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QListWidget>
+#include "myview.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
@@ -14,13 +15,14 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
-
+    myView *view;
+    void on_addStickBtn_clicked();
 private slots:
     void on_drawBtn_clicked();
 
     void on_cursor_clicked();
 
-    void on_addStickBtn_clicked();
+
 
     void on_thicknessSpinBox_valueChanged(int arg1);
 

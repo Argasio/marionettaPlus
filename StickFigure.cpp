@@ -1,4 +1,6 @@
 #include "StickFigure.h"
+
+#include <QFile>
 // StickFigure work in the one active scene
 
 
@@ -165,7 +167,6 @@ int StickFigure::selectStick( QPointF * point)
 {
     int idx         = 0;
     float  minDist  = 0;
-    //parentBuffer    = nullptr;
     int chosenIdx = 0;
     QPointF pBuf1,pBuf2,pBufOut;
     //inizializziamo a partire dall'origine del masterStick
@@ -182,13 +183,11 @@ int StickFigure::selectStick( QPointF * point)
             // quello è l'origine
             pBufOut         = pBuf2;
             minDist         = QLineF(pBuf2,*point).length();
-            //parentBuffer    = stickList[idx];
             chosenIdx = idx;
             selectingOrigin = false;
         }
         else if(QLineF(pBuf1,*point).length()<= minDist && stickList[idx]->master)
         {
-            //parentBuffer    = stickList[idx];
             selectingOrigin = true;
         }
         idx++;
@@ -198,7 +197,7 @@ int StickFigure::selectStick( QPointF * point)
 // delete selected stick and all its children, if this is the master stick delete everything
 void StickFigure::deleteStick(int idx)
 {
-    stick *selectedStick        = stickList[idx];   //oggetto stick che contiene l'oggetto grafico
+    stick *selectedStick = stickList[idx];   //oggetto stick che contiene l'oggetto grafico
     scene->removeItem(stickList[idx]); //rimuovi l'oggetto dalla scena
     if(stickList[idx]->master)
         this->masterStick = nullptr;
@@ -233,5 +232,97 @@ void StickFigure::deleteStick(int idx)
     lineBuffer = QLineF(); // svuota linebuffer
 
 }
+QDataStream & operator<< (QDataStream& stream, const stick& myStick){
+    stream<<myStick.Z;
+    stream<<myStick.type;
+    stream<<myStick.stepchild;
+    stream<<myStick.myLine;
+    stream<<myStick.parentIdx;
+    stream<<myStick.Pen;
+    stream<<myStick.master;
+    return stream;
+}
+QDataStream & operator>> (QDataStream& stream, stick& myStick){
+    stream>>myStick.Z;
+    stream>>myStick.type;
+    stream>>myStick.stepchild;
+    stream>>myStick.myLine;
+    stream>>myStick.parentIdx;
+    stream>>myStick.Pen;
+    stream>>myStick.master;
+    return stream;
+}
+QDataStream & operator<< (QDataStream& stream, const StickFigure& myStickFigure){
+    stream<<myStickFigure.stickNum;
+    for(stick* s:myStickFigure.stickList){
+        if(!s->master)
+        {
+            s->parentIdx = myStickFigure.stickList.indexOf(s->parent);
+        }
+        else{
+            s->parentIdx = -1;
+        }
+        stream<<*s;
+    }
 
+}
+QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
 
+    int max = 0;
+    stream>>max;
+    myStickFigure.stickList.clear();
+
+    for(int i = 0; i<max; i++){
+        myStickFigure.currentStick = new stick();
+        myStickFigure.stickList.append(myStickFigure.currentStick);
+        stream>>*myStickFigure.currentStick;
+    }
+    for(stick * s:myStickFigure.stickList){
+        if(s->parentIdx>=0){
+
+            s->parent = myStickFigure.stickList[s->parentIdx];
+            stick * currentParent = s->parent;
+            while(currentParent != nullptr){
+                currentParent->children.append(s);
+                if(currentParent->parentIdx>= 0 )
+                    currentParent = myStickFigure.stickList[currentParent->parentIdx];
+                else
+                    break;
+            }
+        }
+        else{
+            s->parent = nullptr;
+        }
+        if(s->master)
+            myStickFigure.masterStick = s;
+        myStickFigure.scene->addItem(s);
+        s->refresh(0);
+    }
+    myStickFigure.currentStick = myStickFigure.stickList[0];
+    myStickFigure.updateIcon();
+    return stream;
+}
+void StickFigure::saveStickFigure(QString name)
+{
+    this->stickNum = stickList.count();
+    QFile file(name);
+    if(!file.open(QIODevice::WriteOnly))
+        return;
+    QDataStream out(&file);
+    out << *this;
+    file.close();
+}
+void StickFigure::loadStickFigure(QString name)
+{
+
+    QFile file(name);
+    if(!file.open(QIODevice::ReadOnly))
+        return;
+    QDataStream out(&file);
+    out >> *this;
+
+    file.close();
+
+}
+
+QDataStream & operator>> (QDataStream& stream, stick& myStick);

@@ -8,5 +8,7 @@ int main(int argc, char *argv[])
     Widget* myW = new Widget();
     w.setCentralWidget(myW);
     w.show();
+    w.view = myW->view;
+    w.centralW = myW;
     return a.exec();
 }

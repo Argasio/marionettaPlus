@@ -3,7 +3,6 @@
 #include <QGraphicsRectItem>
 #include <QGraphicsView>
 #include <QGraphicsScene>
-#include "myview.h"
 #include <frame.h>
 #include <animation.h>
 #include <QPen>
@@ -11,7 +10,7 @@
 #include <QVariant>
 #include <QDebug>
 QGraphicsScene *scene;
-myView *view;
+
 QList <StickFigure*> layerList;
 QListWidget * myStickFigureWidgetList;
 Widget::Widget(QWidget *parent)

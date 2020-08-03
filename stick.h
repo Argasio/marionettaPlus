@@ -33,8 +33,9 @@ public:
     bool highlight = false;
     bool stepchild = false;
     //StickFigure* myStickFigure;
-    //int parent;
+    int parentIdx = 0;
     stick(stick *S);
+    stick();
 private:
     float angleBuffer;
     QRectF updateBr(int mode);
