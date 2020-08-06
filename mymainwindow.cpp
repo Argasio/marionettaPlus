@@ -24,11 +24,12 @@ void myMainWindow::on_actionsave_triggered()
 
 void myMainWindow::on_actionload_triggered()
 {
+    view->myAnimation->storeUndo();
     QString filename = QFileDialog::getOpenFileName(this,tr("Load StickFigure"),
                        "C:/", "Stickfigure (*.stck)");
     if(filename.length()>0){
         QDataStream myStream;
-        centralW->on_addStickBtn_clicked();
+        centralW->addStick();
         view->myAnimation->currentFrame->currentStickFigure->loadStickFigure(filename);
     }
 }

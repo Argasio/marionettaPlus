@@ -16,13 +16,17 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
     myView *view;
-    void on_addStickBtn_clicked();
+
+    void addStick();
+    void addFrame();
+    void copyFrame(QDataStream &stream, Frame *destination);
+    Frame *setUpFrame();
 private slots:
     void on_drawBtn_clicked();
 
     void on_cursor_clicked();
 
-
+    void on_addStickBtn_clicked();
 
     void on_thicknessSpinBox_valueChanged(int arg1);
 
@@ -37,6 +41,20 @@ private slots:
     void on_moveLayerDownBtn_clicked();
 
     void on_drawCircleBtn_clicked();
+
+    void on_chooseColorBtn_clicked();
+
+    void on_undoBtn_clicked();
+
+    void on_redoBtn_clicked();
+
+    void on_addFrameBtn_clicked();
+
+    void on_frameListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+
+    void on_copyFrame_clicked();
+
+    void on_onionSkinSpinBox_valueChanged(const QString &arg1);
 
 private:
     Ui::Widget *ui;

@@ -12,7 +12,8 @@ class StickFigure
 public:
     ~StickFigure();
     StickFigure(QListWidgetItem* item);
-    void  startDrawing(QPointF* point);
+    StickFigure();
+    void  startDrawing(QPointF* point, QPen pen);
     void  previewDrawing(QPointF* point);
     void  endDrawing(QPointF* point);
     void  returnLine();
@@ -34,9 +35,12 @@ public:
     void updateZ();
     QIcon*stickFigureIcon;
     QPixmap * iconImg;
+    QString name;
     void updateIcon();
     bool selectingOrigin = false;
     void loadStickFigure(QString name);
+    void refresh();
+
 private:
 
     QPointF p0;
@@ -50,4 +54,6 @@ private:
 };
 // to use QVariant in order to insert a stickfigure pointer into the widget list
 Q_DECLARE_METATYPE(StickFigure*)
+QDataStream &operator<<(QDataStream& stream, const StickFigure& myStickFigure);
+QDataStream &operator>>(QDataStream& stream,StickFigure& myStickFigure);
 #endif // StickFigure_H

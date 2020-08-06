@@ -1,5 +1,6 @@
 #include "StickFigure.h"
 
+#include <QDebug>
 #include <QFile>
 // StickFigure work in the one active scene
 
@@ -35,6 +36,7 @@ void StickFigure::updateIcon()
     icoScene.render(&painter);
     // imposta l'iconea
     *stickFigureIcon = QIcon(*iconImg);
+    linkedItem->setIcon(*stickFigureIcon);
     // cancella gli elementi costruiti
     for(stick* S: tempList){
         delete S;
@@ -52,9 +54,19 @@ StickFigure::StickFigure(QListWidgetItem* item)
     iconImg         = new QPixmap(50,50);
     masterStick = nullptr;
 }
-
+StickFigure::StickFigure()
+{
+    p0          =  QPointF(0,0);
+    p1          =  QPointF(0,0);
+    lineBuffer  =  QLineF(p0,p1);
+    drawCount   =  0;
+    masterStick =   nullptr;
+    stickFigureIcon = new QIcon();
+    iconImg         = new QPixmap(50,50);
+    masterStick = nullptr;
+}
 //inizio disegno di una linea stick
-void StickFigure::startDrawing(QPointF *point)
+void StickFigure::startDrawing(QPointF *point, QPen pen)
 {
     if(stickList.isEmpty()) // se è il primo stick dello stickfigure
     {
@@ -80,6 +92,7 @@ void StickFigure::startDrawing(QPointF *point)
         masterStick->parent = nullptr;
     }
     drawCount       = 1; // segnala che un disegno è in atto
+    stickBuffer->Pen = pen;
     stickBuffer->refresh(0);
 }
 // aggiorna uno stick il cui disegno è già avviato
@@ -88,6 +101,13 @@ void StickFigure::previewDrawing(QPointF *point)
     setLineFromPoint(point);
     stickBuffer->refresh(1);
 }
+void StickFigure::refresh()
+{
+    for(stick* s:stickList){
+        s->refresh(0);
+    }
+}
+
 void StickFigure::setLineFromPoint(QPointF *point)
 {
     p1              = *point;
@@ -232,8 +252,9 @@ void StickFigure::deleteStick(int idx)
     lineBuffer = QLineF(); // svuota linebuffer
 
 }
+// serializzatori e deserializzatori della classe stick
 QDataStream & operator<< (QDataStream& stream, const stick& myStick){
-    stream<<myStick.Z;
+    //stream<<myStick.Z;
     stream<<myStick.type;
     stream<<myStick.stepchild;
     stream<<myStick.myLine;
@@ -243,7 +264,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     return stream;
 }
 QDataStream & operator>> (QDataStream& stream, stick& myStick){
-    stream>>myStick.Z;
+    //stream>>myStick.Z;
     stream>>myStick.type;
     stream>>myStick.stepchild;
     stream>>myStick.myLine;
@@ -252,8 +273,13 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.master;
     return stream;
 }
+// serializzatore per stickfigure
 QDataStream & operator<< (QDataStream& stream, const StickFigure& myStickFigure){
-    stream<<myStickFigure.stickNum;
+    // per prima cosa registra il numero di stick che lo compongono
+
+    stream<<myStickFigure.stickList.count();
+    stream<<myStickFigure.name;
+    // per ogni stick nella lista scrivi l'indice del genitore e poi serializza il tutto
     for(stick* s:myStickFigure.stickList){
         if(!s->master)
         {
@@ -266,31 +292,36 @@ QDataStream & operator<< (QDataStream& stream, const StickFigure& myStickFigure)
     }
 
 }
+// deserializza lo stickfigure
 QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
 
     int max = 0;
-    stream>>max;
+    stream>>max; // quanti stick possiede?
+    stream>>myStickFigure.name;
     myStickFigure.stickList.clear();
-
+    // per ogni stick popola la lista sticklist
     for(int i = 0; i<max; i++){
-        myStickFigure.currentStick = new stick();
+        myStickFigure.currentStick = new stick(); // prepara il contenitore
         myStickFigure.stickList.append(myStickFigure.currentStick);
-        stream>>*myStickFigure.currentStick;
+        stream>>*myStickFigure.currentStick; // "idrata il contenitore" con i dati nel file
+        myStickFigure.currentStick->Z = myStickFigure.baseZ+i*0.001;
     }
+    // ricostruisci le gerarchie di parentela tramite gli indici
     for(stick * s:myStickFigure.stickList){
         if(s->parentIdx>=0){
-
+            // trova il genitore e aggiungi alla lista dei figli del genitore lo stick corrente
             s->parent = myStickFigure.stickList[s->parentIdx];
             stick * currentParent = s->parent;
+            // procedi a ritroso per i genitori del genitore
             while(currentParent != nullptr){
                 currentParent->children.append(s);
                 if(currentParent->parentIdx>= 0 )
                     currentParent = myStickFigure.stickList[currentParent->parentIdx];
-                else
+                else // arrivati allo stickmaster vai al prossimo
                     break;
             }
         }
-        else{
+        else{ // se stiamo considerando lo stickmaster
             s->parent = nullptr;
         }
         if(s->master)
@@ -298,13 +329,15 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         myStickFigure.scene->addItem(s);
         s->refresh(0);
     }
-    myStickFigure.currentStick = myStickFigure.stickList[0];
+    if(myStickFigure.stickList.count()>0)
+        myStickFigure.currentStick = myStickFigure.stickList[0];
     myStickFigure.updateIcon();
     return stream;
 }
+// salva sul percorso impostato i dati serializzati dello stickfigure usando il datastream
 void StickFigure::saveStickFigure(QString name)
 {
-    this->stickNum = stickList.count();
+
     QFile file(name);
     if(!file.open(QIODevice::WriteOnly))
         return;
@@ -312,6 +345,8 @@ void StickFigure::saveStickFigure(QString name)
     out << *this;
     file.close();
 }
+// attraverso il percorso file, carica un data stream su cui caricare i dati salvati
+// chiama il deserializzatore per stickfigures per interpretare lo stream
 void StickFigure::loadStickFigure(QString name)
 {
 
@@ -322,6 +357,7 @@ void StickFigure::loadStickFigure(QString name)
     out >> *this;
 
     file.close();
+    qDebug("load finished");
 
 }
 

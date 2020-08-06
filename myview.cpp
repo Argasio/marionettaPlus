@@ -4,14 +4,15 @@
 #include <QGraphicsRotation>
 #include <frame.h>
 #include <QMessageBox>
+#include <QSpinBox>
 bool    isPressed = false;
 QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
 float   rotationBuffer; //selected item Rotation buffer
-QPen    myPen;
-QBrush  myBrush;
-extern QListWidget * myStickFigureWidgetList;
 
+extern QListWidget * myStickFigureWidgetList;
+extern QListWidget * myFrameWidgetList;
+extern QSpinBox * onionSkinSB;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     myAnimation = new Animation();
@@ -26,12 +27,13 @@ void myView::setTool(int Tool)
     changeTool();
     tool = Tool;
 }
+/*
 StickFigure * myView::addStickFigure(QListWidgetItem* item)
 {
     StickFigure *S = myAnimation->currentFrame->addStickFigure(item);
     S->scene = this->scene();
     return S;
-}
+}*/
 
 void myView::deleteStickFigure()
 {
@@ -57,6 +59,7 @@ void myView::deleteStickFigure()
             myStickFigureWidgetList->clearSelection();
             myStickFigureWidgetList->setItemSelected(ns->linkedItem,true);
         }
+        myAnimation->currentFrame->updateIcon();
     }
     else{
 
@@ -81,7 +84,9 @@ void myView::moveStickFigureZ(int increment)
                 QListWidgetItem * item = myStickFigureWidgetList->takeItem(currentIndex);
                 myStickFigureWidgetList->insertItem(currentIndex+increment,item);
                 myStickFigureWidgetList->setItemSelected(item,true);
+                myStickFigureWidgetList->setCurrentRow(currentIndex+increment);
             }
+            myAnimation->currentFrame->updateIcon();
         }
     }
 }
@@ -96,6 +101,7 @@ void myView::mousePressEvent(QMouseEvent *event)
         {
             case NOTOOL:
             {
+                myAnimation->storeUndo();
                 myAnimation->updateSelection(coord);
                 myStickFigureWidgetList->clearSelection();
                 myStickFigureWidgetList->setItemSelected(myAnimation->currentFrame->currentStickFigure->linkedItem,true);
@@ -122,6 +128,7 @@ void myView::keyPressEvent(QKeyEvent *event)
         {
             if(scene()->selectedItems().count() == 1)
             {
+                myAnimation->storeUndo();
                 stick *item = (stick*)scene()->selectedItems()[0];//oggetto selezionato nella scnea
                 int idx = myAnimation->frameBuffer->currentStickFigure->stickList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
                 // se si tratta dello stick master e ci sono altri stickfigure, cancella l'intero stickfigure
@@ -136,12 +143,13 @@ void myView::keyPressEvent(QKeyEvent *event)
                     deleteStickFigure();
                 }
                 //altrimenti cancella il singolo stick e aggiorna l'iconea del livello
-                else
+                else if(myStickFigureWidgetList->selectedItems().count()==1)
                 {
                     myAnimation->frameBuffer->currentStickFigure->deleteStick( idx);
                     myAnimation->currentFrame->currentStickFigure->updateIcon();
                     myStickFigureWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->currentStickFigure->stickFigureIcon);
                 }
+                myAnimation->currentFrame->updateIcon();
                 // distruggi l'oggetto
                 qDebug("item deleted");
             }
@@ -177,7 +185,8 @@ void myView::drawCmd(QPointF* point, int mode)
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
     {
         if(myAnimation->currentFrame->currentStickFigure->drawCount == 0){
-            myAnimation->currentFrame->currentStickFigure->startDrawing(point);
+            myAnimation->storeUndo();
+            myAnimation->currentFrame->currentStickFigure->startDrawing(point, myPen);
             // se stiamo usando il tool per generare cerchi cambiamo il tipo dello stick
             if(mode == DRAWCIRCLE){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::CIRCLE;
@@ -192,6 +201,7 @@ void myView::drawCmd(QPointF* point, int mode)
         {
             myAnimation->currentFrame->currentStickFigure->endDrawing(point);
             qDebug("Draw 2 = %f, %f",point->x(),point->y());
+            myAnimation->currentFrame->updateIcon();
         }
     }
     else
@@ -236,13 +246,14 @@ void myView::mouseReleaseEvent(QMouseEvent *event)
     isPressed = false;
     if(myAnimation->currentFrame->stickFigures.count()>0)
     {
-        if(myAnimation->currentFrame->currentStickFigure->stickList.count()>0)
+        if(myAnimation->currentFrame->currentStickFigure->stickList.count()>0
+                 && myStickFigureWidgetList->selectedItems().count() == 1)
         {
             //termina una rotazione di stick al rilascio
             myAnimation->currentFrame->currentStickFigure->currentStick->endRotation();
             myAnimation->currentFrame->currentStickFigure->updateIcon();
             myStickFigureWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->currentStickFigure->stickFigureIcon);
-
+            myAnimation->currentFrame->updateIcon();
         }
     }
     QGraphicsView::mouseReleaseEvent(event);
@@ -296,4 +307,97 @@ void myView::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
+void myView::moveToFrame(Frame* frame){
+    //myAnimation->currentFrame->updateRender();
+    QRectF myR = scene()->sceneRect();
+    int r = 0;
+    if(myAnimation->frameList.count()>=1){
+        for(StickFigure *S:myAnimation->currentFrame->stickFigures){
+            for(stick * s: S->stickList){
+
+               scene()->removeItem(s);
+            }
+        }
+    }
+    myStickFigureWidgetList->clear();
+    for(StickFigure *S:frame->stickFigures){
+        QListWidgetItem * addedItem = new QListWidgetItem(myStickFigureWidgetList);
+        QVariant newData(QVariant::fromValue(S));
+        addedItem->setData(Qt::UserRole,newData);
+        addedItem->setData(Qt::DisplayRole,S->name);
+        addedItem->setIcon(*S->stickFigureIcon);
+        S->linkedItem = addedItem;
+        myStickFigureWidgetList->addItem(S->linkedItem);
+        for(stick * s: S->stickList){
+            scene()->addItem(s);
+
+        }
+
+    }
+
+    myAnimation->currentFrame = frame;
+    myAnimation->frameBuffer = frame;
+    myStickFigureWidgetList->clearSelection();
+    myFrameWidgetList->clearSelection();
+    scene()->clearSelection();
+    myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
+    if(!myAnimation->currentFrame->stickFigures.isEmpty())
+        if(!myAnimation->currentFrame->stickFigures[0]->stickList.isEmpty())
+            myAnimation->updateSelection(myAnimation->currentFrame->stickFigures[0]->stickList[0]);
+    updateOnionSkins();
+    scene()->update(myR);
+
+}
+void myView::updateOnionSkins(){
+
+    for(QGraphicsPixmapItem* P:onionSkins){
+        delete P;
+    }
+    onionSkins.clear();
+    if(onionSkinSB->value()==0 || myAnimation->currentFrame->frameNumber == 0)
+        return;
+    //
+    QGraphicsScene renderScene;
+    QImage *renderImg = new QImage(scene()->sceneRect().width(),scene()->sceneRect().height(),QImage::Format_ARGB32);
+    renderScene.setSceneRect(scene()->sceneRect());
+    // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
+    QList<stick*> tempList;
+
+
+    //
+
+
+
+    int skinNum = onionSkinSB->value();
+    float opacityVal = 0;
+    if(myAnimation->currentFrame->frameNumber<skinNum)
+        skinNum = myAnimation->currentFrame->frameNumber;
+
+    for(int i = myAnimation->currentFrame->frameNumber-skinNum; i<myAnimation->currentFrame->frameNumber; i++){
+
+        for(StickFigure *S:myAnimation->frameList[i]->stickFigures)
+        {
+            for(stick* s: S->stickList){
+                stick* clone = new stick(s);
+                tempList.append(clone);
+                renderScene.addItem(clone);
+            }
+        }
+        QPainter painter(renderImg);
+        renderImg->fill(Qt::transparent);
+        painter.setBackground(QBrush(QColor(Qt::transparent)));
+        renderScene.render(&painter);
+
+
+        opacityVal += 0.5/skinNum;
+        QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*(renderImg)));
+        item->setOpacity(opacityVal);
+
+        item->setZValue(0);
+        onionSkins.append(item);
+        scene()->addItem(item);
+        renderScene.clear();
+    }
+
+}
 

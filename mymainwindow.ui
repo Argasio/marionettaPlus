@@ -35,12 +35,12 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionsave">
    <property name="text">
-    <string>save</string>
+    <string>save stickfigure</string>
    </property>
   </action>
   <action name="actionload">
    <property name="text">
-    <string>load</string>
+    <string>load stickfigure</string>
    </property>
   </action>
  </widget>

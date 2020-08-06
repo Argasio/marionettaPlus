@@ -4,6 +4,6 @@
 #include <QPen>
 #include <QBrush>
 
-extern QPen myPen;
-extern QBrush myBrush;
+//extern QPen myPen;
+//extern QBrush myBrush;
 #endif // STYLE_H

@@ -24,6 +24,11 @@ public:
     Animation * myAnimation;
     void deleteStickFigure();
     void moveStickFigureZ(int increment);
+    QPen    myPen;
+    QBrush  myBrush;
+    void moveToFrame(Frame *frame);
+    void updateOnionSkins();
+    QList<QGraphicsPixmapItem*> onionSkins;
 signals:
 
 

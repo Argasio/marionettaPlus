@@ -2,10 +2,23 @@
 
 Animation::Animation()
 {
-    frameBuffer = new Frame();
-    currentFrame = frameBuffer;
-    frameList.append(frameBuffer);
+
 }
+
+Frame *Animation::addFrame(QListWidgetItem* item)
+{
+
+    frameBuffer = new Frame();
+    frameBuffer->scene = scene;
+    //frameBuffer->renderImg = new QImage(scene->sceneRect().width(),scene->sceneRect().height(),QImage::Format_ARGB32);
+
+    if(frameList.isEmpty())
+        currentFrame = frameBuffer;
+    frameList.append(frameBuffer);
+    frameBuffer->linkedItem = item;
+
+}
+
 void Animation::updateSelection(QPointF point)
 {
     float distBuffer;
@@ -19,6 +32,7 @@ void Animation::updateSelection(QPointF point)
     {
         for(StickFigure * S: currentFrame->stickFigures)
         {
+            if(S->stickList.count()>=1) {
                 idxBuffer = S->selectStick( &point);
                 // aggiorna il buffer col punto 1 o 2 a seconda se stiamo selezionando lo stick master
                 if(S->selectingOrigin )
@@ -32,6 +46,7 @@ void Animation::updateSelection(QPointF point)
                     minDist = distBuffer;
                     selectedStickFigure = S;
                 }
+            }
         }
 
         currentFrame->currentStickFigure->currentStick = selectedStickFigure->stickList[selectedIdx];
@@ -40,6 +55,31 @@ void Animation::updateSelection(QPointF point)
         currentFrame->currentStickFigure = selectedStickFigure;
     }
 
+}
+void Animation::storeUndo()
+{/*
+    undoBuffer.append(*currentFrame);
+    if(undoBuffer.count()>25)
+    {
+        undoBuffer.removeFirst();
+    }*/
+}
+void Animation::redo()
+{/*
+    if(redoBuffer.count()>=2){
+        storeUndo();
+        *currentFrame = redoBuffer.first();
+        redoBuffer.removeFirst();
+        currentFrame->currentStickFigure->refresh();
+    }*/
+}
+void Animation::undo(){
+    if(undoBuffer.count()>=2){
+        redoBuffer.append(undoBuffer.last());
+        undoBuffer.removeLast();
+        *currentFrame = undoBuffer.last();
+        currentFrame->currentStickFigure->refresh();
+    }
 }
 void Animation::updateSelection(stick* item)
 {
