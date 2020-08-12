@@ -20,23 +20,26 @@ SOURCES += \
     animation.cpp \
     frame.cpp \
     main.cpp \
-    mainwindow.cpp \
+    mymainwindow.cpp \
     myrect.cpp \
     myview.cpp \
-    stick.cpp
+    stick.cpp \
+    widget.cpp
 
 HEADERS += \
     StickFigure.h \
     animation.h \
     frame.h \
-    mainwindow.h \
+    mymainwindow.h \
     myrect.h \
     myview.h \
     stick.h \
-    style.h
+    style.h \
+    widget.h
 
 FORMS += \
-    mainwindow.ui
+    mymainwindow.ui \
+    widget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

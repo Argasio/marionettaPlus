@@ -1,6 +1,7 @@
 #include "stick.h"
 #include <QGraphicsItem>
 
+bool onionRender = false;
 //lo stick si basa fondamentalmente su un QGraphicsLineObject, uno stick alloca una lineobject
 stick::stick(QLineF *line)
 {
@@ -10,6 +11,12 @@ stick::stick(QLineF *line)
     highlight = true;
     setLine(line);
     stepchild = false;
+
+}
+stick::stick()
+{
+    this->setFlag(QGraphicsItem::ItemIsSelectable,true);
+    Pen = QPen();
 }
 stick::stick(stick* S)
 {
@@ -27,8 +34,13 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     //Pen.setColor(Qt::black);
 
     this->setZValue(Z);
-    painter->setPen(Pen);
-
+    if(!onionRender)
+        painter->setPen(Pen);
+    else{
+        QPen onionSkinPen(Pen);
+        onionSkinPen.setColor(Qt::gray);
+        painter->setPen(onionSkinPen);
+    }
     if(type == stickType::CIRCLE){
         painter->drawEllipse(QPointF
                              (0.5*(myLine.p1().x()+myLine.p2().x()),
@@ -39,26 +51,35 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
     }
     //Pen.setColor(Qt::red); //draw bounding box
-    if(this->master || (stepchild && parent->master)){ // il master ha entrambe le estremità disegnate
-        if(this->highlight)
-            painter->setPen(QPen(Qt::green,10));
-        else
-            painter->setPen(QPen(Qt::darkGreen,10));
-        painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
-    }
-    else {
+    if(!onionRender){
+        if(this->master){ // il master ha entrambe le estremità disegnate
+            if(this->highlight)
+                painter->setPen(QPen(Qt::green,10));
+            else
+                painter->setPen(QPen(Qt::darkGreen,10));
+            painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
+        }
+        else if(this->parent != nullptr){
+            if(this->highlight){
+                painter->setPen(QPen(Qt::red,10));
+                if(this->stepchild && this->parent->master)
+                    painter->setPen(QPen(Qt::green,10));
+            }
+            else{
+                painter->setPen(QPen(Qt::blue,10));
+                if(this->stepchild && this->parent->master)
+                    painter->setPen(QPen(Qt::darkGreen,10));
+            }
+            //if(this->parent->master == false)
+                painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
+        }
         if(this->highlight)
             painter->setPen(QPen(Qt::red,10));
         else
             painter->setPen(QPen(Qt::blue,10));
-        painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
+        painter->drawEllipse(myLine.p2().x()-5,myLine.p2().y()-5,10,10);
+        //painter->drawRect(br);
     }
-    if(this->highlight)
-        painter->setPen(QPen(Qt::red,10));
-    else
-        painter->setPen(QPen(Qt::blue,10));
-    painter->drawEllipse(myLine.p2().x()-5,myLine.p2().y()-5,10,10);
-    //painter->drawRect(br);
 }
 // bounding rectangle deve essere sempre "positivo"
 QRectF stick::boundingRect() const

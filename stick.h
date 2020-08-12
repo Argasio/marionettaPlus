@@ -5,6 +5,8 @@
 #include <style.h>
 #include <QPainter>
 #define STEPCHILD -1
+extern bool onionRender;
+
 class stick:public QGraphicsItem
 {
 
@@ -16,7 +18,7 @@ public:
     stick(QLineF *line);
     void setLine(QLineF* line);
     void rotate(QPointF* point);
-    stick * parent;
+    stick * parent = nullptr;
     QList<stick*> children;
     int type = stickType::LINE;
     ~stick();
@@ -34,8 +36,9 @@ public:
     bool highlight = false;
     bool stepchild = false;
     //StickFigure* myStickFigure;
-    //int parent;
+    int parentIdx = 0;
     stick(stick *S);
+    stick();
 private:
     float angleBuffer;
     QRectF updateBr(int mode);

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QListWidget>
+#include "myview.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
@@ -14,7 +15,12 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
+    myView *view;
 
+    void addStick();
+    void addFrame();
+    void copyFrame(QDataStream &stream, Frame *destination);
+    Frame *setUpFrame();
 private slots:
     void on_drawBtn_clicked();
 
@@ -35,6 +41,22 @@ private slots:
     void on_moveLayerDownBtn_clicked();
 
     void on_drawCircleBtn_clicked();
+
+    void on_chooseColorBtn_clicked();
+
+    void on_undoBtn_clicked();
+
+    void on_redoBtn_clicked();
+
+    void on_addFrameBtn_clicked();
+
+    void on_frameListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+
+    void on_copyFrame_clicked();
+
+    void on_onionSkinSpinBox_valueChanged(const QString &arg1);
+
+    void on_deleteFrameBtn_clicked();
 
 private:
     Ui::Widget *ui;
