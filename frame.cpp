@@ -2,11 +2,12 @@
 #include <QListWidget>
 #include <QDebug>
 QListWidget * ListWidget;
+extern bool undoFlag;
+
 Frame::Frame()
 {
     frameIcon       = new QIcon();
     iconImg         = new QPixmap(50,50);
-
 }
 Frame::~Frame(){
     for(StickFigure* S: stickFigures)
@@ -15,7 +16,7 @@ Frame::~Frame(){
     }
     delete iconImg;
     delete frameIcon;
-    delete renderImg;
+    //delete renderImg;
 }
 StickFigure* Frame::addStickFigure(QListWidget * myListWidget)
 {
@@ -43,24 +44,27 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget)
     //aggiorna lo stickfigure corrente
     currentStickFigure = stickFigureBuffer;
     currentStickFigure->name = myName;
-    QVariant newData(QVariant::fromValue(currentStickFigure));
-    addedItem->setData(Qt::UserRole,newData);
-    addedItem->setData(Qt::DisplayRole,myName);
-    addedItem->setIcon(*currentStickFigure->stickFigureIcon);
-    myListWidget->insertItem(myListWidget->currentRow()+1,addedItem);
+    if(!undoFlag){
+        QVariant newData(QVariant::fromValue(currentStickFigure));
+        addedItem->setData(Qt::UserRole,newData);
+        addedItem->setData(Qt::DisplayRole,myName);
+        addedItem->setIcon(*currentStickFigure->stickFigureIcon);
+        myListWidget->insertItem(myListWidget->currentRow()+1,addedItem);
+    }
     // update current stickfigure
     currentStickFigure->highlight(false); //de highlight old selection
     currentStickFigure->highlight(true); //highlight new one
-
-    // update current stick
-    scene->clearSelection(); //clear scene selection
-    if(!currentStickFigure->stickList.isEmpty())
-        selectStick(currentStickFigure); //update selected stick
-    //
-    int tempIndex = myListWidget->currentRow();
-    myListWidget->clearSelection();
-    myListWidget->setItemSelected(addedItem, true);
-    myListWidget->setCurrentRow(tempIndex+1);
+    if(!undoFlag){
+        // update current stick
+        scene->clearSelection(); //clear scene selection
+        if(!currentStickFigure->stickList.isEmpty())
+            selectStick(currentStickFigure); //update selected stick
+        //
+        int tempIndex = myListWidget->currentRow();
+        myListWidget->clearSelection();
+        myListWidget->setItemSelected(addedItem, true);
+        myListWidget->setCurrentRow(tempIndex+1);
+    }
     currentStickFigure->scene = scene;
 
     return stickFigureBuffer;
@@ -184,4 +188,13 @@ void Frame::updateRender(){
     painter.setBackground(QBrush(QColor(Qt::transparent)));
     renderScene.render(&painter);
     renderScene.clear();*/
+}
+void Frame::clearFrame(){
+    for(StickFigure *S:stickFigures){
+
+        delete S;
+
+    }
+    stickFigures.clear();
+
 }

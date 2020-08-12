@@ -4,13 +4,15 @@
 #include <QFile>
 // StickFigure work in the one active scene
 
-
+extern bool undoFlag;
 StickFigure::~StickFigure()
 {
-    for(stick* s: stickList)
-    {
-        scene->removeItem(s);
-        delete s;
+    if(!undoFlag){
+        for(stick* s: stickList)
+        {
+            scene->removeItem(s);
+            delete s;
+        }
     }
     delete iconImg;
     delete stickFigureIcon;
@@ -326,12 +328,14 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         }
         if(s->master)
             myStickFigure.masterStick = s;
-        myStickFigure.scene->addItem(s);
+        if(!undoFlag)
+            myStickFigure.scene->addItem(s);
         s->refresh(0);
     }
     if(myStickFigure.stickList.count()>0)
         myStickFigure.currentStick = myStickFigure.stickList[0];
-    myStickFigure.updateIcon();
+    if(!undoFlag)
+        myStickFigure.updateIcon();
     return stream;
 }
 // salva sul percorso impostato i dati serializzati dello stickfigure usando il datastream

@@ -5,6 +5,7 @@
 #include <frame.h>
 #include <QMessageBox>
 #include <QSpinBox>
+#include <QBuffer>
 bool    isPressed = false;
 QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
@@ -12,9 +13,11 @@ float   rotationBuffer; //selected item Rotation buffer
 
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
+bool undoFlag = false;
 extern QSpinBox * onionSkinSB;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
+    onionRender = false;
     myAnimation = new Animation();
     myAnimation->scene = scene();
     setMouseTracking(true);
@@ -101,7 +104,7 @@ void myView::mousePressEvent(QMouseEvent *event)
         {
             case NOTOOL:
             {
-                myAnimation->storeUndo();
+                storeUndo();
                 myAnimation->updateSelection(coord);
                 myStickFigureWidgetList->clearSelection();
                 myStickFigureWidgetList->setItemSelected(myAnimation->currentFrame->currentStickFigure->linkedItem,true);
@@ -128,15 +131,15 @@ void myView::keyPressEvent(QKeyEvent *event)
         {
             if(scene()->selectedItems().count() == 1)
             {
-                myAnimation->storeUndo();
+                storeUndo();
                 stick *item = (stick*)scene()->selectedItems()[0];//oggetto selezionato nella scnea
-                int idx = myAnimation->frameBuffer->currentStickFigure->stickList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
+                int idx = myAnimation->currentFrame->currentStickFigure->stickList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
                 // se si tratta dello stick master e ci sono altri stickfigure, cancella l'intero stickfigure
-                if(myAnimation->frameBuffer->currentStickFigure->stickList[idx]->master &&
-                        myAnimation->frameBuffer->stickFigures.count()>1)
+                if(myAnimation->currentFrame->currentStickFigure->stickList[idx]->master &&
+                        myAnimation->currentFrame->stickFigures.count()>1)
                 {
                     //estrai dalla lista grafica l'elemento selezionato collegato allo stickfigure
-                    QListWidgetItem * associatedItem = myAnimation->frameBuffer->currentStickFigure->linkedItem;
+                    QListWidgetItem * associatedItem = myAnimation->currentFrame->currentStickFigure->linkedItem;
                     myStickFigureWidgetList->clearSelection();
                     myStickFigureWidgetList->setItemSelected(associatedItem,true);
                     //cancella lo stickfigure
@@ -145,7 +148,7 @@ void myView::keyPressEvent(QKeyEvent *event)
                 //altrimenti cancella il singolo stick e aggiorna l'iconea del livello
                 else if(myStickFigureWidgetList->selectedItems().count()==1)
                 {
-                    myAnimation->frameBuffer->currentStickFigure->deleteStick( idx);
+                    myAnimation->currentFrame->currentStickFigure->deleteStick( idx);
                     myAnimation->currentFrame->currentStickFigure->updateIcon();
                     myStickFigureWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->currentStickFigure->stickFigureIcon);
                 }
@@ -162,10 +165,10 @@ void myView::keyPressEvent(QKeyEvent *event)
                 case(DRAW):
                 case DRAWCIRCLE:
                 {
-                    if(myAnimation->frameBuffer->currentStickFigure->drawCount==1)
+                    if(myAnimation->currentFrame->currentStickFigure->drawCount==1)
                     {
-                        scene()->removeItem((QGraphicsItem*)myAnimation->frameBuffer->currentStickFigure->currentStick);
-                        myAnimation->frameBuffer->currentStickFigure->cancelDrawing();
+                        scene()->removeItem((QGraphicsItem*)myAnimation->currentFrame->currentStickFigure->currentStick);
+                        myAnimation->currentFrame->currentStickFigure->cancelDrawing();
                     }
                     break;
                 }
@@ -185,7 +188,7 @@ void myView::drawCmd(QPointF* point, int mode)
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
     {
         if(myAnimation->currentFrame->currentStickFigure->drawCount == 0){
-            myAnimation->storeUndo();
+            storeUndo();
             myAnimation->currentFrame->currentStickFigure->startDrawing(point, myPen);
             // se stiamo usando il tool per generare cerchi cambiamo il tipo dello stick
             if(mode == DRAWCIRCLE){
@@ -197,7 +200,7 @@ void myView::drawCmd(QPointF* point, int mode)
            scene()->addItem(myAnimation->currentFrame->currentStickFigure->currentStick);
            qDebug("Draw 1 = %f, %f",point->x(),point->y());
         }
-        else if(myAnimation->frameBuffer->currentStickFigure->drawCount >0)
+        else if(myAnimation->currentFrame->currentStickFigure->drawCount >0)
         {
             myAnimation->currentFrame->currentStickFigure->endDrawing(point);
             qDebug("Draw 2 = %f, %f",point->x(),point->y());
@@ -226,10 +229,10 @@ void myView::changeTool()
             if(!myAnimation->currentFrame->stickFigures.isEmpty())
             {
                 // se stavi disegnando uno stick e cambi prima di averlo finito, cancellalo!
-                if(myAnimation->frameBuffer->currentStickFigure->drawCount==1)
+                if(myAnimation->currentFrame->currentStickFigure->drawCount==1)
                 {
-                    scene()->removeItem((QGraphicsItem*)myAnimation->frameBuffer->currentStickFigure->currentStick);
-                    myAnimation->frameBuffer->currentStickFigure->cancelDrawing();
+                    scene()->removeItem((QGraphicsItem*)myAnimation->currentFrame->currentStickFigure->currentStick);
+                    myAnimation->currentFrame->currentStickFigure->cancelDrawing();
                 }
             }
             else{
@@ -292,9 +295,9 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         // durante il disegno,l'estremo libero della linea segue il mouse
             if(myAnimation->currentFrame->currentStickFigure != NULL && myAnimation->currentFrame->currentStickFigure != nullptr)
             {
-                if(myAnimation->frameBuffer->currentStickFigure->drawCount > 0)
+                if(myAnimation->currentFrame->currentStickFigure->drawCount > 0)
                 {
-                    myAnimation->frameBuffer->currentStickFigure->previewDrawing(&coord);
+                    myAnimation->currentFrame->currentStickFigure->previewDrawing(&coord);
                     qDebug("coord = %f, %f",coord.x(),coord.y());
                 }
             }
@@ -306,7 +309,17 @@ void myView::mouseMoveEvent(QMouseEvent *event)
     }
     QGraphicsView::mouseMoveEvent(event);
 }
-
+void myView::deleteFrame(Frame* frame){
+    int frameNum = myAnimation->frameList.indexOf(frame);
+    myFrameWidgetList->takeItem(myFrameWidgetList->row(frame->linkedItem));
+    myAnimation->deleteFrame(frame);
+    myFrameWidgetList->clearSelection();
+    for(Frame *f: myAnimation->frameList){
+        if(f->frameNumber>frameNum)
+            f->frameNumber-=1;
+    }
+    myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
+}
 void myView::moveToFrame(Frame* frame){
     //myAnimation->currentFrame->updateRender();
     QRectF myR = scene()->sceneRect();
@@ -336,7 +349,6 @@ void myView::moveToFrame(Frame* frame){
     }
 
     myAnimation->currentFrame = frame;
-    myAnimation->frameBuffer = frame;
     myStickFigureWidgetList->clearSelection();
     myFrameWidgetList->clearSelection();
     scene()->clearSelection();
@@ -345,7 +357,10 @@ void myView::moveToFrame(Frame* frame){
         if(!myAnimation->currentFrame->stickFigures[0]->stickList.isEmpty())
             myAnimation->updateSelection(myAnimation->currentFrame->stickFigures[0]->stickList[0]);
     updateOnionSkins();
+
     scene()->update(myR);
+    myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
+    myFrameWidgetList->setCurrentItem(myAnimation->currentFrame->linkedItem);
 
 }
 void myView::updateOnionSkins(){
@@ -357,6 +372,7 @@ void myView::updateOnionSkins(){
     if(onionSkinSB->value()==0 || myAnimation->currentFrame->frameNumber == 0)
         return;
     //
+    onionRender = true;
     QGraphicsScene renderScene;
     QImage *renderImg = new QImage(scene()->sceneRect().width(),scene()->sceneRect().height(),QImage::Format_ARGB32);
     renderScene.setSceneRect(scene()->sceneRect());
@@ -398,6 +414,77 @@ void myView::updateOnionSkins(){
         scene()->addItem(item);
         renderScene.clear();
     }
+    onionRender = false;
+}
+#define MAXUNDO 25
+void myView::undo(){
+    int oldFrameNum = myAnimation->currentFrame->frameNumber;
+    //CLONE FRAME
+    // byte array stores serialized data
+    QByteArray byteArray;
+    // buffer temporarily holds serialized data
+    QBuffer buffer1(&byteArray);
+    // use this buffer to store data from the object
+    buffer1.open(QIODevice::WriteOnly);
+    QDataStream myStream(&buffer1);
+    myStream<<*(undoBuffer.takeLast());
+
+    // now create a seconds buffer from which to read data of the bytearray
+    QBuffer buffer2(&byteArray);
+    buffer2.open(QIODevice::ReadOnly);
+    // a new data stream to deserialize
+    QDataStream myStream2(&buffer2);
+    undoFlag = true;
+    myAnimation->frameBuffer = new Frame();
+
+    // hydrate new frame with previous frame data
+    myStream2>>*myAnimation->frameBuffer;
+    //scene()->clear();
+    if(oldFrameNum>myAnimation->frameBuffer->frameNumber){
+
+        deleteFrame(myAnimation->currentFrame);
+        myAnimation->frameList[myAnimation->frameBuffer->frameNumber]->clearFrame();
+        myAnimation->cloneFrame(myAnimation->frameList[myAnimation->frameBuffer->frameNumber],myAnimation->frameBuffer);
+        moveToFrame(myAnimation->frameList[myAnimation->frameBuffer->frameNumber]);
+    }
+    else{
+        myAnimation->currentFrame->clearFrame();
+        scene()->clear();
+        myAnimation->cloneFrame(myAnimation->currentFrame,myAnimation->frameBuffer);
+        moveToFrame(myAnimation->currentFrame);
+    }
+    delete myAnimation->frameBuffer;
+    undoFlag = false;
+    //
+}
+void myView::redo(){
 
 }
-
+void myView::storeUndo(){
+    if(myAnimation->frameList.isEmpty())
+        return;
+    undoFlag = true;
+    Frame* myUndo = new Frame();
+    //CLONE FRAME
+    // byte array stores serialized data
+    QByteArray byteArray;
+    // buffer temporarily holds serialized data
+    QBuffer buffer1(&byteArray);
+    // use this buffer to store data from the object
+    buffer1.open(QIODevice::WriteOnly);
+    QDataStream myStream(&buffer1);
+    myStream<<*(myAnimation->currentFrame);
+    // now create a seconds buffer from which to read data of the bytearray
+    QBuffer buffer2(&byteArray);
+    buffer2.open(QIODevice::ReadOnly);
+    // a new data stream to deserialize
+    QDataStream myStream2(&buffer2);
+    // hydrate new frame with previous frame data
+    myStream2>>*myUndo;
+    //
+    if(undoBuffer.count()>=MAXUNDO){
+        delete undoBuffer.takeFirst();
+    }
+    undoBuffer.append(myUndo);
+    undoFlag = false;
+}

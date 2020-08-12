@@ -34,9 +34,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="deleteFrameBtn">
+           <property name="text">
+            <string>delete Frame</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="copyFrame">
            <property name="text">
-            <string>copy frame</string>
+            <string>duplicate frame</string>
            </property>
           </widget>
          </item>

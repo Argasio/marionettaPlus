@@ -1,5 +1,7 @@
 #include "animation.h"
 
+#include <QBuffer>
+
 Animation::Animation()
 {
 
@@ -18,7 +20,27 @@ Frame *Animation::addFrame(QListWidgetItem* item)
     frameBuffer->linkedItem = item;
 
 }
+Frame *Animation::deleteFrame(Frame *frame){
+    int frameNum = frameList.indexOf(frame);
+    if(frameList.count()>1){
 
+        frameList.removeOne(frame);
+        for(StickFigure * S:frame->stickFigures){
+            delete S->linkedItem;
+        }
+        delete frame->linkedItem;
+        delete frame;
+        scene->clear(); // risky
+        if(frameNum>0)
+        {
+            currentFrame = frameList[frameNum-1];
+        }
+        else{
+            currentFrame = frameList[frameNum+1];
+        }
+    }
+    return currentFrame;
+}
 void Animation::updateSelection(QPointF point)
 {
     float distBuffer;
@@ -56,22 +78,23 @@ void Animation::updateSelection(QPointF point)
     }
 
 }
+/*
 void Animation::storeUndo()
-{/*
+{
     undoBuffer.append(*currentFrame);
     if(undoBuffer.count()>25)
     {
         undoBuffer.removeFirst();
-    }*/
+    }
 }
 void Animation::redo()
-{/*
+{
     if(redoBuffer.count()>=2){
         storeUndo();
         *currentFrame = redoBuffer.first();
         redoBuffer.removeFirst();
         currentFrame->currentStickFigure->refresh();
-    }*/
+    }
 }
 void Animation::undo(){
     if(undoBuffer.count()>=2){
@@ -80,7 +103,7 @@ void Animation::undo(){
         *currentFrame = undoBuffer.last();
         currentFrame->currentStickFigure->refresh();
     }
-}
+}*/
 void Animation::updateSelection(stick* item)
 {
     //update current frame
@@ -118,4 +141,27 @@ void Animation::updateSelection(StickFigure* item)
     scene->clearSelection(); //clear scene selection
     if(!item->stickList.isEmpty())
         currentFrame->selectStick(item); //update selected stick
+}
+void Animation::cloneFrame(Frame* target, Frame* source)
+{
+    // byte array stores serialized data
+    QByteArray byteArray;
+    // buffer temporarily holds serialized data
+    QBuffer buffer1(&byteArray);
+    // use this buffer to store data from the object
+    buffer1.open(QIODevice::WriteOnly);
+    QDataStream myStream(&buffer1);
+    myStream<<*(source);
+    // now create a seconds buffer from which to read data of the bytearray
+    QBuffer buffer2(&byteArray);
+    buffer2.open(QIODevice::ReadOnly);
+    // a new data stream to deserialize
+    QDataStream myStream2(&buffer2);
+    // hydrate new frame with previous frame data
+    myStream2>>*target;
+    buffer1.close();
+    buffer2.close();
+
+    //target->linkedItem = source->linkedItem;
+    //target->scene = source->scene;
 }

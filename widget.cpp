@@ -60,12 +60,14 @@ void Widget::on_cursor_clicked()
 
 void Widget::on_addStickBtn_clicked()
 {
+    view->storeUndo();
     addStick();
 }
 
 void Widget::addStick(){
+
     view->myAnimation->currentFrame->addStickFigure(ui->stickLayerView);
-    view->myAnimation->storeUndo();
+
 }
 void Widget::on_thicknessSpinBox_valueChanged(int arg1)
 {
@@ -122,12 +124,12 @@ void Widget::on_chooseColorBtn_clicked()
 
 void Widget::on_undoBtn_clicked()
 {
-    view->myAnimation->undo();
+    view->undo();
 }
 
 void Widget::on_redoBtn_clicked()
 {
-    view->myAnimation->redo();
+    view->redo();
 }
 void Widget::on_addFrameBtn_clicked()
 {
@@ -135,14 +137,16 @@ void Widget::on_addFrameBtn_clicked()
 }
 void Widget::addFrame(void)
 {
+    view->storeUndo();
     Frame* addedFrame = setUpFrame();
     view->moveToFrame(addedFrame);
-    on_addStickBtn_clicked();
+    addStick();
     //view->myAnimation->storeUndo();
 }
 
 void Widget::on_frameListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
+    view->storeUndo();
     QVariant  retrievedData = (current->data(Qt::UserRole));
     Frame* cs = qvariant_cast<Frame*>(retrievedData);
 
@@ -174,6 +178,7 @@ Frame* Widget::setUpFrame(){
 }
 void Widget::on_copyFrame_clicked()
 {
+    view->storeUndo();
     // byte array stores serialized data
     QByteArray byteArray;
     // buffer temporarily holds serialized data
@@ -212,4 +217,10 @@ void Widget::copyFrame(QDataStream& stream, Frame* destination)
 void Widget::on_onionSkinSpinBox_valueChanged(const QString &arg1)
 {
     view->updateOnionSkins();
+}
+
+void Widget::on_deleteFrameBtn_clicked()
+{
+    view->deleteFrame(view->myAnimation->currentFrame);
+    view->moveToFrame(view->myAnimation->currentFrame);
 }

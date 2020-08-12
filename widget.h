@@ -56,6 +56,8 @@ private slots:
 
     void on_onionSkinSpinBox_valueChanged(const QString &arg1);
 
+    void on_deleteFrameBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };

@@ -24,7 +24,7 @@ void myMainWindow::on_actionsave_triggered()
 
 void myMainWindow::on_actionload_triggered()
 {
-    view->myAnimation->storeUndo();
+    view->storeUndo();
     QString filename = QFileDialog::getOpenFileName(this,tr("Load StickFigure"),
                        "C:/", "Stickfigure (*.stck)");
     if(filename.length()>0){

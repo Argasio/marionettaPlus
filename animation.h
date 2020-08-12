@@ -15,11 +15,8 @@ public:
     void updateSelection(StickFigure* item);
     void updateSelection(QPointF point);
     QGraphicsScene * scene;
-    QList <Frame> undoBuffer;
-    QList <Frame> redoBuffer;
-    void storeUndo();
-    void redo();
-    void undo();
+    Frame *deleteFrame(Frame* frame);
+    void cloneFrame(Frame *target, Frame *source);
 };
 
 #endif // ANIMATION_H

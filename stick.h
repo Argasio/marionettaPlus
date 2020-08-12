@@ -5,6 +5,8 @@
 #include <style.h>
 #include <QPainter>
 #define STEPCHILD -1
+extern bool onionRender;
+
 class stick:public QGraphicsItem
 {
 

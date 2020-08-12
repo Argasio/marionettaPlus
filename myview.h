@@ -29,6 +29,12 @@ public:
     void moveToFrame(Frame *frame);
     void updateOnionSkins();
     QList<QGraphicsPixmapItem*> onionSkins;
+    QList <Frame*> undoBuffer;
+    QList <Frame*> redoBuffer;
+    void undo();
+    void redo();
+    void storeUndo();
+    void deleteFrame(Frame *frame);
 signals:
 
 
