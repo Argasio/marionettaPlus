@@ -35,8 +35,8 @@ Frame *Animation::deleteFrame(Frame *frame){
         {
             currentFrame = frameList[frameNum-1];
         }
-        else{
-            currentFrame = frameList[frameNum+1];
+        else if(frameNum == 0){
+            currentFrame = frameList[frameNum];
         }
     }
     return currentFrame;

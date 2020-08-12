@@ -13,6 +13,17 @@
 #define DRAWCIRCLE 6
 #define NOTOOL 4
 
+
+#define CMD_SIMPLE 0
+#define CMD_ADDFRAME 1
+#define CMD_DELETEFRAME 2
+#define CMD_MOVETOFRAME 3
+typedef struct undoInfoStruct
+{
+    int command;
+    Frame* frame;
+};
+
 class myView : public QGraphicsView
 {
     Q_OBJECT
@@ -29,11 +40,11 @@ public:
     void moveToFrame(Frame *frame);
     void updateOnionSkins();
     QList<QGraphicsPixmapItem*> onionSkins;
-    QList <Frame*> undoBuffer;
-    QList <Frame*> redoBuffer;
+    QList <undoInfoStruct> undoBuffer;
+    QList <undoInfoStruct> redoBuffer;
     void undo();
     void redo();
-    void storeUndo();
+    void storeUndo(int command = CMD_SIMPLE);
     void deleteFrame(Frame *frame);
 signals:
 

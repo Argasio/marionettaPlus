@@ -137,7 +137,7 @@ void Widget::on_addFrameBtn_clicked()
 }
 void Widget::addFrame(void)
 {
-    view->storeUndo();
+    view->storeUndo(CMD_ADDFRAME);
     Frame* addedFrame = setUpFrame();
     view->moveToFrame(addedFrame);
     addStick();
@@ -146,11 +146,7 @@ void Widget::addFrame(void)
 
 void Widget::on_frameListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
-    view->storeUndo();
-    QVariant  retrievedData = (current->data(Qt::UserRole));
-    Frame* cs = qvariant_cast<Frame*>(retrievedData);
 
-    view->moveToFrame(cs);
 }
 // questa funzione crea il frame e gli oggetti lista appropriati
 Frame* Widget::setUpFrame(){
@@ -164,7 +160,14 @@ Frame* Widget::setUpFrame(){
     name.sprintf("%d",intName);
 
     // prepara il widget associato
-    QListWidgetItem * addedItem = new QListWidgetItem(ui->frameListWidget);
+    QListWidgetItem * addedItem = new QListWidgetItem();
+    ui->frameListWidget->insertItem(intName,addedItem);
+    for(Frame* f: view->myAnimation->frameList){
+        if(f->frameNumber>=intName){
+            f->frameNumber++;
+            f->linkedItem->setData(Qt::DisplayRole,QString::number(f->frameNumber));
+        }
+    }
     Frame * addedFrame = view->myAnimation->addFrame(addedItem);
     addedFrame->frameNumber = intName;
     addedFrame->linkedItem = addedItem;
@@ -173,12 +176,13 @@ Frame* Widget::setUpFrame(){
     addedItem->setData(Qt::UserRole,newData);
     addedItem->setData(Qt::DisplayRole,name);
     addedItem->setIcon(*addedFrame->frameIcon);
+    // update other frames
 
     return addedFrame;
 }
 void Widget::on_copyFrame_clicked()
 {
-    view->storeUndo();
+    view->storeUndo(CMD_ADDFRAME);
     // byte array stores serialized data
     QByteArray byteArray;
     // buffer temporarily holds serialized data
@@ -221,6 +225,16 @@ void Widget::on_onionSkinSpinBox_valueChanged(const QString &arg1)
 
 void Widget::on_deleteFrameBtn_clicked()
 {
+    view->storeUndo(CMD_DELETEFRAME);
     view->deleteFrame(view->myAnimation->currentFrame);
     view->moveToFrame(view->myAnimation->currentFrame);
+}
+
+void Widget::on_frameListWidget_itemClicked(QListWidgetItem *item)
+{
+    view->storeUndo(CMD_MOVETOFRAME);
+    QVariant  retrievedData = (item->data(Qt::UserRole));
+    Frame* cs = qvariant_cast<Frame*>(retrievedData);
+
+    view->moveToFrame(cs);
 }

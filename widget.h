@@ -58,6 +58,8 @@ private slots:
 
     void on_deleteFrameBtn_clicked();
 
+    void on_frameListWidget_itemClicked(QListWidgetItem *item);
+
 private:
     Ui::Widget *ui;
 };
