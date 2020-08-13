@@ -18,6 +18,9 @@
 #define CMD_ADDFRAME 1
 #define CMD_DELETEFRAME 2
 #define CMD_MOVETOFRAME 3
+
+#define MODE_REDO 0
+#define MODE_UNDO 1
 typedef struct undoInfoStruct
 {
     int command;
@@ -42,10 +45,11 @@ public:
     QList<QGraphicsPixmapItem*> onionSkins;
     QList <undoInfoStruct> undoBuffer;
     QList <undoInfoStruct> redoBuffer;
-    void undo();
-    void redo();
-    void storeUndo(int command = CMD_SIMPLE);
+    void undoRedo(int mode);
+    void storeUndo(int command = CMD_SIMPLE, int mode = MODE_UNDO);
     void deleteFrame(Frame *frame);
+    Frame *setUpFrame(int pos);
+    void storeRedo(int command = CMD_SIMPLE);
 signals:
 
 

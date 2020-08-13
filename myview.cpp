@@ -313,6 +313,37 @@ void myView::mouseMoveEvent(QMouseEvent *event)
     }
     QGraphicsView::mouseMoveEvent(event);
 }
+Frame* myView::setUpFrame(int pos){
+    //decidi il nome
+    //int intName = 0;
+    /*if(myAnimation->frameList.count()>=1){
+        intName = myAnimation->currentFrame->frameNumber+1;
+
+    }*/
+    QString name;
+    name.sprintf("%d",pos);
+
+    // prepara il widget associato
+    QListWidgetItem * addedItem = new QListWidgetItem();
+
+    for(Frame* f: myAnimation->frameList){
+        if(f->frameNumber>=pos){
+            f->frameNumber++;
+            f->linkedItem->setData(Qt::DisplayRole,QString::number(f->frameNumber));
+        }
+    }
+    myFrameWidgetList->insertItem(pos,addedItem);
+    Frame * addedFrame = myAnimation->addFrame(addedItem, pos);
+    addedFrame->frameNumber = pos;
+    addedFrame->linkedItem = addedItem;
+    // popola l'entry QListWidget con puntatore ed iconea del frame
+    QVariant newData(QVariant::fromValue(addedFrame));
+    addedItem->setData(Qt::UserRole,newData);
+    addedItem->setData(Qt::DisplayRole,name);
+    addedItem->setIcon(*addedFrame->frameIcon);
+    // update other frames
+    return addedFrame;
+}
 void myView::deleteFrame(Frame* frame){
     int frameNum = frame->frameNumber;
     myFrameWidgetList->takeItem(myFrameWidgetList->row(frame->linkedItem));
@@ -327,7 +358,7 @@ void myView::deleteFrame(Frame* frame){
     myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
 }
 void myView::moveToFrame(Frame* frame){
-    //myAnimation->currentFrame->updateRender();
+    //myAnimation->curreDrakasiontFrame->updateRender();
     QRectF myR = scene()->sceneRect();
     int r = 0;
     if(myAnimation->frameList.count()>=1){
@@ -355,10 +386,11 @@ void myView::moveToFrame(Frame* frame){
     }
 
     myAnimation->currentFrame = frame;
+    if(!myAnimation->currentFrame->stickFigures.isEmpty())
+        myAnimation->currentFrame->currentStickFigure = myAnimation->currentFrame->stickFigures[0];
     myStickFigureWidgetList->clearSelection();
     myFrameWidgetList->clearSelection();
     scene()->clearSelection();
-    myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
         if(!myAnimation->currentFrame->stickFigures[0]->stickList.isEmpty())
             myAnimation->updateSelection(myAnimation->currentFrame->stickFigures[0]->stickList[0]);
@@ -367,6 +399,11 @@ void myView::moveToFrame(Frame* frame){
     scene()->update(myR);
     myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
     myFrameWidgetList->setCurrentItem(myAnimation->currentFrame->linkedItem);
+    if(!myAnimation->frameList.isEmpty() && !myAnimation->currentFrame->stickFigures.isEmpty()){
+        myAnimation->currentFrame->currentStickFigure->updateIcon();
+        myFrameWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->frameIcon);
+        myAnimation->currentFrame->updateIcon();
+    }
 
 }
 void myView::updateOnionSkins(){
@@ -423,8 +460,12 @@ void myView::updateOnionSkins(){
     onionRender = false;
 }
 #define MAXUNDO 25
-void myView::undo(){
-    int oldFrameNum = myAnimation->currentFrame->frameNumber;
+void myView::undoRedo(int mode){
+    undoFlag = true;
+    if(mode == MODE_UNDO && undoBuffer.isEmpty())
+        return;
+    else if(mode == MODE_REDO && redoBuffer.isEmpty())
+        return;
     //CLONE FRAME
     // byte array stores serialized data
     QByteArray byteArray;
@@ -433,54 +474,69 @@ void myView::undo(){
     // use this buffer to store data from the object
     buffer1.open(QIODevice::WriteOnly);
     QDataStream myStream(&buffer1);
-    undoInfoStruct myUndo = undoBuffer.takeLast();
+    undoInfoStruct myUndo;
+    if(mode == MODE_REDO){
+        myUndo = redoBuffer.takeLast();
+    }
+    else {
+        myUndo = undoBuffer.takeLast();
+    }
     myStream<<*(myUndo.frame);
-
     // now create a seconds buffer from which to read data of the bytearray
     QBuffer buffer2(&byteArray);
     buffer2.open(QIODevice::ReadOnly);
     // a new data stream to deserialize
     QDataStream myStream2(&buffer2);
-    undoFlag = true;
-    myAnimation->frameBuffer = new Frame();
 
+    Frame* undoFrame = new Frame();
+    if(mode == MODE_UNDO){
+        storeUndo(myUndo.command,MODE_REDO);
+    }
+    else if(mode == MODE_REDO){
+        storeUndo(myUndo.command,MODE_UNDO);
+    }
     // hydrate new frame with previous frame data
-    myStream2>>*myAnimation->frameBuffer;
+    undoFlag = true;
+    myStream2>>*undoFrame;
     //scene()->clear();
-    if(myUndo.command == CMD_ADDFRAME){
+    if((myUndo.command == CMD_ADDFRAME && mode == MODE_UNDO)||
+            (myUndo.command == CMD_DELETEFRAME && mode == MODE_REDO)){
         deleteFrame(myAnimation->currentFrame);
-        myAnimation->frameList[myAnimation->frameBuffer->frameNumber]->clearFrame();
-        myAnimation->cloneFrame(myAnimation->frameList[myAnimation->frameBuffer->frameNumber],myAnimation->frameBuffer);
-        moveToFrame(myAnimation->frameList[myAnimation->frameBuffer->frameNumber]);
+        myAnimation->frameList[undoFrame->frameNumber]->clearFrame();
+        myAnimation->cloneFrame(myAnimation->frameList[undoFrame->frameNumber],undoFrame);
+        moveToFrame(myAnimation->frameList[undoFrame->frameNumber]);
     }
     else if(myUndo.command == CMD_MOVETOFRAME){
-        myAnimation->frameList[myAnimation->frameBuffer->frameNumber]->clearFrame();
-        myAnimation->cloneFrame(myAnimation->frameList[myAnimation->frameBuffer->frameNumber],myAnimation->frameBuffer);
-        moveToFrame(myAnimation->frameList[myAnimation->frameBuffer->frameNumber]);
+        myAnimation->frameList[undoFrame->frameNumber]->clearFrame();
+        myAnimation->cloneFrame(myAnimation->frameList[undoFrame->frameNumber],undoFrame);
+        moveToFrame(myAnimation->frameList[undoFrame->frameNumber]);
     }
-    else if(myUndo.command == CMD_DELETEFRAME){
+    else if((myUndo.command == CMD_DELETEFRAME && mode == MODE_UNDO)||
+            (myUndo.command == CMD_ADDFRAME && mode == MODE_REDO)){
+        Frame* addedFrame = setUpFrame(undoFrame->frameNumber);
+        myAnimation->cloneFrame(addedFrame,undoFrame);
+        moveToFrame(addedFrame);
 
     }
     else{
         myAnimation->currentFrame->clearFrame();
         scene()->clear();
-        myAnimation->cloneFrame(myAnimation->currentFrame,myAnimation->frameBuffer);
+        myAnimation->cloneFrame(myAnimation->currentFrame,undoFrame);
         moveToFrame(myAnimation->currentFrame);
     }
-    delete myAnimation->frameBuffer;
+    delete undoFrame;
     undoFlag = false;
     //
 }
-void myView::redo(){
-
-}
-void myView::storeUndo(int command){
+void myView::storeUndo(int command, int mode){
     if(myAnimation->frameList.isEmpty())
         return;
     undoFlag = true;
     undoInfoStruct myUndo;
+
     myUndo.frame = new Frame();
     myUndo.command = command;
+
     //CLONE FRAME
     // byte array stores serialized data
     QByteArray byteArray;
@@ -498,9 +554,18 @@ void myView::storeUndo(int command){
     // hydrate new frame with previous frame data
     myStream2>>*myUndo.frame;
     //
-    if(undoBuffer.count()>=MAXUNDO){
-        delete undoBuffer.takeFirst().frame;
+    if(mode == MODE_UNDO){
+        if(undoBuffer.count()>=MAXUNDO){
+            delete undoBuffer.takeFirst().frame;
+        }
+        undoBuffer.append(myUndo);
     }
-    undoBuffer.append(myUndo);
+    else if(mode ==MODE_REDO){
+        if(redoBuffer.count()>=MAXUNDO){
+            delete redoBuffer.takeFirst().frame;
+        }
+        redoBuffer.append(myUndo);
+    }
     undoFlag = false;
 }
+

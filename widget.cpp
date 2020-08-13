@@ -124,12 +124,12 @@ void Widget::on_chooseColorBtn_clicked()
 
 void Widget::on_undoBtn_clicked()
 {
-    view->undo();
+    view->undoRedo(MODE_UNDO);
 }
 
 void Widget::on_redoBtn_clicked()
 {
-    view->redo();
+    view->undoRedo(MODE_REDO);
 }
 void Widget::on_addFrameBtn_clicked()
 {
@@ -138,7 +138,10 @@ void Widget::on_addFrameBtn_clicked()
 void Widget::addFrame(void)
 {
     view->storeUndo(CMD_ADDFRAME);
-    Frame* addedFrame = setUpFrame();
+    int pos = 0;
+    if(view->myAnimation->frameList.count()>=1)
+        pos = view->myAnimation->currentFrame->frameNumber+1;
+    Frame* addedFrame = setUpFrame(pos);
     view->moveToFrame(addedFrame);
     addStick();
     //view->myAnimation->storeUndo();
@@ -149,36 +152,9 @@ void Widget::on_frameListWidget_currentItemChanged(QListWidgetItem *current, QLi
 
 }
 // questa funzione crea il frame e gli oggetti lista appropriati
-Frame* Widget::setUpFrame(){
-    //decidi il nome
-    int intName = 0;
-    if(view->myAnimation->frameList.count()>=1){
-        intName = view->myAnimation->currentFrame->frameNumber+1;
+Frame* Widget::setUpFrame(int pos){
+    return view->setUpFrame(pos);
 
-    }
-    QString name;
-    name.sprintf("%d",intName);
-
-    // prepara il widget associato
-    QListWidgetItem * addedItem = new QListWidgetItem();
-    ui->frameListWidget->insertItem(intName,addedItem);
-    for(Frame* f: view->myAnimation->frameList){
-        if(f->frameNumber>=intName){
-            f->frameNumber++;
-            f->linkedItem->setData(Qt::DisplayRole,QString::number(f->frameNumber));
-        }
-    }
-    Frame * addedFrame = view->myAnimation->addFrame(addedItem);
-    addedFrame->frameNumber = intName;
-    addedFrame->linkedItem = addedItem;
-    // popola l'entry QListWidget con puntatore ed iconea del frame
-    QVariant newData(QVariant::fromValue(addedFrame));
-    addedItem->setData(Qt::UserRole,newData);
-    addedItem->setData(Qt::DisplayRole,name);
-    addedItem->setIcon(*addedFrame->frameIcon);
-    // update other frames
-
-    return addedFrame;
 }
 void Widget::on_copyFrame_clicked()
 {
@@ -197,7 +173,10 @@ void Widget::on_copyFrame_clicked()
     // a new data stream to deserialize
     QDataStream myStream2(&buffer2);
     // prepare new frame
-    Frame* addedFrame = setUpFrame();
+    int pos = 0;
+    if(view->myAnimation->frameList.count()>=1)
+        pos = view->myAnimation->currentFrame->frameNumber+1;
+    Frame* addedFrame = setUpFrame(pos);
     // hydrate new frame with previous frame data
     myStream2>>*addedFrame;
     // update frame name
@@ -207,9 +186,7 @@ void Widget::on_copyFrame_clicked()
     buffer1.close();
     buffer2.close();
     // update list icons
-    view->myAnimation->currentFrame->currentStickFigure->updateIcon();
-    ui->frameListWidget->selectedItems()[0]->setIcon(*view->myAnimation->currentFrame->frameIcon);
-    view->myAnimation->currentFrame->updateIcon();
+
 }
 void Widget::copyFrame(QDataStream& stream, Frame* destination)
 {

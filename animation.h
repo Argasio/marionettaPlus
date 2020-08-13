@@ -9,7 +9,7 @@ public:
     Animation();
     QList<Frame*> frameList;
     Frame *frameBuffer;
-    Frame * addFrame(QListWidgetItem* item);
+    Frame * addFrame(QListWidgetItem* item, int pos);
     Frame* currentFrame;
     void updateSelection(stick* item);
     void updateSelection(StickFigure* item);

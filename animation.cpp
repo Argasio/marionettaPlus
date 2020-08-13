@@ -7,7 +7,7 @@ Animation::Animation()
 
 }
 
-Frame *Animation::addFrame(QListWidgetItem* item)
+Frame *Animation::addFrame(QListWidgetItem* item, int pos)
 {
 
     frameBuffer = new Frame();
@@ -23,7 +23,6 @@ Frame *Animation::addFrame(QListWidgetItem* item)
 Frame *Animation::deleteFrame(Frame *frame){
     int frameNum = frameList.indexOf(frame);
     if(frameList.count()>1){
-
         frameList.removeOne(frame);
         for(StickFigure * S:frame->stickFigures){
             delete S->linkedItem;
@@ -31,11 +30,11 @@ Frame *Animation::deleteFrame(Frame *frame){
         delete frame->linkedItem;
         delete frame;
         scene->clear(); // risky
-        if(frameNum>0)
+        if(frameNum>=frameList.count())
         {
-            currentFrame = frameList[frameNum-1];
+            currentFrame = frameList[frameList.count()-1];
         }
-        else if(frameNum == 0){
+        else{
             currentFrame = frameList[frameNum];
         }
     }

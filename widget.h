@@ -20,7 +20,7 @@ public:
     void addStick();
     void addFrame();
     void copyFrame(QDataStream &stream, Frame *destination);
-    Frame *setUpFrame();
+    Frame *setUpFrame(int pos);
 private slots:
     void on_drawBtn_clicked();
 
