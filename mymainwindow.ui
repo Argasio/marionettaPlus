@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menufile">
@@ -29,6 +29,8 @@
     </property>
     <addaction name="actionsave"/>
     <addaction name="actionload"/>
+    <addaction name="actionsave_animation"/>
+    <addaction name="actionload_animation"/>
    </widget>
    <addaction name="menufile"/>
   </widget>
@@ -41,6 +43,16 @@
   <action name="actionload">
    <property name="text">
     <string>load stickfigure</string>
+   </property>
+  </action>
+  <action name="actionsave_animation">
+   <property name="text">
+    <string>save animation</string>
+   </property>
+  </action>
+  <action name="actionload_animation">
+   <property name="text">
+    <string>load animation</string>
    </property>
   </action>
  </widget>

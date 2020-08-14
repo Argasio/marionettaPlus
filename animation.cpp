@@ -1,7 +1,10 @@
 #include "animation.h"
 
 #include <QBuffer>
-
+#include <QFile>
+extern QListWidget * myStickFigureWidgetList;
+extern QListWidget * myFrameWidgetList;
+bool loadingAnimationFlag = false;
 Animation::Animation()
 {
 
@@ -22,7 +25,7 @@ Frame *Animation::addFrame(QListWidgetItem* item, int pos)
 }
 Frame *Animation::deleteFrame(Frame *frame){
     int frameNum = frameList.indexOf(frame);
-    if(frameList.count()>1){
+    if(frameList.count()>=1){
         frameList.removeOne(frame);
         for(StickFigure * S:frame->stickFigures){
             delete S->linkedItem;
@@ -30,12 +33,18 @@ Frame *Animation::deleteFrame(Frame *frame){
         delete frame->linkedItem;
         delete frame;
         scene->clear(); // risky
-        if(frameNum>=frameList.count())
-        {
-            currentFrame = frameList[frameList.count()-1];
+        if(!frameList.isEmpty()){
+            if(frameNum>=frameList.count())
+            {
+                currentFrame = frameList[frameList.count()-1];
+            }
+            else{
+                currentFrame = frameList[frameNum];
+            }
         }
         else{
-            currentFrame = frameList[frameNum];
+            currentFrame = nullptr;
+            frameBuffer = nullptr;
         }
     }
     return currentFrame;
@@ -141,6 +150,31 @@ void Animation::updateSelection(StickFigure* item)
     if(!item->stickList.isEmpty())
         currentFrame->selectStick(item); //update selected stick
 }
+Frame* Animation::setupFrame(int pos){
+    QString name;
+    name.sprintf("%d",pos);
+
+    // prepara il widget associato
+    QListWidgetItem * addedItem = new QListWidgetItem();
+
+    for(Frame* f: frameList){
+        if(f->frameNumber>=pos){
+            f->frameNumber++;
+            f->linkedItem->setData(Qt::DisplayRole,QString::number(f->frameNumber));
+        }
+    }
+    myFrameWidgetList->insertItem(pos,addedItem);
+    Frame * addedFrame = addFrame(addedItem, pos);
+    addedFrame->frameNumber = pos;
+    addedFrame->linkedItem = addedItem;
+    // popola l'entry QListWidget con puntatore ed iconea del frame
+    QVariant newData(QVariant::fromValue(addedFrame));
+    addedItem->setData(Qt::UserRole,newData);
+    addedItem->setData(Qt::DisplayRole,name);
+    addedItem->setIcon(*addedFrame->frameIcon);
+    // update other frames
+    return addedFrame;
+}
 void Animation::cloneFrame(Frame* target, Frame* source)
 {
     // byte array stores serialized data
@@ -163,4 +197,50 @@ void Animation::cloneFrame(Frame* target, Frame* source)
 
     //target->linkedItem = source->linkedItem;
     //target->scene = source->scene;
+}
+QDataStream &operator<<(QDataStream& stream, const Animation& myAnimation){
+    int frameNum = myAnimation.frameList.count();
+    stream<<frameNum;
+    for(Frame* f: myAnimation.frameList){
+        stream<<*f;
+    }
+}
+QDataStream &operator>>(QDataStream& stream,Animation& myAnimation){
+    int frameNum = 0;
+    stream>>frameNum;
+    for(int i = 0;i<frameNum;i++){
+        Frame* addedFrame = myAnimation.setupFrame(i);
+        stream>>*addedFrame;
+        addedFrame->updateIcon();
+    }
+
+}
+void Animation::saveAnimation(QString fileName){
+    QFile file(fileName);
+    if(!file.open(QIODevice::WriteOnly))
+        return;
+    QDataStream out(&file);
+    out << *this;
+    file.close();
+}
+void Animation::loadAnimation(QString name)
+{
+
+    QFile file(name);
+    if(!file.open(QIODevice::ReadOnly))
+        return;
+    QDataStream out(&file);
+    clearAnimation();
+    loadingAnimationFlag = true;
+    out >> *this;
+    loadingAnimationFlag = false;
+    file.close();
+    qDebug("load finished");
+
+}
+void Animation::clearAnimation(){
+    for(Frame* f: frameList){
+        deleteFrame(f);
+    }
+
 }

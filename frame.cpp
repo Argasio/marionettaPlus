@@ -3,7 +3,8 @@
 #include <QDebug>
 QListWidget * ListWidget;
 extern bool undoFlag;
-
+extern QListWidget * myStickFigureWidgetList;
+extern QListWidget * myFrameWidgetList;
 Frame::Frame()
 {
     frameIcon       = new QIcon();
@@ -18,16 +19,21 @@ Frame::~Frame(){
     delete frameIcon;
     //delete renderImg;
 }
-StickFigure* Frame::addStickFigure(QListWidget * myListWidget)
+StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
 {
-
-    ListWidget = myListWidget;
-    int intName = 0;
-    if(!stickFigures.isEmpty()){
-        intName = ListWidget->currentRow()+1;
-    }
     QString myName;
-    myName.sprintf("%d",intName);
+    ListWidget = myListWidget;
+    if(name.count()== 0){
+        int intName = 0;
+        if(!stickFigures.isEmpty()){
+            intName = ListWidget->currentRow()+1;
+        }
+
+        myName.sprintf("%d",intName);
+    }
+    else{
+        myName = name;
+    }
     //deseleziona graficamente nel viewport
 
     QListWidgetItem * addedItem = new QListWidgetItem();

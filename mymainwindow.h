@@ -23,6 +23,10 @@ private slots:
 
     void on_actionload_triggered();
 
+    void on_actionsave_animation_triggered();
+
+    void on_actionload_animation_triggered();
+
 private:
     Ui::myMainWindow *ui;
 };

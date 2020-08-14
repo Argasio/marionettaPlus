@@ -23,7 +23,7 @@ public:
     void updateIcon();
 
     void copyFrame(QDataStream &stream, Frame *destination);
-    StickFigure *addStickFigure( QListWidget *myListWidget);
+    StickFigure *addStickFigure( QListWidget *myListWidget, QString name = "");
     void updateRender();
     void clearFrame();
     void cloneFrame(Frame *target, Frame *source);

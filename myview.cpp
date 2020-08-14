@@ -320,29 +320,7 @@ Frame* myView::setUpFrame(int pos){
         intName = myAnimation->currentFrame->frameNumber+1;
 
     }*/
-    QString name;
-    name.sprintf("%d",pos);
-
-    // prepara il widget associato
-    QListWidgetItem * addedItem = new QListWidgetItem();
-
-    for(Frame* f: myAnimation->frameList){
-        if(f->frameNumber>=pos){
-            f->frameNumber++;
-            f->linkedItem->setData(Qt::DisplayRole,QString::number(f->frameNumber));
-        }
-    }
-    myFrameWidgetList->insertItem(pos,addedItem);
-    Frame * addedFrame = myAnimation->addFrame(addedItem, pos);
-    addedFrame->frameNumber = pos;
-    addedFrame->linkedItem = addedItem;
-    // popola l'entry QListWidget con puntatore ed iconea del frame
-    QVariant newData(QVariant::fromValue(addedFrame));
-    addedItem->setData(Qt::UserRole,newData);
-    addedItem->setData(Qt::DisplayRole,name);
-    addedItem->setIcon(*addedFrame->frameIcon);
-    // update other frames
-    return addedFrame;
+    return myAnimation->setupFrame(pos);
 }
 void myView::deleteFrame(Frame* frame){
     int frameNum = frame->frameNumber;

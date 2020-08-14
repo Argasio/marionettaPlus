@@ -17,6 +17,12 @@ public:
     QGraphicsScene * scene;
     Frame *deleteFrame(Frame* frame);
     void cloneFrame(Frame *target, Frame *source);
+    Frame *setupFrame(int pos);
+    void saveAnimation(QString fileName);
+    void loadAnimation(QString name);
+    void clearAnimation();
 };
-
+Q_DECLARE_METATYPE(Animation*)
+QDataStream &operator<<(QDataStream& stream, const Animation& myAnimation);
+QDataStream &operator>>(QDataStream& stream,Animation& myAnimation);
 #endif // ANIMATION_H

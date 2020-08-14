@@ -169,6 +169,22 @@
                </widget>
               </item>
               <item>
+               <widget class="QTextEdit" name="stickFigureNameText">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>30</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="deleteStickFigureBtn">
                 <property name="text">
                  <string>Delete StickFigure</string>

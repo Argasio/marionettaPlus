@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QFile>
 // StickFigure work in the one active scene
-
+extern bool loadingAnimationFlag;
 extern bool undoFlag;
 StickFigure::~StickFigure()
 {
@@ -328,7 +328,7 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         }
         if(s->master)
             myStickFigure.masterStick = s;
-        if(!undoFlag)
+        if(!undoFlag && !loadingAnimationFlag)
             myStickFigure.scene->addItem(s);
         s->refresh(0);
     }

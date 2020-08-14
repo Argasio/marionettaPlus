@@ -17,6 +17,7 @@ QList <StickFigure*> layerList;
 QListWidget * myStickFigureWidgetList;
 QListWidget * myFrameWidgetList;
 QSpinBox * onionSkinSB;
+QTextEdit * stickFigureNameText;
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -27,6 +28,7 @@ Widget::Widget(QWidget *parent)
     myStickFigureWidgetList = ui->stickLayerView;
     myFrameWidgetList = ui->frameListWidget;
     onionSkinSB = ui->onionSkinSpinBox;
+    stickFigureNameText = ui->stickFigureNameText;
     scene = new QGraphicsScene(this);
     //crea il pannello e collegalo alla scena
     view = new myView(this);
@@ -65,9 +67,8 @@ void Widget::on_addStickBtn_clicked()
 }
 
 void Widget::addStick(){
-
-    view->myAnimation->currentFrame->addStickFigure(ui->stickLayerView);
-
+    view->myAnimation->currentFrame->addStickFigure(ui->stickLayerView, stickFigureNameText->toPlainText());
+    stickFigureNameText->clear();
 }
 void Widget::on_thicknessSpinBox_valueChanged(int arg1)
 {
@@ -202,9 +203,11 @@ void Widget::on_onionSkinSpinBox_valueChanged(const QString &arg1)
 
 void Widget::on_deleteFrameBtn_clicked()
 {
-    view->storeUndo(CMD_DELETEFRAME);
-    view->deleteFrame(view->myAnimation->currentFrame);
-    view->moveToFrame(view->myAnimation->currentFrame);
+    if(view->myAnimation->frameList.count()>1){
+        view->storeUndo(CMD_DELETEFRAME);
+        view->deleteFrame(view->myAnimation->currentFrame);
+        view->moveToFrame(view->myAnimation->currentFrame);
+    }
 }
 
 void Widget::on_frameListWidget_itemClicked(QListWidgetItem *item)
