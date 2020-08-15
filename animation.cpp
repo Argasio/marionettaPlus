@@ -86,32 +86,7 @@ void Animation::updateSelection(QPointF point)
     }
 
 }
-/*
-void Animation::storeUndo()
-{
-    undoBuffer.append(*currentFrame);
-    if(undoBuffer.count()>25)
-    {
-        undoBuffer.removeFirst();
-    }
-}
-void Animation::redo()
-{
-    if(redoBuffer.count()>=2){
-        storeUndo();
-        *currentFrame = redoBuffer.first();
-        redoBuffer.removeFirst();
-        currentFrame->currentStickFigure->refresh();
-    }
-}
-void Animation::undo(){
-    if(undoBuffer.count()>=2){
-        redoBuffer.append(undoBuffer.last());
-        undoBuffer.removeLast();
-        *currentFrame = undoBuffer.last();
-        currentFrame->currentStickFigure->refresh();
-    }
-}*/
+
 void Animation::updateSelection(stick* item)
 {
     //update current frame

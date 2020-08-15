@@ -16,8 +16,11 @@ extern QListWidget * myFrameWidgetList;
 bool undoFlag = false;
 extern QSpinBox * onionSkinSB;
 
-
-
+extern int W;
+extern int H;
+extern QGraphicsRectItem* myRect;
+extern bool playBack ;
+extern QPointF onionOffset;
 
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
@@ -97,10 +100,24 @@ void myView::moveStickFigureZ(int increment)
         }
     }
 }
+void myView::mapMyCoords(QPointF& myCoord, QPointF startingPoint){
+    coord = mapToScene(startingPoint.x(),startingPoint.y());
+    if(myCoord.x()<-myRect->rect().width()/10)
+        myCoord.setX(-myRect->rect().width()/10);
+    if(myCoord.y()<-myRect->rect().height()/10)
+        myCoord.setY(-myRect->rect().height()/10);
+    if(myCoord.y()>myRect->rect().height()+myRect->rect().height()/10)
+        myCoord.setY(myRect->rect().height()+myRect->rect().height()/10);
+    if(myCoord.x()>myRect->rect().width()+myRect->rect().width()/10)
+        myCoord.setX(myRect->rect().width()+myRect->rect().width()/10);
+}
 void myView::mousePressEvent(QMouseEvent *event)
 {
     isPressed       = true; //segnala che è premuto
-    coord           = mapToScene(event->pos());// converti le coordinate del mouse in coordinate di scena
+    // converti le coordinate del mouse in coordinate di scena
+    mapMyCoords(coord,event->pos());
+
+
     startingCoord   = coord; //buffer per il dragghing del mouse premuto
     switch(tool)
     {
@@ -271,7 +288,8 @@ void myView::mouseReleaseEvent(QMouseEvent *event)
 // per ruotarla seguendo il mouse
 void myView::mouseMoveEvent(QMouseEvent *event)
 {
-    coord = mapToScene(event->pos());
+
+    mapMyCoords(coord, event->pos());
     switch(tool)
     {
         case NOTOOL:
@@ -375,12 +393,17 @@ void myView::moveToFrame(Frame* frame){
     updateOnionSkins();
 
     scene()->update(myR);
-    myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
-    myFrameWidgetList->setCurrentItem(myAnimation->currentFrame->linkedItem);
-    if(!myAnimation->frameList.isEmpty() && !myAnimation->currentFrame->stickFigures.isEmpty()){
-        myAnimation->currentFrame->currentStickFigure->updateIcon();
-        myFrameWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->frameIcon);
-        myAnimation->currentFrame->updateIcon();
+    if(playBack == false){
+        myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
+        myFrameWidgetList->setCurrentItem(myAnimation->currentFrame->linkedItem);
+        if(!myAnimation->frameList.isEmpty() && !myAnimation->currentFrame->stickFigures.isEmpty()){
+            myAnimation->currentFrame->currentStickFigure->updateIcon();
+            myFrameWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->frameIcon);
+            myAnimation->currentFrame->updateIcon();
+        }
+        if(myRect == nullptr)
+            myRect = new QGraphicsRectItem(0,0,W,H);
+        scene()->addItem(myRect);
     }
 
 }
@@ -396,6 +419,7 @@ void myView::updateOnionSkins(){
     onionRender = true;
     QGraphicsScene renderScene;
     QImage *renderImg = new QImage(scene()->sceneRect().width(),scene()->sceneRect().height(),QImage::Format_ARGB32);
+
     renderScene.setSceneRect(scene()->sceneRect());
     // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
     QList<stick*> tempList;
@@ -428,6 +452,7 @@ void myView::updateOnionSkins(){
 
         opacityVal += 0.5/skinNum;
         QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*(renderImg)));
+        item->setOffset(onionOffset);
         item->setOpacity(opacityVal);
 
         item->setZValue(0);

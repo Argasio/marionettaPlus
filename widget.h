@@ -60,6 +60,20 @@ private slots:
 
     void on_frameListWidget_itemClicked(QListWidgetItem *item);
 
+    void on_frameListWidget_itemDoubleClicked(QListWidgetItem *item);
+
+    void on_stickLayerView_itemDoubleClicked(QListWidgetItem *item);
+
+    void on_PlayButton_clicked();
+
+    void on_zoomInBtn_clicked();
+
+    void on_zoomOutBtn_clicked();
+
+    void on_resetZoomBtn_clicked();
+
+    void on_exportBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };

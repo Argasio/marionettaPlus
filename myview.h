@@ -50,6 +50,7 @@ public:
     void deleteFrame(Frame *frame);
     Frame *setUpFrame(int pos);
     void storeRedo(int command = CMD_SIMPLE);
+    void mapMyCoords(QPointF &myCoord, QPointF startingPoint);
 signals:
 
 

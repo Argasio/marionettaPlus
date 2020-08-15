@@ -1,5 +1,6 @@
 #include "widget.h"
 #include "ui_widget.h"
+#include "sleeper.h"
 #include <QGraphicsRectItem>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -11,6 +12,15 @@
 #include <QDebug>
 #include <QColorDialog>
 #include <QBuffer>
+#include <QInputDialog>
+#include <QThread>
+#include <QTimer>
+#include <QProcess>
+#include <QDir>
+#include <QStandardPaths>
+#include "QAviWriter.h"
+//#include "QVideoEncoder.h"
+//#include "QVideoDecoder.h"
 QGraphicsScene *scene;
 
 QList <StickFigure*> layerList;
@@ -18,6 +28,15 @@ QListWidget * myStickFigureWidgetList;
 QListWidget * myFrameWidgetList;
 QSpinBox * onionSkinSB;
 QTextEdit * stickFigureNameText;
+QGraphicsRectItem *myRect;
+QGraphicsRectItem *limitRect;
+QSpinBox* fpsSpinBox;
+QPointF onionOffset;
+QDir programFolder;
+int W = 600;
+int H = 600;
+bool playBack = false;
+float zoomLvl = 1;
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -25,10 +44,20 @@ Widget::Widget(QWidget *parent)
 
     ui->setupUi(this);
     //crea la scena virtuale
+    QString  path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    programFolder = QDir(path+"/MarionettaPlus");
+    if(programFolder.exists()){
+        qDebug("folder located");
+    }
+    else{
+        qDebug("folder created");
+        programFolder.mkpath(path+"/MarionettaPlus");
+    }
     myStickFigureWidgetList = ui->stickLayerView;
     myFrameWidgetList = ui->frameListWidget;
     onionSkinSB = ui->onionSkinSpinBox;
     stickFigureNameText = ui->stickFigureNameText;
+    fpsSpinBox = ui->fpsSpinBox;
     scene = new QGraphicsScene(this);
     //crea il pannello e collegalo alla scena
     view = new myView(this);
@@ -38,9 +67,11 @@ Widget::Widget(QWidget *parent)
     //inserisci il pannello nella finestra
     ui->viewLayout->addWidget(view);
     //crea la cornice
-    QGraphicsRectItem *item = new QGraphicsRectItem(0, 0, 600, 600);
-    scene->addItem(item);
-
+    myRect = new QGraphicsRectItem(0, 0, 600, 600);
+    limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
+    scene->addItem(myRect);
+    scene->setSceneRect(limitRect->rect());
+    onionOffset = QPointF(-myRect->rect().width()/10,-myRect->rect().height()/10);
 
 }
 
@@ -217,4 +248,103 @@ void Widget::on_frameListWidget_itemClicked(QListWidgetItem *item)
     Frame* cs = qvariant_cast<Frame*>(retrievedData);
 
     view->moveToFrame(cs);
+}
+
+void Widget::on_frameListWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+
+}
+
+void Widget::on_stickLayerView_itemDoubleClicked(QListWidgetItem *item)
+{
+    QString text = QInputDialog::getText(this,"rename layer","text");
+    QListWidgetItem *myItem = myStickFigureWidgetList->item((myStickFigureWidgetList->currentRow()));
+    myItem->setData(Qt::DisplayRole, text);
+    QVariant  retrievedData = (item->data(Qt::UserRole));
+    StickFigure* S = qvariant_cast<StickFigure*>(retrievedData);
+    S->name = text;
+}
+
+void Widget::on_PlayButton_clicked()
+{
+    view->moveToFrame(view->myAnimation->frameList[0]);
+    int fps = fpsSpinBox->value();
+    int onions = onionSkinSB->value();
+
+    onionSkinSB->setValue(0);
+    view->moveToFrame(view->myAnimation->frameList[0]);
+    playBack = true;
+    int delay = 1000/fps;
+    if(delay>5)
+        delay-=5;
+    mySleeper *play = new mySleeper(view,delay);
+    onionSkinSB->setValue(onions);
+    playBack = false;
+    view->moveToFrame(view->myAnimation->frameList[0]);
+
+}
+
+void Widget::on_zoomInBtn_clicked()
+{
+    view->scale(1/zoomLvl,1/zoomLvl);
+    zoomLvl*=2;
+    view->scale(zoomLvl,zoomLvl);
+    view->moveToFrame(view->myAnimation->currentFrame);
+}
+
+void Widget::on_zoomOutBtn_clicked()
+{
+
+    view->scale(1/zoomLvl,1/zoomLvl);
+    zoomLvl/=2;
+    view->scale(zoomLvl,zoomLvl);
+    view->moveToFrame(view->myAnimation->currentFrame);
+}
+
+void Widget::on_resetZoomBtn_clicked()
+{
+    view->scale(1/zoomLvl,1/zoomLvl);
+    zoomLvl = 1.0;
+    view->moveToFrame(view->myAnimation->currentFrame);
+}
+
+void Widget::on_exportBtn_clicked()
+{
+    //QVideoEncoder encoder;
+    /*
+    QProcess *p = new QProcess(this);
+    QStringList paramList;
+    paramList<<"-i"<<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/input.mp4"
+            <<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/output.webm";
+    p->startDetached("C:/ffmpeg-20200814-a762fd2-win64-static/bin/ffmpeg.exe",paramList);*/
+    QAviWriter writer("C:/Users/Argasio/Documents/GitHub/MarionettaPlus/demo.avi", QSize(W, H), 24, "MJPG");// set framerate to 24 fps and 'MJPG' codec
+    //writer.setAudioFileName("audio.wav"); // set audio track
+    writer.open();
+    for(Frame* f :view->myAnimation->frameList){
+
+
+        QGraphicsScene renderScene;
+        QImage *renderImg = new QImage(scene->sceneRect().width(),scene->sceneRect().height(),QImage::Format_ARGB32);
+
+        renderScene.setSceneRect(scene->sceneRect());
+        // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
+        QList<stick*> tempList;
+        for(StickFigure *S:f->stickFigures)
+        {
+            for(stick* s: S->stickList){
+                stick* clone = new stick(s);
+                tempList.append(clone);
+                renderScene.addItem(clone);
+            }
+        }
+        QPainter painter(renderImg);
+        renderImg->fill(Qt::transparent);
+        painter.setBackground(QBrush(QColor(Qt::transparent)));
+        renderScene.render(&painter);
+        writer.addFrame(*renderImg);
+        delete renderImg;
+        renderScene.clear();
+        //...add all other video frames here
+    }
+    writer.close();
 }
