@@ -18,7 +18,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QStandardPaths>
-#include "QAviWriter.h"
+
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QGraphicsScene *scene;
@@ -317,7 +317,7 @@ void Widget::on_exportBtn_clicked()
     paramList<<"-i"<<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/input.mp4"
             <<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/output.webm";
     p->startDetached("C:/ffmpeg-20200814-a762fd2-win64-static/bin/ffmpeg.exe",paramList);*/
-    QAviWriter writer("C:/Users/Argasio/Documents/GitHub/MarionettaPlus/demo.avi", QSize(W, H), 24, "MJPG");// set framerate to 24 fps and 'MJPG' codec
+    /*QAviWriter writer("C:/Users/Argasio/Documents/GitHub/MarionettaPlus/demo.avi", QSize(W, H), 24, "MJPG");// set framerate to 24 fps and 'MJPG' codec
     //writer.setAudioFileName("audio.wav"); // set audio track
     writer.open();
     for(Frame* f :view->myAnimation->frameList){
@@ -346,5 +346,5 @@ void Widget::on_exportBtn_clicked()
         renderScene.clear();
         //...add all other video frames here
     }
-    writer.close();
+    writer.close();*/
 }

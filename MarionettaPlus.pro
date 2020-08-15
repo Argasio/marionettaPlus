@@ -23,6 +23,7 @@ SOURCES += \
     mymainwindow.cpp \
     myrect.cpp \
     myview.cpp \
+    sleeper.cpp \
     stick.cpp \
     widget.cpp
 
@@ -33,6 +34,7 @@ HEADERS += \
     mymainwindow.h \
     myrect.h \
     myview.h \
+    sleeper.h \
     stick.h \
     style.h \
     widget.h
