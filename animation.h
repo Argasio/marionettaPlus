@@ -7,6 +7,7 @@ class Animation
 {
 public:
     Animation();
+    int version = 1;
     QList<Frame*> frameList;
     Frame *frameBuffer;
     Frame * addFrame(QListWidgetItem* item, int pos);

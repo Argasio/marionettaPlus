@@ -37,6 +37,7 @@ public:
     bool stepchild = false;
     //StickFigure* myStickFigure;
     int parentIdx = 0;
+    int version = 1;
     stick(stick *S);
     stick();
 private:

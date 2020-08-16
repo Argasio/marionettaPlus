@@ -22,6 +22,7 @@ public:
     void saveStickFigure(QString name);
     int drawCount;
     int stickNum = 0;
+    int version = 1;
     int selectStick( QPointF * point);
     QList<stick*>stickList;
     void setLineFromPoint(QPointF *point);

@@ -18,7 +18,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QStandardPaths>
-
+#include <QAviWriter.h>
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QGraphicsScene *scene;
@@ -67,7 +67,7 @@ Widget::Widget(QWidget *parent)
     //inserisci il pannello nella finestra
     ui->viewLayout->addWidget(view);
     //crea la cornice
-    myRect = new QGraphicsRectItem(0, 0, 600, 600);
+    myRect = new QGraphicsRectItem(0, 0, W, H);
     limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
     scene->addItem(myRect);
     scene->setSceneRect(limitRect->rect());
@@ -317,16 +317,24 @@ void Widget::on_exportBtn_clicked()
     paramList<<"-i"<<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/input.mp4"
             <<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/output.webm";
     p->startDetached("C:/ffmpeg-20200814-a762fd2-win64-static/bin/ffmpeg.exe",paramList);*/
-    /*QAviWriter writer("C:/Users/Argasio/Documents/GitHub/MarionettaPlus/demo.avi", QSize(W, H), 24, "MJPG");// set framerate to 24 fps and 'MJPG' codec
-    //writer.setAudioFileName("audio.wav"); // set audio track
-    writer.open();
+    // generate folder for renderings
+    QString path = programFolder.path()+"/render";
+    QDir renderFolder = QDir(path);
+    if(renderFolder.exists()){
+        qDebug("folder located");
+    }
+    else{
+        qDebug("folder created");
+        renderFolder.mkpath(path);
+    }
+    renderFolder.setPath(path);
+    // per ogni frame crea una scena temporanea, popolala con cloni degli sticks del progetto,
+    // renderizza la scena su una QImage tramite un painter e salva l'immagine nella cartella
     for(Frame* f :view->myAnimation->frameList){
-
-
         QGraphicsScene renderScene;
-        QImage *renderImg = new QImage(scene->sceneRect().width(),scene->sceneRect().height(),QImage::Format_ARGB32);
-
-        renderScene.setSceneRect(scene->sceneRect());
+        QImage *renderImg = new QImage(W,H,QImage::Format_ARGB32);
+        QPainter painter(renderImg);
+        renderScene.setSceneRect(myRect->rect());
         // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
         QList<stick*> tempList;
         for(StickFigure *S:f->stickFigures)
@@ -337,14 +345,30 @@ void Widget::on_exportBtn_clicked()
                 renderScene.addItem(clone);
             }
         }
-        QPainter painter(renderImg);
+
         renderImg->fill(Qt::transparent);
         painter.setBackground(QBrush(QColor(Qt::transparent)));
         renderScene.render(&painter);
-        writer.addFrame(*renderImg);
+        renderImg->save(renderFolder.path()+"/render_"+QString::number(f->frameNumber)+".png");
+        painter.end();
         delete renderImg;
         renderScene.clear();
         //...add all other video frames here
     }
-    writer.close();*/
+    // apri il programma avi2Image, passagli i parametri per iniziale la conversione da immagini a file video
+    QProcess *p = new QProcess(this);
+    QStringList paramList;
+    paramList<<renderFolder.path()
+                    <<renderFolder.path()
+                    <<"24"
+                    <<QString::number(W)
+                    <<QString::number(H)
+                    <<QString::number(view->myAnimation->frameList.count());
+    p->start("C:/Users/Argasio/Documents/GitHub/MarionettaPlus/marionettaPlus/image2Avi.exe");
+    if (!p->waitForStarted())
+        qDebug("starting render problem");
+    for(QString s: paramList){
+        p->write(s.toUtf8(),s.length());
+        p->write("\n");
+    }
 }

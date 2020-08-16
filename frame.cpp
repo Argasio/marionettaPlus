@@ -175,6 +175,7 @@ void Frame::updateIcon()
     for(stick* S: tempList){
         delete S;
     }
+    painter.end();
 }
 void Frame::updateRender(){
     /*QGraphicsScene renderScene;

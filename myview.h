@@ -51,6 +51,7 @@ public:
     Frame *setUpFrame(int pos);
     void storeRedo(int command = CMD_SIMPLE);
     void mapMyCoords(QPointF &myCoord, QPointF startingPoint);
+    void clearUndo();
 signals:
 
 

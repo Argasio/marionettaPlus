@@ -4,7 +4,14 @@
 #include <QFile>
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
+extern int W;
+extern int H;
+extern QPointF onionOffset;
+extern QGraphicsRectItem *myRect;
+extern QGraphicsRectItem *limitRect;
+extern QGraphicsScene* scene;
 bool loadingAnimationFlag = false;
+bool clearingAnimation = false;
 Animation::Animation()
 {
 
@@ -21,19 +28,24 @@ Frame *Animation::addFrame(QListWidgetItem* item, int pos)
         currentFrame = frameBuffer;
     frameList.append(frameBuffer);
     frameBuffer->linkedItem = item;
-
+    return frameBuffer;
 }
 Frame *Animation::deleteFrame(Frame *frame){
     int frameNum = frameList.indexOf(frame);
     if(frameList.count()>=1){
         frameList.removeOne(frame);
-        for(StickFigure * S:frame->stickFigures){
-            delete S->linkedItem;
+        if(frame == currentFrame){
+            for(StickFigure * S:frame->stickFigures){
+                delete S->linkedItem;
+            }
         }
         delete frame->linkedItem;
         delete frame;
-        scene->clear(); // risky
-        if(!frameList.isEmpty()){
+        delete myRect;
+        if(!clearingAnimation)
+            scene->clear(); // risky
+        myRect = new QGraphicsRectItem(0,0,W,H); // RENEW IT
+        if(!frameList.isEmpty() && !clearingAnimation){
             if(frameNum>=frameList.count())
             {
                 currentFrame = frameList[frameList.count()-1];
@@ -175,14 +187,28 @@ void Animation::cloneFrame(Frame* target, Frame* source)
 }
 QDataStream &operator<<(QDataStream& stream, const Animation& myAnimation){
     int frameNum = myAnimation.frameList.count();
+    stream<<myAnimation.version;
     stream<<frameNum;
+    stream<<W;
+    stream<<H;
     for(Frame* f: myAnimation.frameList){
         stream<<*f;
     }
 }
 QDataStream &operator>>(QDataStream& stream,Animation& myAnimation){
     int frameNum = 0;
+    stream>>myAnimation.version;
     stream>>frameNum;
+    stream>>W;
+    stream>>H;
+    delete myRect;
+    scene->clear();
+    myRect = new QGraphicsRectItem(0, 0, W, H); // renew the rect
+    limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
+
+    scene->addItem(myRect);
+    scene->setSceneRect(limitRect->rect());
+    onionOffset = QPointF(-myRect->rect().width()/10,-myRect->rect().height()/10);
     for(int i = 0;i<frameNum;i++){
         Frame* addedFrame = myAnimation.setupFrame(i);
         stream>>*addedFrame;
@@ -214,8 +240,12 @@ void Animation::loadAnimation(QString name)
 
 }
 void Animation::clearAnimation(){
+    clearingAnimation = true;
     for(Frame* f: frameList){
+        myFrameWidgetList->takeItem(myFrameWidgetList->row(f->linkedItem));
         deleteFrame(f);
     }
+    scene->clear();
+    clearingAnimation = false;
 
 }

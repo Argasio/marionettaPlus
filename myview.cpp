@@ -10,7 +10,7 @@ bool    isPressed = false;
 QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
 float   rotationBuffer; //selected item Rotation buffer
-
+bool clearUndoFlag = false;
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
 bool undoFlag = false;
@@ -20,6 +20,7 @@ extern int W;
 extern int H;
 extern QGraphicsRectItem* myRect;
 extern bool playBack ;
+extern bool loadFile;
 extern QPointF onionOffset;
 
 myView::myView(QWidget *parent) : QGraphicsView(parent)
@@ -401,8 +402,9 @@ void myView::moveToFrame(Frame* frame){
             myFrameWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->frameIcon);
             myAnimation->currentFrame->updateIcon();
         }
-        if(myRect == nullptr)
+        if(myRect == nullptr){
             myRect = new QGraphicsRectItem(0,0,W,H);
+        }
         scene()->addItem(myRect);
     }
 
@@ -459,6 +461,7 @@ void myView::updateOnionSkins(){
         onionSkins.append(item);
         scene()->addItem(item);
         renderScene.clear();
+        painter.end();
     }
     onionRender = false;
 }
@@ -524,6 +527,7 @@ void myView::undoRedo(int mode){
     else{
         myAnimation->currentFrame->clearFrame();
         scene()->clear();
+        myRect = new QGraphicsRectItem(0,0,W,H); // RENEW IT
         myAnimation->cloneFrame(myAnimation->currentFrame,undoFrame);
         moveToFrame(myAnimation->currentFrame);
     }
@@ -571,4 +575,15 @@ void myView::storeUndo(int command, int mode){
     }
     undoFlag = false;
 }
-
+void myView::clearUndo(){
+    clearUndoFlag = true;
+    for(undoInfoStruct u:undoBuffer){
+        delete u.frame;
+    }
+    undoBuffer.clear();
+    for(undoInfoStruct u:redoBuffer){
+        delete u.frame;
+    }
+    redoBuffer.clear();
+    clearUndoFlag = false;
+}

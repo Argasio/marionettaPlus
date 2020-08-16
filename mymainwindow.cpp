@@ -2,6 +2,7 @@
 #include "ui_mymainwindow.h"
 #include "animation.h"
 #include "QFileDialog"
+bool loadFile = false;
 myMainWindow::myMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::myMainWindow)
@@ -24,7 +25,7 @@ void myMainWindow::on_actionsave_triggered()
 
 void myMainWindow::on_actionload_triggered()
 {
-    view->storeUndo();
+
     QString filename = QFileDialog::getOpenFileName(this,tr("Load StickFigure"),
                        "C:/", "Stickfigure (*.stck)");
     if(filename.length()>0){
@@ -45,9 +46,12 @@ void myMainWindow::on_actionload_animation_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this,tr("Load Animation"),
                        "C:/", "Marionetta Animation (*.mAnim)");
+     view->clearUndo();
     if(filename.length()>0){
+        loadFile = true;
         QDataStream myStream;
         view->myAnimation->loadAnimation(filename);
         view->moveToFrame(view->myAnimation->frameList[0]);
+        loadFile = false;
     }
 }

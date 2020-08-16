@@ -5,12 +5,14 @@
 // StickFigure work in the one active scene
 extern bool loadingAnimationFlag;
 extern bool undoFlag;
+extern bool clearUndoFlag;
 StickFigure::~StickFigure()
 {
     if(!undoFlag){
         for(stick* s: stickList)
         {
-            scene->removeItem(s);
+            if(!clearUndoFlag)
+                scene->removeItem(s);
             delete s;
         }
     }
@@ -257,6 +259,7 @@ void StickFigure::deleteStick(int idx)
 // serializzatori e deserializzatori della classe stick
 QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     //stream<<myStick.Z;
+    stream<<myStick.version;
     stream<<myStick.type;
     stream<<myStick.stepchild;
     stream<<myStick.myLine;
@@ -267,6 +270,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
 }
 QDataStream & operator>> (QDataStream& stream, stick& myStick){
     //stream>>myStick.Z;
+    stream>>myStick.version;
     stream>>myStick.type;
     stream>>myStick.stepchild;
     stream>>myStick.myLine;
@@ -278,7 +282,7 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
 // serializzatore per stickfigure
 QDataStream & operator<< (QDataStream& stream, const StickFigure& myStickFigure){
     // per prima cosa registra il numero di stick che lo compongono
-
+    stream<<myStickFigure.version;
     stream<<myStickFigure.stickList.count();
     stream<<myStickFigure.name;
     // per ogni stick nella lista scrivi l'indice del genitore e poi serializza il tutto
@@ -298,6 +302,7 @@ QDataStream & operator<< (QDataStream& stream, const StickFigure& myStickFigure)
 QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
 
     int max = 0;
+    stream>>myStickFigure.version;
     stream>>max; // quanti stick possiede?
     stream>>myStickFigure.name;
     myStickFigure.stickList.clear();
