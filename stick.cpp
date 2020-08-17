@@ -30,7 +30,8 @@ stick::stick(stick* S)
     this->Z = S->Z;
     this->br = S->boundingRect();
     this->type = S->type;
-    this->stickImg = new QPixmap(*S->stickImg);
+    if(S->type == IMAGE)
+        this->stickImg = new QPixmap(*S->stickImg);
 }
 stick::~stick(){
     if(stickImg != nullptr)
@@ -55,8 +56,9 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
                              myLine.length()*0.5, myLine.length()*0.5); //RX e RY
     }
     else if(type == stickType::IMAGE){
-        painter->drawPixmap(QRectF(
-                                    myLine.p1(),QSizeF(myLine.dx(),myLine.dy())), *stickImg,QRectF(0,0,1920,1080));
+        QRectF imgRect = calcImgRect(myLine, stickImg->size());
+        painter->drawPixmap(imgRect, *stickImg,QRectF(0,0,stickImg->width(),stickImg->height()));
+        painter->drawRect(imgRect);
     }
     else if(type == stickType::LINE){
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
@@ -96,6 +98,24 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
 QRectF stick::boundingRect() const
 {
     return this->br;
+}
+
+QRectF calcImgRect(QLineF l,QSizeF s){
+    /*QRectF out = QRectF(QPointF                                                      // Upper left corner of rect =
+                   (0.5*(l.p1().x()+l.p2().x())-abs(l.dx())*0.5, //           line center X shifted by minus half line length
+                    0.5*(l.p1().y()+l.p2().y())-abs(l.dy())*0.5), //          line center Y shifted by minus half line length (pushing top left)
+                   QPointF(0.5*(l.p1().x()+l.p2().x())+abs(l.dx())*0.5, // bottom right corner =
+                                       0.5*(l.p1().y()+l.p2().y())+abs(l.dy())*0.5));// line center shifted by adding half line length (pushing bottom right)
+    */
+    float f = l.length()/s.width();
+    QRectF out =QRectF(QPointF                                                      // Upper left corner of rect =
+                       (0.5*(l.p1().x()+l.p2().x())-abs(l.length())*0.5, //           line center X shifted by minus half line length
+                        0.5*(l.p1().y()+l.p2().y())-abs(s.height()*f)*0.5), //
+                       QPointF(0.5*(l.p1().x()+l.p2().x())+abs(l.length())*0.5, // bottom right corner =
+                                           0.5*(l.p1().y()+l.p2().y())+abs(s.height()*f)*0.5));
+
+    return out;
+
 }
 //funzione per aggiornare il boudning rectangle
 QRectF stick::updateBr(int mode)

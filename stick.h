@@ -49,4 +49,5 @@ private:
     void  calcAngle();
 };
 void sceneRemover(QGraphicsScene *sceneToClear);
+QRectF calcImgRect(QLineF l,QSizeF s);
 #endif // STICK_H

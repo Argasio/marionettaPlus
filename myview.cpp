@@ -220,8 +220,7 @@ void myView::drawCmd(QPointF* point, int mode)
             else if(mode == DRAWIMG){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::IMAGE;
                 myAnimation->currentFrame->currentStickFigure->currentStick->stickImg = new QPixmap(*imageDrawBuffer);
-                delete imageDrawBuffer;
-                imageDrawBuffer = nullptr;
+
             }
             myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
             //aggiungi il nuovo elemento alla scena mediante puntatore dell'elemento linea dell'oggetto stick
@@ -266,6 +265,10 @@ void myView::changeTool()
             }
             else{
 
+            }
+            if(tool == DRAWIMG){
+                delete imageDrawBuffer;
+                imageDrawBuffer = nullptr;
             }
             break;
         }

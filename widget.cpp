@@ -382,7 +382,8 @@ void Widget::on_drawImageBtn_clicked()
     /*QString filename = QFileDialog::getOpenFileName(this,tr("Load Image"),
                        "C:/", tr("Images (*.png *.bmp *.jpg)"));*/
     if(1/*filename.length()>0*/){
-        imageDrawBuffer = new QPixmap("C:/Users/riccim3/Pictures/sfondi/cables-wallpaper-1920x1080.jpg" );
+        //imageDrawBuffer = new QPixmap("C:/Users/riccim3/Pictures/sfondi/cables-wallpaper-1920x1080.jpg" );
+        imageDrawBuffer = new QPixmap("C:/Users/Argasio/Pictures/sbottis.jpg" );
         view->setTool(DRAWIMG);
     }
 
