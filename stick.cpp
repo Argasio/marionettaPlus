@@ -2,6 +2,8 @@
 #include <QGraphicsItem>
 
 bool onionRender = false;
+extern QGraphicsRectItem* myRect;
+extern QPixmap * imageDrawBuffer ;
 //lo stick si basa fondamentalmente su un QGraphicsLineObject, uno stick alloca una lineobject
 stick::stick(QLineF *line)
 {
@@ -28,6 +30,11 @@ stick::stick(stick* S)
     this->Z = S->Z;
     this->br = S->boundingRect();
     this->type = S->type;
+    this->stickImg = new QPixmap(*S->stickImg);
+}
+stick::~stick(){
+    if(stickImg != nullptr)
+        delete stickImg;
 }
 void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
@@ -46,6 +53,10 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
                              (0.5*(myLine.p1().x()+myLine.p2().x()),
                               0.5*(myLine.p1().y()+myLine.p2().y())), // Ellipse center = line center
                              myLine.length()*0.5, myLine.length()*0.5); //RX e RY
+    }
+    else if(type == stickType::IMAGE){
+        painter->drawPixmap(QRectF(
+                                    myLine.p1(),QSizeF(myLine.dx(),myLine.dy())), *stickImg,QRectF(0,0,1920,1080));
     }
     else if(type == stickType::LINE){
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
@@ -239,7 +250,10 @@ QPointF stick::getP2(QLineF* line)
     return QPointF(x,y);
 }
 
-stick::~stick()
-{
+void sceneRemover(QGraphicsScene *sceneToClear){
+    QList<QGraphicsItem*> thingsOnScene = sceneToClear->items( Qt::DescendingOrder);
+    for(QGraphicsItem* i: thingsOnScene){
+        if(i != myRect)
+            sceneToClear->removeItem(i);
+    }
 }
-

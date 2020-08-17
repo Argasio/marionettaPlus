@@ -11,8 +11,8 @@ StickFigure::~StickFigure()
     if(!undoFlag){
         for(stick* s: stickList)
         {
-            if(!clearUndoFlag)
-                scene->removeItem(s);
+            //if(!clearUndoFlag)
+            scene->removeItem(s);
             delete s;
         }
     }

@@ -41,10 +41,11 @@ Frame *Animation::deleteFrame(Frame *frame){
         }
         delete frame->linkedItem;
         delete frame;
-        delete myRect;
-        if(!clearingAnimation)
-            scene->clear(); // risky
-        myRect = new QGraphicsRectItem(0,0,W,H); // RENEW IT
+        //delete myRect;
+        /*if(!clearingAnimation)
+            scene->clear(); // risky*/
+        sceneRemover(scene);
+        //myRect = new QGraphicsRectItem(0,0,W,H); // RENEW IT
         if(!frameList.isEmpty() && !clearingAnimation){
             if(frameNum>=frameList.count())
             {
@@ -201,10 +202,11 @@ QDataStream &operator>>(QDataStream& stream,Animation& myAnimation){
     stream>>frameNum;
     stream>>W;
     stream>>H;
-    delete myRect;
-    scene->clear();
-    myRect = new QGraphicsRectItem(0, 0, W, H); // renew the rect
-    limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
+    //delete myRect;
+    //scene->clear();
+    //myRect = new QGraphicsRectItem(0, 0, W, H); // renew the rect
+    sceneRemover(scene);
+    //limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
 
     scene->addItem(myRect);
     scene->setSceneRect(limitRect->rect());
@@ -245,7 +247,8 @@ void Animation::clearAnimation(){
         myFrameWidgetList->takeItem(myFrameWidgetList->row(f->linkedItem));
         deleteFrame(f);
     }
-    scene->clear();
+    sceneRemover(scene);
+    //scene->clear();
     clearingAnimation = false;
 
 }

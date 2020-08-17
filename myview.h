@@ -11,6 +11,7 @@
 #include <animation.h>
 #define DRAW 5
 #define DRAWCIRCLE 6
+#define DRAWIMG 7
 #define NOTOOL 4
 
 

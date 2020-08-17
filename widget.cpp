@@ -18,7 +18,8 @@
 #include <QProcess>
 #include <QDir>
 #include <QStandardPaths>
-#include <QAviWriter.h>
+#include <QFileDialog>
+
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QGraphicsScene *scene;
@@ -37,6 +38,7 @@ int W = 600;
 int H = 600;
 bool playBack = false;
 float zoomLvl = 1;
+QPixmap * imageDrawBuffer;
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -267,13 +269,15 @@ void Widget::on_stickLayerView_itemDoubleClicked(QListWidgetItem *item)
 
 void Widget::on_PlayButton_clicked()
 {
+    //parti dal frame 0, scegli il framerate
     view->moveToFrame(view->myAnimation->frameList[0]);
     int fps = fpsSpinBox->value();
     int onions = onionSkinSB->value();
-
+    // non voglio onionskins in questa modalità
     onionSkinSB->setValue(0);
     view->moveToFrame(view->myAnimation->frameList[0]);
-    playBack = true;
+    playBack = true;//flag globale
+    // calcola il delay da usare nel timer di passaggio da un frame al segunte
     int delay = 1000/fps;
     if(delay>5)
         delay-=5;
@@ -331,9 +335,9 @@ void Widget::on_exportBtn_clicked()
     // per ogni frame crea una scena temporanea, popolala con cloni degli sticks del progetto,
     // renderizza la scena su una QImage tramite un painter e salva l'immagine nella cartella
     for(Frame* f :view->myAnimation->frameList){
-        QGraphicsScene renderScene;
-        QImage *renderImg = new QImage(W,H,QImage::Format_ARGB32);
-        QPainter painter(renderImg);
+        QGraphicsScene renderScene; //scena fittizia
+        QImage *renderImg = new QImage(W,H,QImage::Format_ARGB32); //immagine temporanea
+        QPainter painter(renderImg); // painter che esegue il drawing sull immagine
         renderScene.setSceneRect(myRect->rect());
         // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
         QList<stick*> tempList;
@@ -345,7 +349,7 @@ void Widget::on_exportBtn_clicked()
                 renderScene.addItem(clone);
             }
         }
-
+        //disegna sull' immagine e salvala
         renderImg->fill(Qt::transparent);
         painter.setBackground(QBrush(QColor(Qt::transparent)));
         renderScene.render(&painter);
@@ -371,4 +375,15 @@ void Widget::on_exportBtn_clicked()
         p->write(s.toUtf8(),s.length());
         p->write("\n");
     }
+}
+
+void Widget::on_drawImageBtn_clicked()
+{
+    /*QString filename = QFileDialog::getOpenFileName(this,tr("Load Image"),
+                       "C:/", tr("Images (*.png *.bmp *.jpg)"));*/
+    if(1/*filename.length()>0*/){
+        imageDrawBuffer = new QPixmap("C:/Users/riccim3/Pictures/sfondi/cables-wallpaper-1920x1080.jpg" );
+        view->setTool(DRAWIMG);
+    }
+
 }

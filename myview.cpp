@@ -22,7 +22,7 @@ extern QGraphicsRectItem* myRect;
 extern bool playBack ;
 extern bool loadFile;
 extern QPointF onionOffset;
-
+extern QPixmap * imageDrawBuffer ;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     onionRender = false;
@@ -134,6 +134,7 @@ void myView::mousePressEvent(QMouseEvent *event)
             }
             case DRAW:
             case DRAWCIRCLE:
+            case DRAWIMG:
             {
                 drawCmd(&coord,(int)tool);
                 break;
@@ -216,7 +217,12 @@ void myView::drawCmd(QPointF* point, int mode)
             if(mode == DRAWCIRCLE){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::CIRCLE;
             }
-
+            else if(mode == DRAWIMG){
+                myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::IMAGE;
+                myAnimation->currentFrame->currentStickFigure->currentStick->stickImg = new QPixmap(*imageDrawBuffer);
+                delete imageDrawBuffer;
+                imageDrawBuffer = nullptr;
+            }
             myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
             //aggiungi il nuovo elemento alla scena mediante puntatore dell'elemento linea dell'oggetto stick
            scene()->addItem(myAnimation->currentFrame->currentStickFigure->currentStick);
@@ -247,6 +253,7 @@ void myView::changeTool()
         }
         case(DRAW):
         case(DRAWCIRCLE):
+        case(DRAWIMG):
         {
             if(!myAnimation->currentFrame->stickFigures.isEmpty())
             {
@@ -354,10 +361,12 @@ void myView::deleteFrame(Frame* frame){
     }
     myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
 }
+// routine per passare da un frame ad un altro, svuota la scena, svuota le widget list, ripopola entrambi, aggiorna onion skins e selezioni
 void myView::moveToFrame(Frame* frame){
-    //myAnimation->curreDrakasiontFrame->updateRender();
+    //myAnimation->currentFrame->updateRender();
     QRectF myR = scene()->sceneRect();
     int r = 0;
+    // rimuovi tutti gli stick dalla scena
     if(myAnimation->frameList.count()>=1){
         for(StickFigure *S:myAnimation->currentFrame->stickFigures){
             for(stick * s: S->stickList){
@@ -366,7 +375,9 @@ void myView::moveToFrame(Frame* frame){
             }
         }
     }
+    // rimuovigli elementi dalla lista widget
     myStickFigureWidgetList->clear();
+    // aggiungi tutta gli stickfigure del nuovo frame alla lista del widget
     for(StickFigure *S:frame->stickFigures){
         QListWidgetItem * addedItem = new QListWidgetItem(myStickFigureWidgetList);
         QVariant newData(QVariant::fromValue(S));
@@ -375,25 +386,28 @@ void myView::moveToFrame(Frame* frame){
         addedItem->setIcon(*S->stickFigureIcon);
         S->linkedItem = addedItem;
         myStickFigureWidgetList->addItem(S->linkedItem);
+        // aggiungi alla scena
         for(stick * s: S->stickList){
             scene()->addItem(s);
-
         }
 
     }
-
+    // aggiorna il current frame, se si parte d auna situazione di inizio forza il primo stickfigure
     myAnimation->currentFrame = frame;
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
         myAnimation->currentFrame->currentStickFigure = myAnimation->currentFrame->stickFigures[0];
+    // forza la selezione dell' item in posizione 0
     myStickFigureWidgetList->clearSelection();
     myFrameWidgetList->clearSelection();
     scene()->clearSelection();
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
         if(!myAnimation->currentFrame->stickFigures[0]->stickList.isEmpty())
             myAnimation->updateSelection(myAnimation->currentFrame->stickFigures[0]->stickList[0]);
-    updateOnionSkins();
+
+    updateOnionSkins();//aggiorna gli onion skins
 
     scene()->update(myR);
+    // se non siamo in modalità playback aggiorna le selezioni nelle widgetlists e delle iconee
     if(playBack == false){
         myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
         myFrameWidgetList->setCurrentItem(myAnimation->currentFrame->linkedItem);
@@ -409,33 +423,31 @@ void myView::moveToFrame(Frame* frame){
     }
 
 }
+// routine per calcolare gli onion skins, prima cancellali, ridisegnali su un immagine, e aggiungi l'immagine alla scena
 void myView::updateOnionSkins(){
-
+    // svuota i buffer di immagine vecchi (presneti nella scena) immagazzinati nel ciclo for precedente
     for(QGraphicsPixmapItem* P:onionSkins){
+        scene()->removeItem(P);
         delete P;
     }
     onionSkins.clear();
     if(onionSkinSB->value()==0 || myAnimation->currentFrame->frameNumber == 0)
         return;
-    //
+    // imposta la flag per routine speciali
     onionRender = true;
-    QGraphicsScene renderScene;
+    QGraphicsScene renderScene; // scena fittizia su cui renderizzare gli onionskins
+    // immagine fittizia su cui registrare gli onion skins
     QImage *renderImg = new QImage(scene()->sceneRect().width(),scene()->sceneRect().height(),QImage::Format_ARGB32);
 
     renderScene.setSceneRect(scene()->sceneRect());
     // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
     QList<stick*> tempList;
-
-
-    //
-
-
-
+    // dallo spinbox trai il valore del numero di onionskins servono
     int skinNum = onionSkinSB->value();
     float opacityVal = 0;
     if(myAnimation->currentFrame->frameNumber<skinNum)
         skinNum = myAnimation->currentFrame->frameNumber;
-
+    // disegna sulla scena fittizia gli stickfigures dei frame da onionskinnare che partono dal frame corrente- numero di skin calcolabili
     for(int i = myAnimation->currentFrame->frameNumber-skinNum; i<myAnimation->currentFrame->frameNumber; i++){
 
         for(StickFigure *S:myAnimation->frameList[i]->stickFigures)
@@ -450,13 +462,12 @@ void myView::updateOnionSkins(){
         renderImg->fill(Qt::transparent);
         painter.setBackground(QBrush(QColor(Qt::transparent)));
         renderScene.render(&painter);
-
-
+        // più è vecchio l'onion skin più è trasparente, più è vicino al frame corrente più è opaco
         opacityVal += 0.5/skinNum;
+        // trasferisci la scena renderizzata
         QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*(renderImg)));
         item->setOffset(onionOffset);
         item->setOpacity(opacityVal);
-
         item->setZValue(0);
         onionSkins.append(item);
         scene()->addItem(item);
@@ -466,6 +477,8 @@ void myView::updateOnionSkins(){
     onionRender = false;
 }
 #define MAXUNDO 25
+// Questa funzione fa sia undo che redo, a seconda prende come sorgente un buffer diverso undoBuffe ro redoBuffer
+// copia dal Buffer,
 void myView::undoRedo(int mode){
     undoFlag = true;
     if(mode == MODE_UNDO && undoBuffer.isEmpty())
@@ -505,29 +518,43 @@ void myView::undoRedo(int mode){
     undoFlag = true;
     myStream2>>*undoFrame;
     //scene()->clear();
+    // se è un undo su un addframe, o un redo su un deleteframe ci sta da rimuovere un frame
     if((myUndo.command == CMD_ADDFRAME && mode == MODE_UNDO)||
             (myUndo.command == CMD_DELETEFRAME && mode == MODE_REDO)){
+        // routine di cancellazione del frame
         deleteFrame(myAnimation->currentFrame);
+        // svuota il frame da popolare con il buffer
         myAnimation->frameList[undoFrame->frameNumber]->clearFrame();
+        //popola il frame di destinazione con il buffer
         myAnimation->cloneFrame(myAnimation->frameList[undoFrame->frameNumber],undoFrame);
+        // spostati verso tale frame
         moveToFrame(myAnimation->frameList[undoFrame->frameNumber]);
     }
+    // se è un undo su uno spostamento
     else if(myUndo.command == CMD_MOVETOFRAME){
+        //svuota il frame di destinazione
         myAnimation->frameList[undoFrame->frameNumber]->clearFrame();
+        // popolalo col buffer
         myAnimation->cloneFrame(myAnimation->frameList[undoFrame->frameNumber],undoFrame);
+        // spostati sul frame di destinazione
         moveToFrame(myAnimation->frameList[undoFrame->frameNumber]);
     }
+    // se è un undo su un deleteframe o un redo su un adddframe bisogna aggiungere un frame
     else if((myUndo.command == CMD_DELETEFRAME && mode == MODE_UNDO)||
             (myUndo.command == CMD_ADDFRAME && mode == MODE_REDO)){
+        // routine di aggiunta del frame
         Frame* addedFrame = setUpFrame(undoFrame->frameNumber);
+        // popola il frame aggiuntio col buffer
         myAnimation->cloneFrame(addedFrame,undoFrame);
+        // spostati sulla destinazione
         moveToFrame(addedFrame);
 
     }
     else{
         myAnimation->currentFrame->clearFrame();
-        scene()->clear();
-        myRect = new QGraphicsRectItem(0,0,W,H); // RENEW IT
+        sceneRemover(scene());
+        //scene()->clear();
+        //myRect = new QGraphicsRectItem(0,0,W,H); // RENEW IT
         myAnimation->cloneFrame(myAnimation->currentFrame,undoFrame);
         moveToFrame(myAnimation->currentFrame);
     }
@@ -535,12 +562,13 @@ void myView::undoRedo(int mode){
     undoFlag = false;
     //
 }
+// routine per immagazzinare undo e redo popolando il buffer a seconda della mode selezionata
 void myView::storeUndo(int command, int mode){
     if(myAnimation->frameList.isEmpty())
         return;
     undoFlag = true;
+    // inizializza la struttura di undo/redo
     undoInfoStruct myUndo;
-
     myUndo.frame = new Frame();
     myUndo.command = command;
 
@@ -560,7 +588,7 @@ void myView::storeUndo(int command, int mode){
     QDataStream myStream2(&buffer2);
     // hydrate new frame with previous frame data
     myStream2>>*myUndo.frame;
-    //
+    //popola il buffer appropriato
     if(mode == MODE_UNDO){
         if(undoBuffer.count()>=MAXUNDO){
             delete undoBuffer.takeFirst().frame;
@@ -575,6 +603,7 @@ void myView::storeUndo(int command, int mode){
     }
     undoFlag = false;
 }
+// cancella i buffer di undo e redo, da chiamare quando si carica un nuovo file
 void myView::clearUndo(){
     clearUndoFlag = true;
     for(undoInfoStruct u:undoBuffer){

@@ -201,6 +201,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="drawImageBtn">
+                <property name="text">
+                 <string>Draw Image</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="addStickBtn">
                 <property name="text">
                  <string>Add StickFigure</string>

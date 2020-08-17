@@ -74,6 +74,8 @@ private slots:
 
     void on_exportBtn_clicked();
 
+    void on_drawImageBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };
