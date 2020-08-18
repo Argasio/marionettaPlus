@@ -56,17 +56,37 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
                              myLine.length()*0.5, myLine.length()*0.5); //RX e RY
     }
     else if(type == stickType::IMAGE){
-        QRectF imgRect = calcImgRect(myLine, stickImg->size());
+        //QRectF imgRect = calcImgRect(myLine, stickImg->size());
         // ogni immagine la facciamo partire dal punto 0,0
         // la ruotiamo
         // la trasliamo al punto di p1
         // il punto p1 deve essere sempre il topleft corner
+        QTransform t;
 
-        painter->drawPixmap(imgRect,*stickImg ,QRectF(0,0,stickImg->width(),stickImg->height()));
-        painter->drawRect(imgRect);
+        //t = t.translate(myLine.p1().x(),myLine.p1().y());
+        //QTransform rot = QTransform::fromTranslate(-0.5*stickImg->width(), -0.5*stickImg->height()).rotate(imgAngle);
+
+        //QPixmap trans = stickImg->transformed(rot);
+        //imgRect = calcImgRect(myLine, trans.size());
+        QSizeF off;
+        QPointF p;
+        if(stickImg->width()>stickImg->height())
+            off = QSizeF(myLine.length(),stickImg->height()*myLine.length()/stickImg->width());
+        else
+            off = QSizeF(myLine.length()*stickImg->width()/stickImg->height(),myLine.length());
+        QPixmap scaled = stickImg->scaled(off.width(),off.height());
+        p = QPointF(myLine.p1().x(),myLine.p1().y());
+        QPointF p2 = QPointF(-scaled.width()/2,-scaled.height()/2);
+        painter->translate(p);
+        painter->rotate(imgAngle);
+        painter->drawPixmap(p2,
+                            scaled);
+
+        painter->rotate(-imgAngle);
+        painter->translate(-p.x(),-p.y());
         /*
         QTransform t;
-        t.translate(-myLine.p1().x(),-myLine.p1().y());
+        t.translate(-myLine.p1().x(),-myLine.p1().-y());
         QTransform rot = t.rotate(imgAngle);
         rot = rot.translate(myLine.p1().x(),myLine.p1().y());
         QPixmap transformed = stickImg->transformed(rot);
@@ -125,12 +145,12 @@ QRectF stick::boundingRect() const
 
 QRectF calcImgRect(QLineF l,QSizeF s){
     float f = l.length()/s.width();
-    /*QRectF out = QRectF(QPointF                                                      // Upper left corner of rect =
-                   (0.5*(l.p1().x()+l.p2().x())-abs(l.dx())*0.5, //           line center X shifted by minus half line length
-                    0.5*(l.p1().y()+l.p2().y())-abs(l.dy())*0.5), //          line center Y shifted by minus half line length (pushing top left)
-                   QPointF(0.5*(l.p1().x()+l.p2().x())+abs(l.dx())*0.5, // bottom right corner =
-                                       0.5*(l.p1().y()+l.p2().y())+abs(l.dy())*0.5));// line center shifted by adding half line length (pushing bottom right)
-    */
+    QRectF out = QRectF(QPointF                                                      // Upper left corner of rect =
+                   (l.p1().x()-abs(l.length())*0.5, //           line center X shifted by minus half line length
+                    l.p1().y()-abs(s.height()*f)*0.5), //          line center Y shifted by minus half line length (pushing top left)
+                   QPointF(l.p1().x()+abs(l.length())*0.5, // bottom right corner =
+                                       l.p1().y()+abs(s.height()*f)*0.5));// line center shifted by adding half line length (pushing bottom right)
+
     /*
     //questa cerca adattivamente quale sia il punto più in alto a sx
     QRectF out =QRectF(QPointF                                                      // Upper left corner of rect =
@@ -139,9 +159,9 @@ QRectF calcImgRect(QLineF l,QSizeF s){
                        QPointF(0.5*(l.p1().x()+l.p2().x())+abs(l.length())*0.5, // bottom right corner =
                                            0.5*(l.p1().y()+l.p2().y())+abs(s.height()*f)*0.5));*/
 
-    QRectF out =QRectF(l.p1(),
+    /*QRectF out =QRectF(0.5*(l.p1()+l.p2())-QPointF(),
                        QPointF(l.p1().x()+abs(l.dx()), // bottom right corner =
-                                           l.p1().y()+(s.height()*f)));
+                                           l.p1().y()+(s.height()*f)));*/
     return out;
 
 }
@@ -167,6 +187,25 @@ QRectF stick::updateBr(int mode)
                     0.5*(myLine.p1().y()+myLine.p2().y())-myLine.length()*0.5), //          line center Y shifted by minus half line length (pushing top left)
                    QPointF(0.5*(myLine.p1().x()+myLine.p2().x())+myLine.length()*0.5, // bottom right corner =
                                        0.5*(myLine.p1().y()+myLine.p2().y())+myLine.length()*0.5));     // line center shifted by adding half line length (pushing bottom right)
+
+    if(type == IMAGE && myLine.length()>0){
+        QSizeF off;
+        bool a = false;
+        if(stickImg->width()>stickImg->height()){
+            off = QSizeF(myLine.length(),stickImg->height()*myLine.length()/stickImg->width());
+            a = true;
+        }
+        else
+            off = QSizeF(myLine.length()*stickImg->width()/stickImg->height(),myLine.length());
+
+        QPixmap scaled = stickImg->scaled(off.width(),off.height());
+        float d = sqrt(pow(scaled.width(),2)+pow(scaled.height(),2));
+        newBr = QRectF(QPointF                                                      // Upper left corner of rect =
+                       (myLine.p1().x()-d, //           line center X shifted by minus half line length
+                        myLine.p1().y()-d), //          line center Y shifted by minus half line length (pushing top left)
+                       QPointF(myLine.p1().x()+d, // bottom right corner =
+                                           myLine.p1().y()+d));
+    }
     /*
     // 1 Assicurati che a seconda della direzione della linea, il rettangolo abbia come P1 il punto più in alto a sx
     //      e come P2 il punto più in basso a destra
@@ -278,7 +317,7 @@ void stick::rotate(QPointF *point)
         }
         children[i]->refresh(1);
     }
-    if(type == IMAGE){
+    if(type == IMAGE && !traslationOnly){
         imgAngle = angle;
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }

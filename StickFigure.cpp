@@ -149,6 +149,11 @@ void StickFigure::endDrawing(QPointF *point)
         }
         parentBuffer = parentBuffer->parent;
     }
+    if(stickBuffer->type == stick::IMAGE){
+        stickBuffer->imgRect = calcImgRect(stickBuffer->myLine,stickBuffer->stickImg->size());
+        stickBuffer->imgWScale = stickBuffer->myLine.dx();
+        stickBuffer->imgHScale = stickBuffer->myLine.dy();
+    }
 }
 void StickFigure::cancelDrawing()
 {
@@ -266,6 +271,11 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     stream<<myStick.parentIdx;
     stream<<myStick.Pen;
     stream<<myStick.master;
+    if(myStick.type == stick::IMAGE){
+        stream<<myStick.stickImg->size();
+        stream<<*myStick.stickImg;
+    }
+
     return stream;
 }
 QDataStream & operator>> (QDataStream& stream, stick& myStick){
@@ -277,6 +287,12 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.parentIdx;
     stream>>myStick.Pen;
     stream>>myStick.master;
+    if(myStick.type == stick::IMAGE){
+        QSizeF mysize;
+        stream>>mysize;
+        myStick.stickImg = new QPixmap(mysize.width(),mysize.height());
+        stream>>*myStick.stickImg;
+    }
     return stream;
 }
 // serializzatore per stickfigure
