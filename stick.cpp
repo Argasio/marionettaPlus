@@ -57,8 +57,31 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     }
     else if(type == stickType::IMAGE){
         QRectF imgRect = calcImgRect(myLine, stickImg->size());
-        painter->drawPixmap(imgRect, *stickImg,QRectF(0,0,stickImg->width(),stickImg->height()));
+        // ogni immagine la facciamo partire dal punto 0,0
+        // la ruotiamo
+        // la trasliamo al punto di p1
+        // il punto p1 deve essere sempre il topleft corner
+
+        painter->drawPixmap(imgRect,*stickImg ,QRectF(0,0,stickImg->width(),stickImg->height()));
         painter->drawRect(imgRect);
+        /*
+        QTransform t;
+        t.translate(-myLine.p1().x(),-myLine.p1().y());
+        QTransform rot = t.rotate(imgAngle);
+        rot = rot.translate(myLine.p1().x(),myLine.p1().y());
+        QPixmap transformed = stickImg->transformed(rot);
+        QRectF rect2 = calcImgRect(myLine, transformed.size());
+        painter->drawPixmap(rect2,transformed ,QRectF(0,0,stickImg->width(),stickImg->height()));
+        painter->drawRect(rect2);
+
+        painter->translate(myLine.p1());
+        painter->rotate(myLine.angle());
+        painter->translate(-myLine.p1());
+        painter->drawPixmap(imgRect, *stickImg,QRectF(0,0,stickImg->width(),stickImg->height()));
+        painter->rotate(-myLine.angle());
+        painter->drawRect(imgRect);*/
+        //painter->setBrushOrigin(0,0);
+
     }
     else if(type == stickType::LINE){
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
@@ -101,19 +124,24 @@ QRectF stick::boundingRect() const
 }
 
 QRectF calcImgRect(QLineF l,QSizeF s){
+    float f = l.length()/s.width();
     /*QRectF out = QRectF(QPointF                                                      // Upper left corner of rect =
                    (0.5*(l.p1().x()+l.p2().x())-abs(l.dx())*0.5, //           line center X shifted by minus half line length
                     0.5*(l.p1().y()+l.p2().y())-abs(l.dy())*0.5), //          line center Y shifted by minus half line length (pushing top left)
                    QPointF(0.5*(l.p1().x()+l.p2().x())+abs(l.dx())*0.5, // bottom right corner =
                                        0.5*(l.p1().y()+l.p2().y())+abs(l.dy())*0.5));// line center shifted by adding half line length (pushing bottom right)
     */
-    float f = l.length()/s.width();
+    /*
+    //questa cerca adattivamente quale sia il punto più in alto a sx
     QRectF out =QRectF(QPointF                                                      // Upper left corner of rect =
                        (0.5*(l.p1().x()+l.p2().x())-abs(l.length())*0.5, //           line center X shifted by minus half line length
                         0.5*(l.p1().y()+l.p2().y())-abs(s.height()*f)*0.5), //
                        QPointF(0.5*(l.p1().x()+l.p2().x())+abs(l.length())*0.5, // bottom right corner =
-                                           0.5*(l.p1().y()+l.p2().y())+abs(s.height()*f)*0.5));
+                                           0.5*(l.p1().y()+l.p2().y())+abs(s.height()*f)*0.5));*/
 
+    QRectF out =QRectF(l.p1(),
+                       QPointF(l.p1().x()+abs(l.dx()), // bottom right corner =
+                                           l.p1().y()+(s.height()*f)));
     return out;
 
 }
@@ -249,6 +277,10 @@ void stick::rotate(QPointF *point)
 
         }
         children[i]->refresh(1);
+    }
+    if(type == IMAGE){
+        imgAngle = angle;
+        //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }
 
 }

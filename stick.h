@@ -43,6 +43,10 @@ public:
     int version = 1;
     stick(stick *S);
     stick();
+    float imgAngle = 0;
+    float imgWScale = 1;
+    float imgHScale = 1;
+    QPointF imgOffset = QPointF(0,0);
 private:
     float angleBuffer;
     QRectF updateBr(int mode);
