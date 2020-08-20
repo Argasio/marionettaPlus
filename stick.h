@@ -46,8 +46,10 @@ public:
     float imgAngle = 0;
     float imgWScale = 1;
     float imgHScale = 1;
+    int imgAngleOffset = 0;
     QPointF imgOffset = QPointF(0,0);
     QRectF imgRect;
+    QPixmap calcImg();
 private:
     float angleBuffer;
     QRectF updateBr(int mode);

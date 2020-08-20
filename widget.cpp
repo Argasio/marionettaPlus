@@ -20,6 +20,7 @@
 #include <QStandardPaths>
 #include <QFileDialog>
 
+
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QGraphicsScene *scene;
@@ -32,6 +33,11 @@ QTextEdit * stickFigureNameText;
 QGraphicsRectItem *myRect;
 QGraphicsRectItem *limitRect;
 QSpinBox* fpsSpinBox;
+QSlider* imgHOffsetSlider;
+QSlider* imgVOffsetSlider;
+QSlider* imgWidthSlider;
+QSlider* imgHeightSlider;
+QSlider* imgRotationSlider;
 QPointF onionOffset;
 QDir programFolder;
 int W = 600;
@@ -60,6 +66,11 @@ Widget::Widget(QWidget *parent)
     onionSkinSB = ui->onionSkinSpinBox;
     stickFigureNameText = ui->stickFigureNameText;
     fpsSpinBox = ui->fpsSpinBox;
+    imgHOffsetSlider = ui->imgHOffsetSlider;
+    imgVOffsetSlider = ui->imgVOfsetSlider;
+    imgWidthSlider = ui->imgWSlider;
+    imgHeightSlider = ui->imgHSlider;
+    imgRotationSlider = ui->imgRotationSlider;
     scene = new QGraphicsScene(this);
     //crea il pannello e collegalo alla scena
     view = new myView(this);
@@ -387,4 +398,79 @@ void Widget::on_drawImageBtn_clicked()
         view->setTool(DRAWIMG);
     }
 
+}
+
+void Widget::on_imgHOffsetSlider_sliderMoved(int position)
+{
+    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    if(cs == nullptr)
+        return;
+    else{
+        if(cs->type == stick::IMAGE){
+            float val = 0;
+            val = cs->imgWScale*cs->stickImg->width()*(float)imgHOffsetSlider->value()/100;
+            cs->imgOffset.setX(val);
+             view->myAnimation->currentFrame->currentStickFigure->refresh();
+        }
+    }
+}
+
+void Widget::on_imgWSlider_sliderMoved(int position)
+{
+    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    if(cs == nullptr)
+        return;
+    else{
+        if(cs->type == stick::IMAGE){
+            float scale = 0;
+            imgWidthSlider->value()>0?scale = (float)imgWidthSlider->value()/10+1:scale = 1/((float)(-imgWidthSlider->value())/10+1);
+            cs->imgWScale = scale;
+             view->myAnimation->currentFrame->currentStickFigure->refresh();
+        }
+    }
+}
+
+void Widget::on_imgHSlider_sliderMoved(int position)
+{
+    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    if(cs == nullptr)
+        return;
+    else{
+        if(cs->type == stick::IMAGE){
+            float scale = 0;
+            imgWidthSlider->value()>0?scale = (float)imgHeightSlider->value()/10+1:scale = 1/((float)(-imgHeightSlider->value())/10+1);
+            cs->imgHScale = scale;
+             view->myAnimation->currentFrame->currentStickFigure->refresh();
+        }
+    }
+}
+
+void Widget::on_imgVOfsetSlider_sliderMoved(int position)
+{
+    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    if(cs == nullptr)
+        return;
+    else{
+        if(cs->type == stick::IMAGE){
+            float val = 0;
+            val = cs->imgHScale*cs->stickImg->width()*(float)imgVOffsetSlider->value()/100;
+            cs->imgOffset.setY(val);
+             view->myAnimation->currentFrame->currentStickFigure->refresh();
+        }
+    }
+}
+
+void Widget::on_imgRotationSlider_sliderMoved(int position)
+{
+    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    if(cs == nullptr)
+        return;
+    else{
+        if(cs->type == stick::IMAGE){
+            float val = 0;
+            val =imgRotationSlider->value();
+            cs->imgAngleOffset = val;
+             view->myAnimation->currentFrame->currentStickFigure->refresh();
+        }
+    }
 }

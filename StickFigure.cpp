@@ -104,6 +104,9 @@ void StickFigure::previewDrawing(QPointF *point)
 {
     setLineFromPoint(point);
     stickBuffer->refresh(1);
+    if(stickBuffer->type== stick::IMAGE){
+        stickBuffer->imgAngle= -atan2(stickBuffer->myLine.dx(),stickBuffer->myLine.dy())*180/M_PI;
+    }
 }
 void StickFigure::refresh()
 {
@@ -151,8 +154,7 @@ void StickFigure::endDrawing(QPointF *point)
     }
     if(stickBuffer->type == stick::IMAGE){
         stickBuffer->imgRect = calcImgRect(stickBuffer->myLine,stickBuffer->stickImg->size());
-        stickBuffer->imgWScale = stickBuffer->myLine.dx();
-        stickBuffer->imgHScale = stickBuffer->myLine.dy();
+
     }
 }
 void StickFigure::cancelDrawing()

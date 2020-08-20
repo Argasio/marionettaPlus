@@ -76,6 +76,16 @@ private slots:
 
     void on_drawImageBtn_clicked();
 
+    void on_imgHOffsetSlider_sliderMoved(int position);
+
+    void on_imgWSlider_sliderMoved(int position);
+
+    void on_imgHSlider_sliderMoved(int position);
+
+    void on_imgVOfsetSlider_sliderMoved(int position);
+
+    void on_imgRotationSlider_sliderMoved(int position);
+
 private:
     Ui::Widget *ui;
 };
