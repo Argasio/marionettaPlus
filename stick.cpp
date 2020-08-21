@@ -62,27 +62,20 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         // la trasliamo al punto di p1
         // il punto p1 deve essere sempre il topleft corner
         QTransform t;
-
-        //t = t.translate(myLine.p1().x(),myLine.p1().y());
-        //QTransform rot = QTransform::fromTranslate(-0.5*stickImg->width(), -0.5*stickImg->height()).rotate(imgAngle);
-
-        //QPixmap trans = stickImg->transformed(rot);
-        //imgRect = calcImgRect(myLine, trans.size());
         QSizeF off;
         QPointF p;
-        if(stickImg->width()>stickImg->height())
-            off = QSizeF(myLine.length(),stickImg->height()*myLine.length()/stickImg->width());
-        else
-            off = QSizeF(myLine.length()*stickImg->width()/stickImg->height(),myLine.length());
-        QPixmap scaled = stickImg->scaled(off.width(),off.height());
+        //vedi quale fra lunghezza o larghezza dell'immaggine èd la più alta per calcolare lóffset per centrare l'immagine su p1
+        QPixmap scaled = calcImg();
         p = QPointF(myLine.p1().x(),myLine.p1().y());
         QPointF p2 = QPointF(-scaled.width()/2,-scaled.height()/2);
         painter->translate(p);
-        painter->rotate(imgAngle);
+        painter->rotate(imgAngle+imgAngleOffset);
+        QPointF p3 = QPointF(imgOffset);
+        painter->translate(p3);
         painter->drawPixmap(p2,
                             scaled);
-
-        painter->rotate(-imgAngle);
+        painter->translate(-p3.x(),-p3.y());
+        painter->rotate(-imgAngle-imgAngleOffset);
         painter->translate(-p.x(),-p.y());
         /*
         QTransform t;
@@ -166,6 +159,16 @@ QRectF calcImgRect(QLineF l,QSizeF s){
 
 }
 //funzione per aggiornare il boudning rectangle
+QPixmap stick::calcImg(){
+    QSizeF off;
+    if(stickImg->width()>stickImg->height())
+        off = QSizeF(myLine.length()*imgWScale,stickImg->height()*myLine.length()/stickImg->width()*imgHScale);
+    else
+        off = QSizeF(myLine.length()*stickImg->width()*imgWScale/stickImg->height(),myLine.length()*imgHScale);
+
+
+    return  stickImg->scaled(off.width(),off.height());
+}
 QRectF stick::updateBr(int mode)
 {
     QRectF newBr;
@@ -189,16 +192,10 @@ QRectF stick::updateBr(int mode)
                                        0.5*(myLine.p1().y()+myLine.p2().y())+myLine.length()*0.5));     // line center shifted by adding half line length (pushing bottom right)
 
     if(type == IMAGE && myLine.length()>0){
-        QSizeF off;
-        bool a = false;
-        if(stickImg->width()>stickImg->height()){
-            off = QSizeF(myLine.length(),stickImg->height()*myLine.length()/stickImg->width());
-            a = true;
-        }
-        else
-            off = QSizeF(myLine.length()*stickImg->width()/stickImg->height(),myLine.length());
 
-        QPixmap scaled = stickImg->scaled(off.width(),off.height());
+
+
+        QPixmap scaled = calcImg();
         float d = sqrt(pow(scaled.width(),2)+pow(scaled.height(),2));
         newBr = QRectF(QPointF                                                      // Upper left corner of rect =
                        (myLine.p1().x()-d, //           line center X shifted by minus half line length

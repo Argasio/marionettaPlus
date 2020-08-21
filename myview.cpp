@@ -23,6 +23,10 @@ extern bool playBack ;
 extern bool loadFile;
 extern QPointF onionOffset;
 extern QPixmap * imageDrawBuffer ;
+extern QSlider* imgHOffsetSlider;
+extern QSlider* imgVOffsetSlider;
+extern QSlider* imgWidthSlider;
+extern QSlider* imgHeightSlider;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     onionRender = false;
@@ -324,6 +328,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         }
         case DRAW:
         case DRAWCIRCLE:
+        case DRAWIMG:
         {
         // durante il disegno,l'estremo libero della linea segue il mouse
             if(myAnimation->currentFrame->currentStickFigure != NULL && myAnimation->currentFrame->currentStickFigure != nullptr)
