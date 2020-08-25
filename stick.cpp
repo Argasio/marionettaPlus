@@ -18,7 +18,7 @@ stick::stick(QLineF *line)
 stick::stick()
 {
     this->setFlag(QGraphicsItem::ItemIsSelectable,true);
-    Pen = QPen();
+    //Pen = QPen();
 }
 stick::stick(stick* S)
 {
@@ -31,10 +31,10 @@ stick::stick(stick* S)
     this->br = S->boundingRect();
     this->type = S->type;
     if(S->type == IMAGE)
-        this->stickImg = new QPixmap(*S->stickImg);
+        this->stickImg = new QImage(*S->stickImg);
 }
 stick::~stick(){
-    if(stickImg != nullptr)
+    if(type == IMAGE)
         delete stickImg;
 }
 void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -65,15 +65,17 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         QSizeF off;
         QPointF p;
         //vedi quale fra lunghezza o larghezza dell'immaggine èd la più alta per calcolare lóffset per centrare l'immagine su p1
-        QPixmap scaled = calcImg();
+        QImage scaled = calcImg();
         p = QPointF(myLine.p1().x(),myLine.p1().y());
         QPointF p2 = QPointF(-scaled.width()/2,-scaled.height()/2);
         painter->translate(p);
         painter->rotate(imgAngle+imgAngleOffset);
         QPointF p3 = QPointF(imgOffset);
         painter->translate(p3);
+        QPixmap pixmap;
+        pixmap.convertFromImage(scaled);
         painter->drawPixmap(p2,
-                            scaled);
+                            pixmap);
         painter->translate(-p3.x(),-p3.y());
         painter->rotate(-imgAngle-imgAngleOffset);
         painter->translate(-p.x(),-p.y());
@@ -159,7 +161,7 @@ QRectF calcImgRect(QLineF l,QSizeF s){
 
 }
 //funzione per aggiornare il boudning rectangle
-QPixmap stick::calcImg(){
+QImage stick::calcImg(){
     QSizeF off;
     if(stickImg->width()>stickImg->height())
         off = QSizeF(myLine.length()*imgWScale,stickImg->height()*myLine.length()/stickImg->width()*imgHScale);
@@ -195,7 +197,7 @@ QRectF stick::updateBr(int mode)
 
 
 
-        QPixmap scaled = calcImg();
+        QImage scaled = calcImg();
         float d = sqrt(pow(scaled.width(),2)+pow(scaled.height(),2));
         newBr = QRectF(QPointF                                                      // Upper left corner of rect =
                        (myLine.p1().x()-d, //           line center X shifted by minus half line length

@@ -22,7 +22,7 @@ extern QGraphicsRectItem* myRect;
 extern bool playBack ;
 extern bool loadFile;
 extern QPointF onionOffset;
-extern QPixmap * imageDrawBuffer ;
+extern QImage * imageDrawBuffer ;
 extern QSlider* imgHOffsetSlider;
 extern QSlider* imgVOffsetSlider;
 extern QSlider* imgWidthSlider;
@@ -223,7 +223,7 @@ void myView::drawCmd(QPointF* point, int mode)
             }
             else if(mode == DRAWIMG){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::IMAGE;
-                myAnimation->currentFrame->currentStickFigure->currentStick->stickImg = new QPixmap(*imageDrawBuffer);
+                myAnimation->currentFrame->currentStickFigure->currentStick->stickImg = new QImage(*imageDrawBuffer);
 
             }
             myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
@@ -582,15 +582,15 @@ void myView::storeUndo(int command, int mode){
 
     //CLONE FRAME
     // byte array stores serialized data
-    QByteArray byteArray;
+    QByteArray* byteArray = new QByteArray(myAnimation->currentFrame->stickFigures.count()*20000000,0x00);
     // buffer temporarily holds serialized data
-    QBuffer buffer1(&byteArray);
+    QBuffer buffer1(byteArray);
     // use this buffer to store data from the object
     buffer1.open(QIODevice::WriteOnly);
     QDataStream myStream(&buffer1);
     myStream<<*(myAnimation->currentFrame);
     // now create a seconds buffer from which to read data of the bytearray
-    QBuffer buffer2(&byteArray);
+    QBuffer buffer2(byteArray);
     buffer2.open(QIODevice::ReadOnly);
     // a new data stream to deserialize
     QDataStream myStream2(&buffer2);
@@ -610,6 +610,7 @@ void myView::storeUndo(int command, int mode){
         redoBuffer.append(myUndo);
     }
     undoFlag = false;
+    delete byteArray;
 }
 // cancella i buffer di undo e redo, da chiamare quando si carica un nuovo file
 void myView::clearUndo(){

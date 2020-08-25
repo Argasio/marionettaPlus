@@ -44,7 +44,7 @@ int W = 600;
 int H = 600;
 bool playBack = false;
 float zoomLvl = 1;
-QPixmap * imageDrawBuffer;
+QImage * imageDrawBuffer;
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -393,7 +393,7 @@ void Widget::on_drawImageBtn_clicked()
     /*QString filename = QFileDialog::getOpenFileName(this,tr("Load Image"),
                        "C:/", tr("Images (*.png *.bmp *.jpg)"));*/
     if(1/*filename.length()>0*/){
-        imageDrawBuffer = new QPixmap("C:/Users/riccim3/Pictures/sfondi/cables-wallpaper-1920x1080.jpg" );
+        imageDrawBuffer = new QImage("C:/Users/riccim3/Pictures/immagine.jpg" );
         //imageDrawBuffer = new QPixmap("C:/immagine.jpg" );
         view->setTool(DRAWIMG);
     }

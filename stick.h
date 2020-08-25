@@ -35,7 +35,7 @@ public:
     bool master = false;
     QPen Pen;
     qreal Z;
-    QPixmap *stickImg = nullptr;
+    QImage *stickImg = nullptr;
     bool highlight = false;
     bool stepchild = false;
     //StickFigure* myStickFigure;
@@ -49,7 +49,7 @@ public:
     int imgAngleOffset = 0;
     QPointF imgOffset = QPointF(0,0);
     QRectF imgRect;
-    QPixmap calcImg();
+    QImage calcImg();
 private:
     float angleBuffer;
     QRectF updateBr(int mode);

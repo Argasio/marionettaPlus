@@ -1,5 +1,6 @@
 #include "StickFigure.h"
 
+#include <QBuffer>
 #include <QDebug>
 #include <QFile>
 // StickFigure work in the one active scene
@@ -274,8 +275,26 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     stream<<myStick.Pen;
     stream<<myStick.master;
     if(myStick.type == stick::IMAGE){
-        stream<<myStick.stickImg->size();
-        stream<<*myStick.stickImg;
+        QSize imgSize = myStick.stickImg->size();
+        stream<<imgSize;
+
+        stream<<myStick.imgAngle;
+        stream<<myStick.imgHScale;
+        stream<<myStick.imgWScale;
+        stream<<myStick.imgOffset;
+        QByteArray imgInArray;
+        // buffer temporarily holds serialized data
+        QBuffer buffer1(&imgInArray);
+        // use this buffer to store data from the object
+        buffer1.open(QIODevice::WriteOnly);
+        //QDataStream myStream(&buffer1);
+
+        myStick.stickImg->save(&buffer1,"JPG");
+        buffer1.close();
+        int bytesize= imgInArray.size();
+        stream<<bytesize;
+        stream<<imgInArray;
+        buffer1.close();
     }
 
     return stream;
@@ -290,10 +309,27 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.Pen;
     stream>>myStick.master;
     if(myStick.type == stick::IMAGE){
-        QSizeF mysize;
+        QSize mysize;
         stream>>mysize;
-        myStick.stickImg = new QPixmap(mysize.width(),mysize.height());
-        stream>>*myStick.stickImg;
+        myStick.stickImg = new QImage(mysize,QImage::Format_ARGB32);
+
+        stream>>myStick.imgAngle;
+        stream>>myStick.imgHScale;
+        stream>>myStick.imgWScale;
+        stream>>myStick.imgOffset;
+        int bytesize = 0;
+        stream>>bytesize;
+        char tempbuf[bytesize];
+        QByteArray imgInArray;
+        // buffer temporarily holds serialized data
+        QBuffer buffer1(&imgInArray);
+        // use this buffer to store data from the object
+        buffer1.open(QIODevice::ReadOnly);
+        QDataStream myStream(&buffer1);
+        stream.readRawData(tempbuf,bytesize);
+        imgInArray.append(tempbuf,bytesize);
+        myStick.stickImg->loadFromData(imgInArray,"JPG");
+        buffer1.close();
     }
     return stream;
 }
@@ -353,7 +389,7 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
             myStickFigure.masterStick = s;
         if(!undoFlag && !loadingAnimationFlag)
             myStickFigure.scene->addItem(s);
-        s->refresh(0);
+        //s->refresh(0); // commentato per bug che non ho capito era necessario?
     }
     if(myStickFigure.stickList.count()>0)
         myStickFigure.currentStick = myStickFigure.stickList[0];
