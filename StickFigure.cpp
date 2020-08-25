@@ -282,6 +282,8 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
         stream<<myStick.imgHScale;
         stream<<myStick.imgWScale;
         stream<<myStick.imgOffset;
+        stream<<*myStick.stickImg;
+        /*
         QByteArray imgInArray;
         // buffer temporarily holds serialized data
         QBuffer buffer1(&imgInArray);
@@ -291,10 +293,10 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
 
         myStick.stickImg->save(&buffer1,"JPG");
         buffer1.close();
-        int bytesize= imgInArray.size();
-        stream<<bytesize;
+        //int bytesize= imgInArray.size();
+        //stream<<bytesize;
         stream<<imgInArray;
-        buffer1.close();
+        buffer1.close();*/
     }
 
     return stream;
@@ -318,7 +320,9 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
         stream>>myStick.imgWScale;
         stream>>myStick.imgOffset;
         int bytesize = 0;
-        stream>>bytesize;
+        //stream>>bytesize;
+        stream>>*myStick.stickImg;
+        /*
         char tempbuf[bytesize];
         QByteArray imgInArray;
         // buffer temporarily holds serialized data
@@ -329,7 +333,7 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
         stream.readRawData(tempbuf,bytesize);
         imgInArray.append(tempbuf,bytesize);
         myStick.stickImg->loadFromData(imgInArray,"JPG");
-        buffer1.close();
+        buffer1.close();*/
     }
     return stream;
 }

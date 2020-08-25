@@ -86,6 +86,16 @@ private slots:
 
     void on_imgRotationSlider_sliderMoved(int position);
 
+    void on_imgHOffsetSlider_sliderReleased();
+
+    void on_imgVOfsetSlider_sliderReleased();
+
+    void on_imgWSlider_sliderReleased();
+
+    void on_imgHSlider_sliderReleased();
+
+    void on_imgRotationSlider_sliderReleased();
+
 private:
     Ui::Widget *ui;
 };

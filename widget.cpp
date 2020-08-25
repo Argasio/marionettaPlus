@@ -42,6 +42,13 @@ QPointF onionOffset;
 QDir programFolder;
 int W = 600;
 int H = 600;
+struct{
+    bool sliderHOffset = false;
+    bool sliderVOffset = false;
+    bool sliderWScale = false;
+    bool sliderHScale = false;
+    bool sliderRot = false;
+}sliderFlags;
 bool playBack = false;
 float zoomLvl = 1;
 QImage * imageDrawBuffer;
@@ -407,6 +414,10 @@ void Widget::on_imgHOffsetSlider_sliderMoved(int position)
         return;
     else{
         if(cs->type == stick::IMAGE){
+            if(!sliderFlags.sliderHOffset){
+                view->storeUndo(CMD_SIMPLE);
+                sliderFlags.sliderHOffset = true;
+            }
             float val = 0;
             val = cs->imgWScale*cs->stickImg->width()*(float)imgHOffsetSlider->value()/100;
             cs->imgOffset.setX(val);
@@ -423,6 +434,10 @@ void Widget::on_imgWSlider_sliderMoved(int position)
     else{
         if(cs->type == stick::IMAGE){
             float scale = 0;
+            if(!sliderFlags.sliderWScale){
+                view->storeUndo(CMD_SIMPLE);
+                sliderFlags.sliderWScale = true;
+            }
             imgWidthSlider->value()>0?scale = (float)imgWidthSlider->value()/10+1:scale = 1/((float)(-imgWidthSlider->value())/10+1);
             cs->imgWScale = scale;
              view->myAnimation->currentFrame->currentStickFigure->refresh();
@@ -438,6 +453,10 @@ void Widget::on_imgHSlider_sliderMoved(int position)
     else{
         if(cs->type == stick::IMAGE){
             float scale = 0;
+            if(!sliderFlags.sliderHScale){
+                view->storeUndo(CMD_SIMPLE);
+                sliderFlags.sliderHScale = true;
+            }
             imgWidthSlider->value()>0?scale = (float)imgHeightSlider->value()/10+1:scale = 1/((float)(-imgHeightSlider->value())/10+1);
             cs->imgHScale = scale;
              view->myAnimation->currentFrame->currentStickFigure->refresh();
@@ -453,6 +472,10 @@ void Widget::on_imgVOfsetSlider_sliderMoved(int position)
     else{
         if(cs->type == stick::IMAGE){
             float val = 0;
+            if(!sliderFlags.sliderVOffset){
+                view->storeUndo(CMD_SIMPLE);
+                sliderFlags.sliderVOffset = true;
+            }
             val = cs->imgHScale*cs->stickImg->width()*(float)imgVOffsetSlider->value()/100;
             cs->imgOffset.setY(val);
              view->myAnimation->currentFrame->currentStickFigure->refresh();
@@ -467,10 +490,39 @@ void Widget::on_imgRotationSlider_sliderMoved(int position)
         return;
     else{
         if(cs->type == stick::IMAGE){
+            if(!sliderFlags.sliderRot){
+                view->storeUndo(CMD_SIMPLE);
+                sliderFlags.sliderRot = true;
+            }
             float val = 0;
             val =imgRotationSlider->value();
             cs->imgAngleOffset = val;
              view->myAnimation->currentFrame->currentStickFigure->refresh();
         }
     }
+}
+
+void Widget::on_imgHOffsetSlider_sliderReleased()
+{
+    sliderFlags.sliderHOffset = false;
+}
+
+void Widget::on_imgVOfsetSlider_sliderReleased()
+{
+    sliderFlags.sliderVOffset = false;
+}
+
+void Widget::on_imgWSlider_sliderReleased()
+{
+    sliderFlags.sliderWScale = false;
+}
+
+void Widget::on_imgHSlider_sliderReleased()
+{
+    sliderFlags.sliderHScale = false;
+}
+
+void Widget::on_imgRotationSlider_sliderReleased()
+{
+    sliderFlags.sliderRot = false;
 }
