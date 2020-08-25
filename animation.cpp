@@ -14,6 +14,7 @@ extern QSlider* imgHOffsetSlider;
 extern QSlider* imgVOffsetSlider;
 extern QSlider* imgWidthSlider;
 extern QSlider* imgHeightSlider;
+extern QSlider* imgRotationSlider;
 bool loadingAnimationFlag = false;
 bool clearingAnimation = false;
 Animation::Animation()
@@ -100,6 +101,7 @@ void Animation::updateSelection(QPointF point)
         selectedStickFigure->stickList[selectedIdx]->setSelected(true);
         selectedStickFigure->highlight(true);
         currentFrame->currentStickFigure = selectedStickFigure;
+        updateSliders();
     }
 
 }
@@ -141,25 +143,27 @@ void Animation::updateSelection(StickFigure* item)
     scene->clearSelection(); //clear scene selection
     if(!item->stickList.isEmpty()){
         currentFrame->selectStick(item); //update selected stick
-        if(currentFrame->currentStickFigure->currentStick->type == stick::IMAGE){
-            //aggiorna gli slider di modifica alla scala e all'offset
-            if(currentFrame->currentStickFigure->currentStick->imgWScale>1){
-                imgWidthSlider->setValue(10*(currentFrame->currentStickFigure->currentStick->imgWScale-1));
-            }
-            else{
-                imgWidthSlider->setValue(10*(-1/(currentFrame->currentStickFigure->currentStick->imgWScale)-1));
-            }
-            if(currentFrame->currentStickFigure->currentStick->imgHScale>1){
-                imgHeightSlider->setValue(10*(currentFrame->currentStickFigure->currentStick->imgHScale-1));
-            }
-            else{
-                imgHeightSlider->setValue(10*(-1/(currentFrame->currentStickFigure->currentStick->imgHScale)-1));
-
-            }
-            imgVOffsetSlider->setValue(100*currentFrame->currentStickFigure->currentStick->imgOffset.y()/(currentFrame->currentStickFigure->currentStick->imgHScale*currentFrame->currentStickFigure->currentStick->stickImg->height()));
-            imgHOffsetSlider->setValue(100*currentFrame->currentStickFigure->currentStick->imgOffset.x()/(currentFrame->currentStickFigure->currentStick->imgWScale*currentFrame->currentStickFigure->currentStick->stickImg->width()));
+    }
+}
+void Animation::updateSliders(){
+    if(currentFrame->currentStickFigure->currentStick->type == stick::IMAGE){
+        //aggiorna gli slider di modifica alla scala e all'offset
+        if(currentFrame->currentStickFigure->currentStick->imgWScale>=1){
+            imgWidthSlider->setValue(10*(currentFrame->currentStickFigure->currentStick->imgWScale-1));
+        }
+        else{
+            imgWidthSlider->setValue(10*(-1/(currentFrame->currentStickFigure->currentStick->imgWScale)-1));
+        }
+        if(currentFrame->currentStickFigure->currentStick->imgHScale>=1){
+            imgHeightSlider->setValue(10*(currentFrame->currentStickFigure->currentStick->imgHScale-1));
+        }
+        else{
+            imgHeightSlider->setValue(10*(-1/(currentFrame->currentStickFigure->currentStick->imgHScale)-1));
 
         }
+        imgVOffsetSlider->setValue(100*currentFrame->currentStickFigure->currentStick->imgOffset.y()/(currentFrame->currentStickFigure->currentStick->imgHScale*currentFrame->currentStickFigure->currentStick->stickImg->height()));
+        imgHOffsetSlider->setValue(100*currentFrame->currentStickFigure->currentStick->imgOffset.x()/(currentFrame->currentStickFigure->currentStick->imgWScale*currentFrame->currentStickFigure->currentStick->stickImg->width()));
+        imgRotationSlider->setValue(currentFrame->currentStickFigure->currentStick->imgAngleOffset);
     }
 }
 Frame* Animation::setupFrame(int pos){

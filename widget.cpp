@@ -400,8 +400,8 @@ void Widget::on_drawImageBtn_clicked()
     /*QString filename = QFileDialog::getOpenFileName(this,tr("Load Image"),
                        "C:/", tr("Images (*.png *.bmp *.jpg)"));*/
     if(1/*filename.length()>0*/){
-        imageDrawBuffer = new QImage("C:/Users/riccim3/Pictures/immagine.jpg" );
-        //imageDrawBuffer = new QPixmap("C:/immagine.jpg" );
+        //imageDrawBuffer = new QImage("C:/Users/riccim3/Pictures/immagine.jpg" );
+        imageDrawBuffer = new QImage("C:/immagine.jpg" );
         view->setTool(DRAWIMG);
     }
 

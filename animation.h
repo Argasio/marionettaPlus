@@ -22,6 +22,7 @@ public:
     void saveAnimation(QString fileName);
     void loadAnimation(QString name);
     void clearAnimation();
+    void updateSliders();
 };
 Q_DECLARE_METATYPE(Animation*)
 QDataStream &operator<<(QDataStream& stream, const Animation& myAnimation);
