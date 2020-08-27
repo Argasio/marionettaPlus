@@ -25,6 +25,7 @@ SOURCES += \
     myview.cpp \
     sleeper.cpp \
     stick.cpp \
+    sticklib.cpp \
     widget.cpp
 
 HEADERS += \
@@ -36,11 +37,13 @@ HEADERS += \
     myview.h \
     sleeper.h \
     stick.h \
+    sticklib.h \
     style.h \
     widget.h
 
 FORMS += \
     mymainwindow.ui \
+    sticklib.ui \
     widget.ui
 
 # Default rules for deployment.

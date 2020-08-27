@@ -1,4 +1,5 @@
 #include "widget.h"
+#include <sticklib.h>
 #include "ui_widget.h"
 #include "sleeper.h"
 #include <QGraphicsRectItem>
@@ -56,9 +57,10 @@ Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
 {
-
+    stickLib *myStickLib = new stickLib(this);
     ui->setupUi(this);
     //crea la scena virtuale
+    ui->tabWidget->addTab(myStickLib, "StickFigure Library");
     QString  path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     programFolder = QDir(path+"/MarionettaPlus");
     if(programFolder.exists()){

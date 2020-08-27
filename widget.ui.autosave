@@ -364,7 +364,7 @@
                   </size>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="drawingTab">
                   <attribute name="title">
@@ -750,6 +750,56 @@
                   <attribute name="title">
                    <string>Libraries</string>
                   </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_7">
+                   <item>
+                    <widget class="QListView" name="listView_2"/>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_3">
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_4">
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QListView" name="listView">
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>300</height>
+                      </size>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_2">
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_5">
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton">
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </widget>
                </item>
