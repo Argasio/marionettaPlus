@@ -150,6 +150,13 @@ void myView::mousePressEvent(QMouseEvent *event)
                 drawCmd(&coord,(int)tool);
                 break;
             }
+            case(ROTATE):
+            {
+                for(stick*s:myAnimation->currentFrame->currentStickFigure->stickList){
+                    s->angleBuffer = s->myLine.angle();
+                }
+                break;
+            }
         }
         QGraphicsView::mousePressEvent(event);
     }
@@ -292,6 +299,10 @@ void myView::changeTool()
         {
             break;
         }
+        case(ROTATE):
+        {
+            break;
+        }
     }
 }
 
@@ -362,7 +373,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         }
         case MANIPULATE:
         {
-            if(myAnimation->currentFrame->currentStickFigure != nullptr && myAnimation->currentFrame->currentStickFigure != nullptr)
+            if(myAnimation->currentFrame->currentStickFigure != nullptr)
             {
                 if(isPressed){
                     myAnimation->currentFrame->currentStickFigure->currentStick->manipulate(&coord);
@@ -370,6 +381,16 @@ void myView::mouseMoveEvent(QMouseEvent *event)
             }
 
         }
+        case ROTATE:
+        {
+            if(myAnimation->currentFrame->currentStickFigure != nullptr)
+            {
+                if(isPressed){
+                    myAnimation->currentFrame->currentStickFigure->rotateStickFigure(&coord);
+                }
+            }
+        }
+
     }
     QGraphicsView::mouseMoveEvent(event);
 }

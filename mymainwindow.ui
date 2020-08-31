@@ -31,6 +31,7 @@
     <addaction name="actionload"/>
     <addaction name="actionsave_animation"/>
     <addaction name="actionload_animation"/>
+    <addaction name="actionexport_as_AVI_file"/>
    </widget>
    <addaction name="menufile"/>
   </widget>
@@ -53,6 +54,11 @@
   <action name="actionload_animation">
    <property name="text">
     <string>load animation</string>
+   </property>
+  </action>
+  <action name="actionexport_as_AVI_file">
+   <property name="text">
+    <string>export as AVI file</string>
    </property>
   </action>
  </widget>

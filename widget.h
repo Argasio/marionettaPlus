@@ -74,8 +74,6 @@ private slots:
 
     void on_resetZoomBtn_clicked();
 
-    void on_exportBtn_clicked();
-
     void on_drawImageBtn_clicked();
 
     void on_imgHOffsetSlider_sliderMoved(int position);
@@ -158,6 +156,8 @@ private slots:
     void on_penOpacitySpinbox_valueChanged(int arg1);
 
     void on_fillOpacitySpinbox_valueChanged(int arg1);
+
+    void on_rotateStickFigureBtn_clicked();
 
 private:
     Ui::Widget *ui;

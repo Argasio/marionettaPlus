@@ -47,6 +47,7 @@ public:
     float imgHScale = 1;
     int imgAngleOffset = 0;
     int idx = 0;
+    float angleBuffer = 0;
     QPointF imgOffset = QPointF(0,0);
     QRectF imgRect;
     QList<stick*> children;
@@ -55,12 +56,13 @@ public:
     qreal Z;
     QImage *stickImg = nullptr;
 
+    void rotate(float angle);
 private:
     //-------- methods----------//
     QRectF updateBr(int mode);
     void  calcAngle();
     //-------- variables----------//
-    float angleBuffer;
+
 
 };
 void sceneRemover(QGraphicsScene *sceneToClear);

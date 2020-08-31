@@ -292,6 +292,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     stream<<myStick.myLine;
     stream<<myStick.parentIdx;
     stream<<myStick.Pen;
+    stream<<myStick.Brush;
     stream<<myStick.master;
     if(myStick.type == stick::IMAGE){
         QSize imgSize = myStick.stickImg->size();
@@ -328,6 +329,7 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.myLine;
     stream>>myStick.parentIdx;
     stream>>myStick.Pen;
+    stream>>myStick.Brush;
     stream>>myStick.master;
     if(myStick.type == stick::IMAGE){
         QSize mysize;
@@ -468,5 +470,16 @@ void StickFigure::loadStickFigure(QString name)
     qDebug("load finished");
 
 }
+void StickFigure::rotateStickFigure(QPointF *coord){
+    //step 1 calcola l'angolo con alpha = atan2(dx/dy)
+    int dx = static_cast<int>(masterStick->myLine.p1().x()-coord->x());
+    int dy = static_cast<int>(-masterStick->myLine.p1().y()+coord->y());
+    float angle         = atan2(dx,dy)*180/M_PI;
 
+    for(stick *s:stickList){
+
+        s->rotate(angle);
+    }
+
+}
 QDataStream & operator>> (QDataStream& stream, stick& myStick);

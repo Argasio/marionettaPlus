@@ -13,6 +13,7 @@
 #define DRAWCIRCLE 6
 #define DRAWIMG 7
 #define MANIPULATE 8
+#define ROTATE 9
 #define NOTOOL 4
 
 

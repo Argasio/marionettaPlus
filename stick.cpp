@@ -334,6 +334,32 @@ void stick::rotate(QPointF *point)
     }
 
 }
+void stick::rotate(float angle){
+
+    angle = angleBuffer-angle;
+    angleBuffer = angle;
+    QPointF oldEndPos = myLine.p2();
+    myLine.setAngle(angle-90);
+    float DX = 0;
+    float DY = 0;
+    refresh(1);
+    for(int i= 0; i<children.length();i++)
+    {
+        // se non è uno stepchild oppure lo è ma stai ruotando uno stepchild a sua volta
+        if( (children[i]->stepchild == false) || (this->stepchild == true && children[i]->stepchild == true)) // dall'altra estremità del master non spostare gli stick quando il master è ruotato
+        {
+            //effettua la traslazione dovuta alla rotazione dell'estremo libero
+            DX = oldEndPos.x()-myLine.p2().x();
+            DY = oldEndPos.y()-myLine.p2().y();
+            children[i]->myLine.translate(-DX,-DY);
+        }
+        children[i]->refresh(1);
+    }
+    if(type == IMAGE){
+        imgAngle = angle;
+        //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
+    }
+}
 // this freely elongates sticks
 void stick::manipulate(QPointF *point)
 {

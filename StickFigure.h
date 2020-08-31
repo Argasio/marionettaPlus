@@ -43,6 +43,7 @@ public:
     void refresh(int mode = 0);
 
 
+    void rotateStickFigure(QPointF *coord);
 private:
 
     QPointF p0;
