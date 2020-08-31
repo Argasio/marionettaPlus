@@ -12,6 +12,7 @@
 #define DRAW 5
 #define DRAWCIRCLE 6
 #define DRAWIMG 7
+#define MANIPULATE 8
 #define NOTOOL 4
 
 
@@ -22,6 +23,11 @@
 
 #define MODE_REDO 0
 #define MODE_UNDO 1
+
+#define ATTRIBUTE_PENCOLOR 0
+#define ATTRIBUTE_PENWIDTH 1
+#define ATTRIBUTE_BRUSHCOLOR 2
+#define ATTRIBUTE_BRUSHSIZE 3
 typedef struct undoInfoStruct
 {
     int command;
@@ -53,6 +59,12 @@ public:
     void storeRedo(int command = CMD_SIMPLE);
     void mapMyCoords(QPointF &myCoord, QPointF startingPoint);
     void clearUndo();
+    void loadLibrary(QString fileName);
+    StickFigure *addStickFigureToLibrary();
+    void removeFromLibrary();
+    void setGraphics(bool all, int attribute);
+public slots:
+    void saveLibrary(QString fileName);
 signals:
 
 

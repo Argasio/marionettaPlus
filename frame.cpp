@@ -1,10 +1,14 @@
 #include "frame.h"
 #include <QListWidget>
 #include <QDebug>
+#include <QBuffer>
 QListWidget * ListWidget;
 extern bool undoFlag;
+extern bool libFlag;
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
+extern QListWidget * myLibraryListWidget ;
+extern QListWidget * myCurrentLibraryWidget;
 Frame::Frame()
 {
     frameIcon       = new QIcon();
@@ -23,16 +27,19 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
 {
     QString myName;
     ListWidget = myListWidget;
-    if(name.count()== 0){
-        int intName = 0;
-        if(!stickFigures.isEmpty()){
-            intName = ListWidget->currentRow()+1;
-        }
+    if(!libFlag){
 
-        myName.sprintf("%d",intName);
-    }
-    else{
-        myName = name;
+        if(name.count()== 0){
+            int intName = 0;
+            if(!stickFigures.isEmpty()){
+                intName = ListWidget->currentRow()+1;
+            }
+
+            myName.sprintf("%d",intName);
+        }
+        else{
+            myName = name;
+        }
     }
     //deseleziona graficamente nel viewport
 
@@ -58,14 +65,18 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
         myListWidget->insertItem(myListWidget->currentRow()+1,addedItem);
     }
     // update current stickfigure
-    currentStickFigure->highlight(false); //de highlight old selection
-    currentStickFigure->highlight(true); //highlight new one
+    if(!libFlag){
+        currentStickFigure->highlight(false); //de highlight old selection
+        currentStickFigure->highlight(true); //highlight new one
+    }
     if(!undoFlag){
         // update current stick
-        scene->clearSelection(); //clear scene selection
-        if(!currentStickFigure->stickList.isEmpty())
-            selectStick(currentStickFigure); //update selected stick
+        if(!libFlag){
+            scene->clearSelection(); //clear scene selection
+            if(!currentStickFigure->stickList.isEmpty())
+                selectStick(currentStickFigure); //update selected stick
         //
+        }
         int tempIndex = myListWidget->currentRow();
         myListWidget->clearSelection();
         myListWidget->setItemSelected(addedItem, true);
@@ -74,6 +85,44 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
     currentStickFigure->scene = scene;
 
     return stickFigureBuffer;
+}
+StickFigure* Frame::addStickFigureToLibrary(StickFigure*S){
+    if(S != nullptr){
+        QListWidgetItem * addedItem = new QListWidgetItem(myCurrentLibraryWidget);
+        //stickFigureBuffer = addStickFigure(myCurrentLibraryWidget, S->name);
+        StickFigure *newStickFigure =new StickFigure();
+        newStickFigure->linkedItem = addedItem;
+        stickFigures.append(newStickFigure);
+        // byte array stores serialized data
+        QByteArray* byteArray = new QByteArray();
+        // buffer temporarily holds serialized data
+        QBuffer buffer1(byteArray);
+        // use this buffer to store data from the object
+        buffer1.open(QIODevice::WriteOnly);
+        QDataStream myStream(&buffer1);
+        myStream<<*(S);
+        // now create a seconds buffer from which to read data of the bytearray
+        QBuffer buffer2(byteArray);
+        buffer2.open(QIODevice::ReadOnly);
+        // a new data stream to deserialize
+        QDataStream myStream2(&buffer2);
+        // hydrate new frame with previous frame data
+        myStream2>>*newStickFigure;
+
+
+        QVariant newData(QVariant::fromValue(newStickFigure));
+
+        addedItem->setData(Qt::UserRole,newData);
+        addedItem->setData(Qt::DisplayRole,newStickFigure->name);
+        //addedItem->setIcon(*currentStickFigure->stickFigureIcon);
+        int newIdx = myCurrentLibraryWidget->currentRow()+1;
+        myCurrentLibraryWidget->insertItem(newIdx,addedItem);
+
+        myCurrentLibraryWidget->clearSelection();
+        myCurrentLibraryWidget->setItemSelected(addedItem, true);
+        myCurrentLibraryWidget->setCurrentRow(newIdx);
+        S->updateIcon();
+    }
 }
 StickFigure* Frame::removeStickFigure(StickFigure* toRemove)
 {
@@ -86,7 +135,7 @@ StickFigure* Frame::removeStickFigure(StickFigure* toRemove)
         else
         {
             qDebug("removed all sticks");
-            currentStickFigure = NULL;
+            currentStickFigure = nullptr;
         }
         stickFigureBuffer = currentStickFigure;
 
@@ -98,6 +147,7 @@ stick *Frame::selectStick(StickFigure* S)
     int stickIdx = 0;
     S->stickList[stickIdx]->setSelected(true);
     S->currentStick = S->stickList[stickIdx];
+    S->currentStick->selected = true;
     return S->stickList[stickIdx];
 }
 stick *Frame::selectStick(QPointF point)
@@ -120,7 +170,8 @@ stick *Frame::selectStick(QPointF point)
                 selectedStickFigure = S;
             }
     }
-    selectedStickFigure->stickList[selectedIdx]->setSelected(true);
+    selectedStickFigure->stickList[selectedIdx]->setSelected(true); //for scene
+    selectedStickFigure->currentStick->selected = true; //for rendering purpose
     return selectedStickFigure->stickList[selectedIdx];
 }
 QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
@@ -136,10 +187,13 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
     int max = 0;
     stream>> max;
     stream>> myFrame.frameNumber;
-
+    QListWidget * W;
+    libFlag? W = myCurrentLibraryWidget: W = ListWidget;
     for(int i = 0;i<max;i++){
-        StickFigure* S = myFrame.addStickFigure(ListWidget);
+
+        StickFigure* S = myFrame.addStickFigure(myCurrentLibraryWidget);
         stream>>*S;
+        S->linkedItem->setData(Qt::DisplayRole,S->name);
         //myFrame.stickFigures.append(S);
     }
     return stream;
@@ -177,6 +231,7 @@ void Frame::updateIcon()
     }
     painter.end();
 }
+
 void Frame::updateRender(){
     /*QGraphicsScene renderScene;
     renderScene.setSceneRect(scene->sceneRect());

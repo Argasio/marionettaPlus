@@ -76,6 +76,7 @@ void Animation::updateSelection(QPointF point)
     scene->clearSelection();
     StickFigure *selectedStickFigure;
     currentFrame->currentStickFigure->highlight(false);
+
     if(!currentFrame->currentStickFigure->stickList.isEmpty())
     {
         for(StickFigure * S: currentFrame->stickFigures)
@@ -100,22 +101,24 @@ void Animation::updateSelection(QPointF point)
         currentFrame->currentStickFigure->currentStick = selectedStickFigure->stickList[selectedIdx];
         selectedStickFigure->stickList[selectedIdx]->setSelected(true);
         selectedStickFigure->highlight(true);
+        currentFrame->currentStickFigure->currentStick->selected = true;
         currentFrame->currentStickFigure = selectedStickFigure;
         updateSliders();
     }
 
 }
 
-void Animation::updateSelection(stick* item)
+void Animation::updateSelection(stick* s)
 {
     //update current frame
 
     // update current stickfigure
     scene->clearSelection();
     currentFrame->currentStickFigure->highlight(false);
+
     for(StickFigure *S : currentFrame->stickFigures)
     {
-        if(S->stickList.contains(item))
+        if(S->stickList.contains(s))
         {
             currentFrame->currentStickFigure = S;
             S->highlight(true);
@@ -124,46 +127,48 @@ void Animation::updateSelection(stick* item)
     // update current stick
     if(!currentFrame->currentStickFigure->stickList.isEmpty())
     {
-     currentFrame->currentStickFigure->currentStick = item;
-     item->setSelected(true);
+     currentFrame->currentStickFigure->currentStick = s;
+     s->setSelected(true);
+     s->selected = true;
     }
     //int idx = frameBuffer->currentStickFigure->itemList.indexOf(item);
 
 }
-void Animation::updateSelection(StickFigure* item)
+void Animation::updateSelection(StickFigure* S)
 {
     //update current frame
 
     // update current stickfigure
     currentFrame->currentStickFigure->highlight(false); //de highlight old selection
-    currentFrame->currentStickFigure = item; //update currentStickFigure buffer
-    item->highlight(true); //highlight new one
+    currentFrame->currentStickFigure = S; //update currentStickFigure buffer
+    S->highlight(true); //highlight new one
 
     // update current stick
     scene->clearSelection(); //clear scene selection
-    if(!item->stickList.isEmpty()){
-        currentFrame->selectStick(item); //update selected stick
+    if(!S->stickList.isEmpty()){
+        currentFrame->selectStick(S); //update selected stick
     }
 }
 void Animation::updateSliders(){
-    if(currentFrame->currentStickFigure->currentStick->type == stick::IMAGE){
+    stick *cs = currentFrame->currentStickFigure->currentStick;
+    if(cs->type == stick::IMAGE){
         //aggiorna gli slider di modifica alla scala e all'offset
-        if(currentFrame->currentStickFigure->currentStick->imgWScale>=1){
-            imgWidthSlider->setValue(10*(currentFrame->currentStickFigure->currentStick->imgWScale-1));
+        if(cs->imgWScale>=1){
+            imgWidthSlider->setValue(10*(cs->imgWScale-1));
         }
         else{
-            imgWidthSlider->setValue(10*(-1/(currentFrame->currentStickFigure->currentStick->imgWScale)-1));
+            imgWidthSlider->setValue(-10*(1/(cs->imgWScale)-1));
         }
-        if(currentFrame->currentStickFigure->currentStick->imgHScale>=1){
-            imgHeightSlider->setValue(10*(currentFrame->currentStickFigure->currentStick->imgHScale-1));
+        if(cs->imgHScale>=1){
+            imgHeightSlider->setValue(10*(cs->imgHScale-1));
         }
         else{
-            imgHeightSlider->setValue(10*(-1/(currentFrame->currentStickFigure->currentStick->imgHScale)-1));
+            imgHeightSlider->setValue(-10*(1/(cs->imgHScale)-1));
 
         }
-        imgVOffsetSlider->setValue(100*currentFrame->currentStickFigure->currentStick->imgOffset.y()/(currentFrame->currentStickFigure->currentStick->imgHScale*currentFrame->currentStickFigure->currentStick->stickImg->height()));
-        imgHOffsetSlider->setValue(100*currentFrame->currentStickFigure->currentStick->imgOffset.x()/(currentFrame->currentStickFigure->currentStick->imgWScale*currentFrame->currentStickFigure->currentStick->stickImg->width()));
-        imgRotationSlider->setValue(currentFrame->currentStickFigure->currentStick->imgAngleOffset);
+        imgVOffsetSlider->setValue(cs->imgOffset.y());
+        imgHOffsetSlider->setValue(cs->imgOffset.x());
+        imgRotationSlider->setValue(cs->imgAngleOffset);
     }
 }
 Frame* Animation::setupFrame(int pos){

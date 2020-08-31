@@ -11,9 +11,12 @@ QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
 float   rotationBuffer; //selected item Rotation buffer
 bool clearUndoFlag = false;
+Frame* stickLibraryBuffer;
+QList<Frame*> stickLibraryList;
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
 bool undoFlag = false;
+bool libFlag = false;
 extern QSpinBox * onionSkinSB;
 
 extern int W;
@@ -27,6 +30,8 @@ extern QSlider* imgHOffsetSlider;
 extern QSlider* imgVOffsetSlider;
 extern QSlider* imgWidthSlider;
 extern QSlider* imgHeightSlider;
+extern QListWidget * myLibraryListWidget ;
+extern QListWidget * myCurrentLibraryWidget;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     onionRender = false;
@@ -34,7 +39,9 @@ myView::myView(QWidget *parent) : QGraphicsView(parent)
     myAnimation->scene = scene();
     setMouseTracking(true);
     myPen.setWidth(10);
+    myBrush.setStyle(Qt::SolidPattern);
     myPen.setCapStyle(Qt::RoundCap);
+    stickLibraryBuffer = new Frame();
 }
 
 void myView::setTool(int Tool)
@@ -216,7 +223,12 @@ void myView::drawCmd(QPointF* point, int mode)
     {
         if(myAnimation->currentFrame->currentStickFigure->drawCount == 0){
             storeUndo();
+            if(!myAnimation->currentFrame->currentStickFigure->stickList.isEmpty()){
+               myAnimation->currentFrame->currentStickFigure->currentStick->selected = false;
+               myAnimation->currentFrame->currentStickFigure->currentStick->refresh(0);
+            }
             myAnimation->currentFrame->currentStickFigure->startDrawing(point, myPen);
+            myAnimation->currentFrame->currentStickFigure->currentStick->selected = true;
             // se stiamo usando il tool per generare cerchi cambiamo il tipo dello stick
             if(mode == DRAWCIRCLE){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::CIRCLE;
@@ -276,6 +288,10 @@ void myView::changeTool()
             }
             break;
         }
+        case(MANIPULATE):
+        {
+            break;
+        }
     }
 }
 
@@ -331,7 +347,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         case DRAWIMG:
         {
         // durante il disegno,l'estremo libero della linea segue il mouse
-            if(myAnimation->currentFrame->currentStickFigure != NULL && myAnimation->currentFrame->currentStickFigure != nullptr)
+            if(myAnimation->currentFrame->currentStickFigure != nullptr && myAnimation->currentFrame->currentStickFigure != nullptr)
             {
                 if(myAnimation->currentFrame->currentStickFigure->drawCount > 0)
                 {
@@ -343,6 +359,16 @@ void myView::mouseMoveEvent(QMouseEvent *event)
             {
             }
             break;
+        }
+        case MANIPULATE:
+        {
+            if(myAnimation->currentFrame->currentStickFigure != nullptr && myAnimation->currentFrame->currentStickFigure != nullptr)
+            {
+                if(isPressed){
+                    myAnimation->currentFrame->currentStickFigure->currentStick->manipulate(&coord);
+                }
+            }
+
         }
     }
     QGraphicsView::mouseMoveEvent(event);
@@ -398,7 +424,9 @@ void myView::moveToFrame(Frame* frame){
         for(stick * s: S->stickList){
             scene()->addItem(s);
         }
-
+        if(!playBack){
+            S->updateIcon();
+        }
     }
     // aggiorna il current frame, se si parte d auna situazione di inizio forza il primo stickfigure
     myAnimation->currentFrame = frame;
@@ -428,6 +456,7 @@ void myView::moveToFrame(Frame* frame){
             myRect = new QGraphicsRectItem(0,0,W,H);
         }
         scene()->addItem(myRect);
+
     }
 
 }
@@ -624,4 +653,93 @@ void myView::clearUndo(){
     }
     redoBuffer.clear();
     clearUndoFlag = false;
+}
+void myView::saveLibrary(QString fileName){
+    libFlag = true;
+    QFile file(fileName);
+    if(!file.open(QIODevice::WriteOnly))
+        return;
+    QDataStream out(&file);
+    out << *stickLibraryBuffer;
+    file.close();
+    libFlag = false;
+}
+void myView::loadLibrary(QString fileName){
+    libFlag = true;
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly))
+        return;
+    QDataStream out(&file);
+    myCurrentLibraryWidget->clear();
+    delete stickLibraryBuffer;
+    stickLibraryBuffer = new Frame();
+    out >> *stickLibraryBuffer;
+    // aggiungi tutta gli stickfigure del nuovo frame alla lista del widget
+    /*
+    for(StickFigure *S:stickLibraryBuffer->stickFigures){
+        QListWidgetItem * addedItem = new QListWidgetItem(myCurrentLibraryWidget);
+        QVariant newData(QVariant::fromValue(S));
+        addedItem->setData(Qt::UserRole,newData);
+        addedItem->setData(Qt::DisplayRole,S->name);
+        addedItem->setIcon(*S->stickFigureIcon);
+        S->linkedItem = addedItem;
+        myCurrentLibraryWidget->addItem(S->linkedItem);
+    }*/
+
+
+    file.close();
+    libFlag = false;
+}
+StickFigure* myView::addStickFigureToLibrary(){
+    if(myAnimation->currentFrame->currentStickFigure->stickList.count()>0){
+        libFlag = true;
+        stickLibraryBuffer->addStickFigureToLibrary(myAnimation->currentFrame->currentStickFigure);
+
+        libFlag = false;
+    }
+}
+void myView::removeFromLibrary(){
+    libFlag = true;
+    // get selected item
+    int idx = myCurrentLibraryWidget->currentRow();
+    QListWidgetItem *itemToRemove = myCurrentLibraryWidget->takeItem(idx);
+    // estrai il dato utente salvato in esso, puntatore ad uno stickfigure
+    QVariant  retrievedData = (itemToRemove->data(Qt::UserRole));
+    //riconverti il dato
+    StickFigure* toRemove = qvariant_cast<StickFigure*>(retrievedData);
+
+    // delete items
+    //since we have libFlag on we have to remove these manually
+    delete itemToRemove;
+    delete toRemove->iconImg;
+    delete toRemove->stickFigureIcon;
+    //this also deletes stickfigure
+    stickLibraryBuffer->removeStickFigure(toRemove);
+
+    libFlag = false;
+}
+void myView::setGraphics(bool all, int attribute){
+    storeUndo(CMD_SIMPLE);
+    if(!all){
+        if(attribute == ATTRIBUTE_PENCOLOR)
+            myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setColor(myPen.color());
+        else if(attribute== ATTRIBUTE_PENWIDTH)
+            myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setWidth(myPen.width());
+        else if(attribute== ATTRIBUTE_BRUSHCOLOR)
+            myAnimation->currentFrame->currentStickFigure->currentStick->Brush.setColor(myBrush.color());
+        myAnimation->currentFrame->currentStickFigure->currentStick->refresh(0);
+    }
+    else{
+        for(stick * s:myAnimation->currentFrame->currentStickFigure->stickList){
+            if(attribute == ATTRIBUTE_PENCOLOR)
+                s->Pen.setColor(myPen.color());
+            else if(attribute== ATTRIBUTE_PENWIDTH)
+                s->Pen.setWidth(myPen.width());
+            else if(attribute== ATTRIBUTE_BRUSHCOLOR)
+                s->Brush.setColor(myBrush.color());
+            s->refresh(0);
+        }
+    }
+
+    myAnimation->currentFrame->currentStickFigure->updateIcon();
 }

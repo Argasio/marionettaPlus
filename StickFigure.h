@@ -40,7 +40,8 @@ public:
     void updateIcon();
     bool selectingOrigin = false;
     void loadStickFigure(QString name);
-    void refresh();
+    void refresh(int mode = 0);
+
 
 private:
 
@@ -57,4 +58,5 @@ private:
 Q_DECLARE_METATYPE(StickFigure*)
 QDataStream &operator<<(QDataStream& stream, const StickFigure& myStickFigure);
 QDataStream &operator>>(QDataStream& stream,StickFigure& myStickFigure);
+void cloneStickFigure(StickFigure *dest, StickFigure *src);
 #endif // StickFigure_H

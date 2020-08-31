@@ -9,7 +9,8 @@ stick::stick(QLineF *line)
 {
     this->setFlag(QGraphicsItem::ItemIsSelectable,true);
     Pen = QPen();
-
+    Brush = QBrush();
+    Brush.setStyle(Qt::SolidPattern);
     highlight = true;
     setLine(line);
     stepchild = false;
@@ -30,8 +31,14 @@ stick::stick(stick* S)
     this->Z = S->Z;
     this->br = S->boundingRect();
     this->type = S->type;
-    if(S->type == IMAGE)
+    if(S->type == IMAGE){
         this->stickImg = new QImage(*S->stickImg);
+        imgAngle = S->imgAngle;
+        imgWScale = S->imgWScale;
+        imgHScale = S->imgHScale;
+        imgAngleOffset = S->imgAngleOffset;
+        imgOffset = S->imgOffset;
+    }
 }
 stick::~stick(){
     if(type == IMAGE)
@@ -50,10 +57,12 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         painter->setPen(onionSkinPen);
     }
     if(type == stickType::CIRCLE){
+        painter->setBrush(Brush);
         painter->drawEllipse(QPointF
                              (0.5*(myLine.p1().x()+myLine.p2().x()),
                               0.5*(myLine.p1().y()+myLine.p2().y())), // Ellipse center = line center
                              myLine.length()*0.5, myLine.length()*0.5); //RX e RY
+
     }
     else if(type == stickType::IMAGE){
         //QRectF imgRect = calcImgRect(myLine, stickImg->size());
@@ -66,6 +75,10 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         QPointF p;
         //vedi quale fra lunghezza o larghezza dell'immaggine èd la più alta per calcolare lóffset per centrare l'immagine su p1
         QImage scaled = calcImg();
+        // in caso di onion rendering converti l'immagine in grayscale
+        if(onionRender){
+            scaled.convertToFormat(QImage::Format_Grayscale8);
+        }
         p = QPointF(myLine.p1().x(),myLine.p1().y());
         QPointF p2 = QPointF(-scaled.width()/2,-scaled.height()/2);
         painter->translate(p);
@@ -74,32 +87,20 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         painter->translate(p3);
         QPixmap pixmap;
         pixmap.convertFromImage(scaled);
+        // se siamo in onionskin
+
         painter->drawPixmap(p2,
                             pixmap);
         painter->translate(-p3.x(),-p3.y());
         painter->rotate(-imgAngle-imgAngleOffset);
         painter->translate(-p.x(),-p.y());
-        /*
-        QTransform t;
-        t.translate(-myLine.p1().x(),-myLine.p1().-y());
-        QTransform rot = t.rotate(imgAngle);
-        rot = rot.translate(myLine.p1().x(),myLine.p1().y());
-        QPixmap transformed = stickImg->transformed(rot);
-        QRectF rect2 = calcImgRect(myLine, transformed.size());
-        painter->drawPixmap(rect2,transformed ,QRectF(0,0,stickImg->width(),stickImg->height()));
-        painter->drawRect(rect2);
-
-        painter->translate(myLine.p1());
-        painter->rotate(myLine.angle());
-        painter->translate(-myLine.p1());
-        painter->drawPixmap(imgRect, *stickImg,QRectF(0,0,stickImg->width(),stickImg->height()));
-        painter->rotate(-myLine.angle());
-        painter->drawRect(imgRect);*/
-        //painter->setBrushOrigin(0,0);
 
     }
     else if(type == stickType::LINE){
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
+        //painter->drawEllipse(myLine.p1().x()-Pen.width()/2,myLine.p1().y()-Pen.width()/2,Pen.width()/2,Pen.width()/2);
+       // painter->drawEllipse(myLine.p2().x()-Pen.width()/2,myLine.p2().y()-Pen.width()/2,Pen.width()/2,Pen.width()/2);
+        //painter->rotate(imgAngle+imgAngleOffset);
     }
     //Pen.setColor(Qt::red); //draw bounding box
     if(!onionRender){
@@ -110,7 +111,7 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
                 painter->setPen(QPen(Qt::darkGreen,10));
             painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
         }
-        else if(this->parent != nullptr){
+        if(this->parent != nullptr){
             if(this->highlight){
                 painter->setPen(QPen(Qt::red,10));
                 if(this->stepchild && this->parent->master)
@@ -129,6 +130,17 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         else
             painter->setPen(QPen(Qt::blue,10));
         painter->drawEllipse(myLine.p2().x()-5,myLine.p2().y()-5,10,10);
+        if(this->selected){
+            QColor c(Qt::yellow);
+            c.setAlphaF(0.75);
+            painter->setPen(QPen(c,8));
+
+            painter->drawEllipse(myLine.p2().x()-4,myLine.p2().y()-4,8,8);
+            painter->drawEllipse(myLine.p1().x()-4,myLine.p1().y()-4,8,8);
+
+                painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
+
+        }
         //painter->drawRect(br);
     }
 }
@@ -160,17 +172,17 @@ QRectF calcImgRect(QLineF l,QSizeF s){
     return out;
 
 }
-//funzione per aggiornare il boudning rectangle
+
 QImage stick::calcImg(){
-    QSizeF off;
+    QSizeF offsetted;
     if(stickImg->width()>stickImg->height())
-        off = QSizeF(myLine.length()*imgWScale,stickImg->height()*myLine.length()/stickImg->width()*imgHScale);
+        offsetted = QSizeF(myLine.length()*imgWScale, stickImg->height()*myLine.length()/stickImg->width()*imgHScale);
     else
-        off = QSizeF(myLine.length()*stickImg->width()*imgWScale/stickImg->height(),myLine.length()*imgHScale);
+        offsetted = QSizeF(myLine.length()*stickImg->width()*imgWScale/stickImg->height(), myLine.length()*imgHScale);
 
-
-    return  stickImg->scaled(off.width(),off.height());
+    return  stickImg->scaled(offsetted.width(),offsetted.height());
 }
+//funzione per aggiornare il rettangolo di refresh del disegno della scena per l'item grafico
 QRectF stick::updateBr(int mode)
 {
     QRectF newBr;
@@ -321,6 +333,26 @@ void stick::rotate(QPointF *point)
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }
 
+}
+// this freely elongates sticks
+void stick::manipulate(QPointF *point)
+{
+    // calculate distance between original point and clicked point
+    int DX = myLine.p2().x()-point->x();
+    int DY = myLine.p2().y()-point->y();
+    // set the new point
+    myLine.setP2(*point);
+    for(int i= 0; i<children.length();i++)
+    {
+        //effettua la traslazione dovuta alla manipolazione dell'estremo libero
+        children[i]->myLine.translate(-DX,-DY);
+        children[i]->refresh(1);
+    }
+    // se stiamo con un immagine ruotala anche
+    if(type== stick::IMAGE){
+        imgAngle= -atan2(myLine.dx(),myLine.dy())*180/M_PI;
+    }
+    refresh(0);
 }
 // è stato rilasciato il mouse termina la rotazione
 void stick::endRotation()

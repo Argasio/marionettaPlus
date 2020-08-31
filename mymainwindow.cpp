@@ -17,21 +17,21 @@ myMainWindow::~myMainWindow()
 
 void myMainWindow::on_actionsave_triggered()
 {
-    QString filename = QFileDialog::getSaveFileName(this,tr("Save StickFigure"),
+    QString fileName = QFileDialog::getSaveFileName(this,tr("Save StickFigure"),
                        "C:/", "Stickfigure (*.stck)");
     QDataStream myStream;
-    view->myAnimation->currentFrame->currentStickFigure->saveStickFigure(filename);
+    view->myAnimation->currentFrame->currentStickFigure->saveStickFigure(fileName);
 }
 
 void myMainWindow::on_actionload_triggered()
 {
 
-    QString filename = QFileDialog::getOpenFileName(this,tr("Load StickFigure"),
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Load StickFigure"),
                        "C:/", "Stickfigure (*.stck)");
-    if(filename.length()>0){
+    if(QFile::exists(fileName)){
         QDataStream myStream;
         centralW->addStick();
-        view->myAnimation->currentFrame->currentStickFigure->loadStickFigure(filename);
+        view->myAnimation->currentFrame->currentStickFigure->loadStickFigure(fileName);
     }
 }
 
@@ -44,13 +44,13 @@ void myMainWindow::on_actionsave_animation_triggered()
 
 void myMainWindow::on_actionload_animation_triggered()
 {
-    QString filename = QFileDialog::getOpenFileName(this,tr("Load Animation"),
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Load Animation"),
                        "C:/", "Marionetta Animation (*.mAnim)");
      view->clearUndo();
-    if(filename.length()>0){
+    if(QFile::exists(fileName)){
         loadFile = true;
         QDataStream myStream;
-        view->myAnimation->loadAnimation(filename);
+        view->myAnimation->loadAnimation(fileName);
         view->moveToFrame(view->myAnimation->frameList[0]);
         loadFile = false;
     }

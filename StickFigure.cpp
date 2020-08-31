@@ -6,10 +6,12 @@
 // StickFigure work in the one active scene
 extern bool loadingAnimationFlag;
 extern bool undoFlag;
+extern bool libFlag;
 extern bool clearUndoFlag;
+extern QGraphicsRectItem* myRect;
 StickFigure::~StickFigure()
 {
-    if(!undoFlag){
+    if(!undoFlag && !libFlag){
         for(stick* s: stickList)
         {
             //if(!clearUndoFlag)
@@ -17,8 +19,11 @@ StickFigure::~StickFigure()
             delete s;
         }
     }
-    delete iconImg;
-    delete stickFigureIcon;
+    // già vengono distrutti dal clear della libreria
+    if(!libFlag){
+        delete iconImg;
+        delete stickFigureIcon;
+    }
 }
 // questa funzione aggiorna l'iconea del livello
 void StickFigure::updateIcon()
@@ -26,8 +31,12 @@ void StickFigure::updateIcon()
     //crea una scena fittizia, falla bianca e delle stesse dimensioni di quella principale
     QGraphicsScene icoScene;
     iconImg->fill(Qt::white);
+
+    if(!libFlag)
+        icoScene.setSceneRect(scene->sceneRect());
+    else
+        icoScene.setSceneRect(myRect->rect());
     icoScene.setBackgroundBrush(QBrush(QColor(Qt::white)));
-    icoScene.setSceneRect(scene->sceneRect());
     // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
     QList<stick*> tempList;
     for(stick* S: stickList){
@@ -109,10 +118,10 @@ void StickFigure::previewDrawing(QPointF *point)
         stickBuffer->imgAngle= -atan2(stickBuffer->myLine.dx(),stickBuffer->myLine.dy())*180/M_PI;
     }
 }
-void StickFigure::refresh()
+void StickFigure::refresh(int mode)
 {
     for(stick* s:stickList){
-        s->refresh(0);
+        s->refresh(mode);
     }
 }
 
@@ -131,6 +140,8 @@ void StickFigure::highlight(bool setting)
         s->highlight = setting;
         s->refresh(0);
     }
+    if(!stickList.isEmpty() && !setting)
+        currentStick->selected = false;
 }
 void StickFigure::updateZ(void){
     for(stick* S : stickList){
@@ -160,12 +171,20 @@ void StickFigure::endDrawing(QPointF *point)
 }
 void StickFigure::cancelDrawing()
 {
-    if(stickBuffer==masterStick)
+    if(stickBuffer==masterStick){
         masterStick = nullptr;
+        currentStick = nullptr;
+    }
+    else{
+        currentStick = parentBuffer;
+    }
     delete stickBuffer;
     lineBuffer  = QLineF();
     drawCount   = 0;
-
+    if(!stickList.isEmpty()){
+        currentStick->selected = true;
+        currentStick->refresh(0);
+    }
 }
 
 //scegli come origine lo stick più vicino al mouse fra gli stick dello stickfigure
@@ -391,7 +410,7 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         }
         if(s->master)
             myStickFigure.masterStick = s;
-        if(!undoFlag && !loadingAnimationFlag)
+        if(!undoFlag && !loadingAnimationFlag && !libFlag)
             myStickFigure.scene->addItem(s);
         //s->refresh(0); // commentato per bug che non ho capito era necessario?
     }
@@ -411,6 +430,28 @@ void StickFigure::saveStickFigure(QString name)
     QDataStream out(&file);
     out << *this;
     file.close();
+}
+void cloneStickFigure(StickFigure* dest, StickFigure*src){
+
+    // byte array stores serialized data
+    QByteArray* byteArray = new QByteArray();
+    // buffer temporarily holds serialized data
+    QBuffer buffer1(byteArray);
+    // use this buffer to store data from the object
+    buffer1.open(QIODevice::WriteOnly);
+    QDataStream myStream(&buffer1);
+    myStream<<*(src);
+    // now create a seconds buffer from which to read data of the bytearray
+    QBuffer buffer2(byteArray);
+    buffer2.open(QIODevice::ReadOnly);
+    // a new data stream to deserialize
+    QDataStream myStream2(&buffer2);
+    // hydrate new frame with previous frame data
+    myStream2>>*dest;
+
+
+
+    dest->updateIcon();
 }
 // attraverso il percorso file, carica un data stream su cui caricare i dati salvati
 // chiama il deserializzatore per stickfigures per interpretare lo stream

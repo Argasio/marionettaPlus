@@ -17,10 +17,12 @@ public:
     ~Widget();
     myView *view;
 
-    void addStick();
+    StickFigure* addStick();
     void addFrame();
     void copyFrame(QDataStream &stream, Frame *destination);
     Frame *setUpFrame(int pos);
+    void createPaths();
+    void detectLibraries();
 private slots:
     void on_drawBtn_clicked();
 
@@ -95,6 +97,67 @@ private slots:
     void on_imgHSlider_sliderReleased();
 
     void on_imgRotationSlider_sliderReleased();
+
+    void on_saveLibraryBtn_clicked();
+
+    void on_addItemToLibBtn_clicked();
+
+    void on_loadLibraryBtn_clicked();
+
+    void on_refreshLibrariesBtn_clicked();
+
+    void on_libraryList_currentRowChanged(int currentRow);
+
+
+    void on_removeFromLibraryBtn_clicked();
+
+    void on_addItemFromLibraryToSceneBtn_clicked();
+
+    void on_saveCurrentLibraryBtn_clicked();
+
+    void on_imgHOffsetSlider_valueChanged(int value);
+
+    void on_imgVOfsetSlider_valueChanged(int value);
+
+    void on_imgWSlider_valueChanged(int value);
+
+    void on_imgHSlider_valueChanged(int value);
+
+    void on_imgRotationSlider_valueChanged(int value);
+
+    void on_imgHOffsetSpinbox_valueChanged(int arg1);
+
+    void on_imgVOffsetSpinbox_valueChanged(int arg1);
+
+    void on_imgWidthSpinbox_valueChanged(int arg1);
+
+    void on_imgHeightSpinbox_valueChanged(int arg1);
+
+    void on_imgRotationSpinbox_valueChanged(int arg1);
+
+    void on_setStickColorBtn_clicked();
+
+    void on_setAllSticksColorBtn_clicked();
+
+    void on_setPenThicknessBtn_clicked();
+
+    void on_setPenThicknessAllBtn_clicked();
+
+    void on_selectBrushColorBtn_clicked();
+
+    void on_setAllBrushColorBtn_clicked();
+
+    void on_setBrushColorBtn_clicked();
+
+    void on_manipulateBtn_clicked();
+
+    void on_penOpacitySlider_valueChanged(int value);
+
+    void on_fillOpacitySlider_valueChanged(int value);
+
+    void on_penOpacitySpinbox_valueChanged(int arg1);
+
+    void on_fillOpacitySpinbox_valueChanged(int arg1);
 
 private:
     Ui::Widget *ui;
