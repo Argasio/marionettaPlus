@@ -45,9 +45,12 @@ public:
     float imgAngle = 0;
     float imgWScale = 1;
     float imgHScale = 1;
+    float scaleBuffer = 1;
+    float widthBuffer = 1;
     int imgAngleOffset = 0;
     int idx = 0;
-    float angleBuffer = 0;
+    float angleBuffer = 0; //usato per disegnare lo stick nei refresh
+    float angleBuffer2 = 0; //usato nella rotazione di tutto lo stickfigure
     QPointF imgOffset = QPointF(0,0);
     QRectF imgRect;
     QList<stick*> children;
@@ -57,6 +60,7 @@ public:
     QImage *stickImg = nullptr;
 
     void rotate(float angle);
+    void scale(float scaleFactor);
 private:
     //-------- methods----------//
     QRectF updateBr(int mode);

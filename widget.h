@@ -159,6 +159,14 @@ private slots:
 
     void on_rotateStickFigureBtn_clicked();
 
+    void on_scaleStickFigureBtn_clicked();
+
+    void on_stickFigureScaleSpinbox_valueChanged(int arg1);
+
+    void on_stickFigureRotationSpinbox_valueChanged(int arg1);
+
+    void on_stickFigureScaleSpinbox_editingFinished();
+
 private:
     Ui::Widget *ui;
 };

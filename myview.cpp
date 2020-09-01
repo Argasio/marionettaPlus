@@ -18,7 +18,8 @@ extern QListWidget * myFrameWidgetList;
 bool undoFlag = false;
 bool libFlag = false;
 extern QSpinBox * onionSkinSB;
-
+bool startStickFigureRotation = false;
+bool startStickFigureScale = false;
 extern int W;
 extern int H;
 extern QGraphicsRectItem* myRect;
@@ -152,8 +153,20 @@ void myView::mousePressEvent(QMouseEvent *event)
             }
             case(ROTATE):
             {
+                storeUndo();
+                startStickFigureRotation = true;
                 for(stick*s:myAnimation->currentFrame->currentStickFigure->stickList){
-                    s->angleBuffer = s->myLine.angle();
+                    s->angleBuffer2 = s->myLine.angle();
+                }
+                break;
+            }
+            case(SCALE):
+            {
+                storeUndo();
+                startStickFigureScale = true;
+                for(stick*s:myAnimation->currentFrame->currentStickFigure->stickList){
+                    s->scaleBuffer = s->myLine.length();
+                    s->widthBuffer = s->Pen.width();
                 }
                 break;
             }
@@ -303,6 +316,10 @@ void myView::changeTool()
         {
             break;
         }
+        case(SCALE):
+        {
+            break;
+        }
     }
 }
 
@@ -389,6 +406,16 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                     myAnimation->currentFrame->currentStickFigure->rotateStickFigure(&coord);
                 }
             }
+        }
+        case(SCALE):
+        {
+            if(myAnimation->currentFrame->currentStickFigure != nullptr && isPressed)
+            {
+                myAnimation->currentFrame->currentStickFigure->scale(&coord);
+            }
+
+
+            break;
         }
 
     }

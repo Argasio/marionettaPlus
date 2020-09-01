@@ -14,6 +14,7 @@
 #define DRAWIMG 7
 #define MANIPULATE 8
 #define ROTATE 9
+#define SCALE 10
 #define NOTOOL 4
 
 

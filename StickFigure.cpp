@@ -470,16 +470,49 @@ void StickFigure::loadStickFigure(QString name)
     qDebug("load finished");
 
 }
+// rotates the whole stickfigure
+extern bool startStickFigureRotation;
 void StickFigure::rotateStickFigure(QPointF *coord){
-    //step 1 calcola l'angolo con alpha = atan2(dx/dy)
-    int dx = static_cast<int>(masterStick->myLine.p1().x()-coord->x());
-    int dy = static_cast<int>(-masterStick->myLine.p1().y()+coord->y());
-    float angle         = atan2(dx,dy)*180/M_PI;
-
+    // this records the angle between the mouse when it is first pressed and the master node of the stickfigure
+    static float startingAngle = 0;
+    //step 1 calcola l'angolo fra la posizione del mouse e il master node dello stickfigure
+    QLineF connect(masterStick->myLine.p1(),*coord); //crea la linea connettendo i punti
+    float angle = connect.angle(); //dicci l'angolo
+    // se la rotazione è appena iniziata sbbass ail flag e registra lo starting angle in modo che il primo valore inviato sia 0
+    if(startStickFigureRotation){
+        startStickFigureRotation = false;
+        startingAngle = angle;
+    }
+    // sottrai l'angolo di inizio, la prima iterazione da sempre 0 ovviamente
+    angle -= startingAngle;
     for(stick *s:stickList){
 
         s->rotate(angle);
     }
 
 }
+extern bool startStickFigureScale;
+void StickFigure::scale(QPointF *coord){
+    float scale = 0;
+    static float startingDist = 0;
+    static QPointF startingPoint;
+    if(startStickFigureScale){
+
+        startingPoint = *coord;
+        startingDist = QLineF(startingPoint,masterStick->myLine.p1()).length();
+        if(startingDist<=1)
+            return;
+        startStickFigureScale = false;
+    }
+    //step 1 calcola la distanza tra la coordinata iniziale e quella corrente, se si allontana dal master stick ingrandisci, senno rimpicicolisci
+    QLineF connect(masterStick->myLine.p1(),*coord); //crea la linea connettendo i punti
+    float actualDistance = connect.length();
+    float distanceDifference = actualDistance-startingDist;
+    scale = actualDistance/startingDist;
+    for(stick* s:stickList){
+        s->scale(scale);
+    }
+    qDebug("scale = %f \r\n",scale);
+}
+
 QDataStream & operator>> (QDataStream& stream, stick& myStick);

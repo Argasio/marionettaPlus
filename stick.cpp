@@ -334,14 +334,19 @@ void stick::rotate(QPointF *point)
     }
 
 }
+// funzione usata per fare le rotazioni dei singoli stick in modalità stickfigure rotation
+// angle è il delta di quanto lo vogliamo ruotare
 void stick::rotate(float angle){
-
-    angle = angleBuffer-angle;
-    angleBuffer = angle;
+    // l'angolo viene settato, quindi in realtà andiamo ad aggiungere un delta
+    angle = angleBuffer2+angle;
+    qDebug(" anglebuf = %f \r\n angle = %f\r\n",angleBuffer2,angle);
+    //angleBuffer = angle;
     QPointF oldEndPos = myLine.p2();
-    myLine.setAngle(angle-90);
+    myLine.setAngle(angle);
     float DX = 0;
     float DY = 0;
+    DX = oldEndPos.x()-myLine.p2().x(); //traslazione dei nodi figli
+    DY = oldEndPos.y()-myLine.p2().y();
     refresh(1);
     for(int i= 0; i<children.length();i++)
     {
@@ -349,8 +354,6 @@ void stick::rotate(float angle){
         if( (children[i]->stepchild == false) || (this->stepchild == true && children[i]->stepchild == true)) // dall'altra estremità del master non spostare gli stick quando il master è ruotato
         {
             //effettua la traslazione dovuta alla rotazione dell'estremo libero
-            DX = oldEndPos.x()-myLine.p2().x();
-            DY = oldEndPos.y()-myLine.p2().y();
             children[i]->myLine.translate(-DX,-DY);
         }
         children[i]->refresh(1);
@@ -397,7 +400,34 @@ QPointF stick::getP2(QLineF* line)
     float y = line->p1().y()+line->length()*sin(line->angle());
     return QPointF(x,y);
 }
-
+void stick::scale(float scaleFactor){
+    /*
+    float trueScale = 1+scaleBuffer-scaleFactor;
+    float oldLength = myLine.length();
+    scaleBuffer = scaleFactor;
+    */
+    QPointF oldEndPos = myLine.p2();
+    float oldLength = myLine.length();
+    float trueScale = scaleBuffer*scaleFactor;
+    float DX = 0;
+    float DY = 0;
+    myLine.setLength(trueScale);
+    DX = oldEndPos.x()-myLine.p2().x(); //traslazione dei nodi figli
+    DY = oldEndPos.y()-myLine.p2().y();
+    refresh(1);
+    Pen.setWidthF(widthBuffer*scaleFactor);
+    for(int i= 0; i<children.length();i++)
+    {
+        // se non è uno stepchild oppure lo è ma stai ruotando uno stepchild a sua volta
+        if( (children[i]->stepchild == false) || (this->stepchild == true && children[i]->stepchild == true)) // dall'altra estremità del master non spostare gli stick quando il master è ruotato
+        {
+            //effettua la traslazione dovuta alla rotazione dell'estremo libero
+            children[i]->myLine.translate(-DX,-DY);
+            children[i]->refresh(1);
+        }
+    }
+    qDebug("scale = %f \r\n",trueScale);
+}
 void sceneRemover(QGraphicsScene *sceneToClear){
     QList<QGraphicsItem*> thingsOnScene = sceneToClear->items( Qt::DescendingOrder);
     for(QGraphicsItem* i: thingsOnScene){

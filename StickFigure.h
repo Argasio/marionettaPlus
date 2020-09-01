@@ -36,6 +36,7 @@ public:
     void updateZ();
     QIcon*stickFigureIcon;
     QPixmap * iconImg;
+
     QString name;
     void updateIcon();
     bool selectingOrigin = false;
@@ -44,6 +45,7 @@ public:
 
 
     void rotateStickFigure(QPointF *coord);
+    void scale(QPointF *coord);
 private:
 
     QPointF p0;

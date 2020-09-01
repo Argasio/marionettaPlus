@@ -41,6 +41,7 @@ QSpinBox * penOpacitySpinbox;
 QSpinBox * brushOpacitySpinbox;
 QSlider * penOpacitySlider;
 QSlider * brushOpacitySlider;
+QSpinBox *stickFigureScaleSpinbox;
 QTextEdit * stickFigureNameText;
 QGraphicsRectItem *myRect;
 QGraphicsRectItem *limitRect;
@@ -98,6 +99,7 @@ Widget::Widget(QWidget *parent)
     penOpacitySpinbox = ui->penOpacitySpinbox;
     brushOpacitySlider = ui->fillOpacitySlider;
     brushOpacitySpinbox = ui->fillOpacitySpinbox;
+    stickFigureScaleSpinbox = ui->stickFigureScaleSpinbox;
     createPaths();
     detectLibraries();
     // aggiorna il colore del segnacolore
@@ -776,4 +778,37 @@ void Widget::on_fillOpacitySpinbox_valueChanged(int arg1)
 void Widget::on_rotateStickFigureBtn_clicked()
 {
     view->setTool(ROTATE);
+}
+
+void Widget::on_scaleStickFigureBtn_clicked()
+{
+    view->setTool(SCALE);
+}
+
+extern bool startStickFigureScale;
+
+void Widget::on_stickFigureScaleSpinbox_valueChanged(int arg1)
+{
+
+}
+
+void Widget::on_stickFigureRotationSpinbox_valueChanged(int arg1)
+{
+
+}
+
+void Widget::on_stickFigureScaleSpinbox_editingFinished()
+{
+    view->storeUndo();
+    for(stick*s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+        s->scaleBuffer = s->myLine.length();
+        s->widthBuffer = s->Pen.width();
+    }
+    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
+        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+            s->scale((float)stickFigureScaleSpinbox->value()/100);
+        }
+
+    }
+    stickFigureScaleSpinbox->setValue(100);
 }
