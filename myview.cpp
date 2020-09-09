@@ -20,6 +20,11 @@ bool libFlag = false;
 extern QSpinBox * onionSkinSB;
 bool startStickFigureRotation = false;
 bool startStickFigureScale = false;
+bool translateScene = false;
+bool rotateScene = false;
+bool scaleScene = false;
+StickFigure* joinToStickFigure;
+stick* joinToStick;
 extern int W;
 extern int H;
 extern QGraphicsRectItem* myRect;
@@ -169,6 +174,53 @@ void myView::mousePressEvent(QMouseEvent *event)
                     s->widthBuffer = s->Pen.width();
                 }
                 break;
+            }
+            case(MOVESCENE):
+            {
+                storeUndo();
+                break;
+            }
+            case(ROTATESCENE):
+            {
+                storeUndo();
+                for(StickFigure* S: myAnimation->currentFrame->stickFigures){
+                    S->originPosBuffer = S->masterStick->myLine.p1();
+                    S->sceneRotationBuffer = 0;
+                    for(stick*s:S->stickList){
+                        s->angleBuffer2 = s->myLine.angle();
+                    }
+                }
+                break;
+            }
+            case(SCALESCENE):
+            {
+                for(StickFigure* S: myAnimation->currentFrame->stickFigures){
+                    S->originPosBuffer = S->masterStick->myLine.p1();
+                    for(stick*s:S->stickList){
+                        s->scaleBuffer = s->myLine.length();
+                        s->widthBuffer = s->Pen.width();
+                    }
+                }
+                storeUndo();
+                break;
+            }
+            case(JOIN):{
+                if(myAnimation->currentFrame->currentStickFigure!= nullptr){
+
+
+                    joinToStickFigure = myAnimation->currentFrame->currentStickFigure;
+                    joinToStick = joinToStickFigure->currentStick;
+                    storeUndo();
+                    myAnimation->updateSelection(coord);
+                    myStickFigureWidgetList->clearSelection();
+                    myStickFigureWidgetList->setItemSelected(myAnimation->currentFrame->currentStickFigure->linkedItem,true);
+
+                    if(myAnimation->currentFrame->currentStickFigure!=joinToStickFigure){
+                        mergeStickFigures(joinToStickFigure,joinToStick,myAnimation->currentFrame->currentStickFigure);
+                        deleteStickFigure();
+                        qDebug("merge ok\r\n");
+                    }
+                }
             }
         }
         QGraphicsView::mousePressEvent(event);
@@ -320,6 +372,22 @@ void myView::changeTool()
         {
             break;
         }
+        case(MOVESCENE):
+        {
+            break;
+        }
+        case(ROTATESCENE):
+        {
+            break;
+        }
+        case(SCALESCENE):
+        {
+            break;
+        }
+        case(JOIN):
+        {
+            break;
+        }
     }
 }
 
@@ -396,7 +464,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                     myAnimation->currentFrame->currentStickFigure->currentStick->manipulate(&coord);
                 }
             }
-
+            break;
         }
         case ROTATE:
         {
@@ -406,6 +474,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                     myAnimation->currentFrame->currentStickFigure->rotateStickFigure(&coord);
                 }
             }
+            break;
         }
         case(SCALE):
         {
@@ -417,7 +486,82 @@ void myView::mouseMoveEvent(QMouseEvent *event)
 
             break;
         }
+        case(MOVESCENE):
+        {
+            if(isPressed && !myAnimation->currentFrame->stickFigures.isEmpty()){
+                int dx = -startingCoord.x()+coord.x();
+                int dy = -startingCoord.y()+coord.y();
+                startingCoord = coord;
+                for(StickFigure*S:myAnimation->currentFrame->stickFigures){
+                    S->traslate(dx,dy);
+                }
+                break;
+            }
+        }
+        case(ROTATESCENE):
+        {
+            if(isPressed && !myAnimation->currentFrame->stickFigures.isEmpty()){
+                QPointF center(W/2,H/2); // centro del sistema
+                QLineF mouseToCenterNow(coord,center); // linea che connette il centro al mouse
+                QLineF mouseToCenterStart(startingCoord,center); // linea che connette il centro alla posizione del mouse precedente
+                float startingAngle = mouseToCenterStart.angle(); // angolo assoluto del mouse prima rispetto al centro
 
+                float actualAngle = mouseToCenterNow.angle();// angolo assoluto del mouse ora rispetto al centro
+                float angle = actualAngle-startingAngle; // incremento in angolo rispetto a prima
+                startingCoord = coord; // le coordinate attuali vengono memorizzate per la prossima iterazione
+                for(StickFigure*S:myAnimation->currentFrame->stickFigures){
+
+                    QLineF connectCenter(center,S->masterStick->myLine.p1()); // linea che connette il master dello stick al centro
+
+                    connectCenter.setAngle(connectCenter.angle()+angle); // ruotiamola dell'angolo di incremento
+                    // ruota ogni singolo stick
+                    for(stick *s:S->stickList){
+
+                        s->rotate(angle);
+                        s->angleBuffer2+=angle; // aggiorna il buffer interno dell'angolo dello stick
+                    }
+
+                    QLineF Delta(S->originPosBuffer,connectCenter.p2()); // traslazione della punta della lineacentro-master ruotata
+                    //trasla lo stickfigure dell'ammontare
+                    S->traslate(Delta.dx(),Delta.dy());
+                    S->originPosBuffer = S->masterStick->myLine.p1(); // agiorna il buffer di posizione dello stickfigure
+                }
+            }
+            break;
+        }
+        case(SCALESCENE):
+        {
+
+
+            if(isPressed && !myAnimation->currentFrame->stickFigures.isEmpty()){
+                float scaleAmount = 1;
+                float dist = 0;
+                QPointF center(W/2,H/2);
+                float startDist = QLineF(startingCoord,center).length();
+                dist = QLineF(coord,center).length();
+                scaleAmount = dist/startDist;
+                for(StickFigure * S:myAnimation->currentFrame->stickFigures){
+                    // per traslare lo stick verso il centro [W/2,H/2] proporzionalmente
+                    // serve calcolare la distanza del masterstick da essa
+                    // moltiplicare dx e dy per lo scale factor
+                    // usarli come traslazione
+                    float dx = 0;
+                    float dy = 0;
+                    // il dx e dy deve essere una quantità tale da non far eccedere ad actual dist ilv alore  di originaldist
+                    QLineF actualDistFromCenter(S->masterStick->myLine.p1(),center);
+                    QLineF originalDistFromCenter(S->originPosBuffer,center);
+                    // quindi fai la differenza fra il valore di distaza originale (max) e la distanza attuale modificata dal fattore di scala per dx e dy
+                    dx = -originalDistFromCenter.dx()*scaleAmount+actualDistFromCenter.dx();
+                    dy = -originalDistFromCenter.dy()*scaleAmount+actualDistFromCenter.dy();
+                    S->traslate(dx,dy);
+                    for(stick* s:S->stickList){
+                        s->scale(scaleAmount);
+
+                    }
+                }
+            }
+            break;
+        }
     }
     QGraphicsView::mouseMoveEvent(event);
 }

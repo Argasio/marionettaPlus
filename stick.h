@@ -5,6 +5,7 @@
 #include <style.h>
 #include <QPainter>
 #include <QGraphicsScene>
+
 #define STEPCHILD -1
 extern bool onionRender;
 
@@ -40,6 +41,8 @@ public:
     bool stepchild = false;
     bool master = false;
     int parentIdx = 0;
+    int rotationSpinboxBuffer = 0;
+    int scaleSpinBoxBuffer = 100;
     int version = 1;
     int type = stickType::LINE;
     float imgAngle = 0;
@@ -54,6 +57,7 @@ public:
     QPointF imgOffset = QPointF(0,0);
     QRectF imgRect;
     QList<stick*> children;
+    QList<void*> linkedStickFigure;
     QPen Pen;
     QBrush Brush;
     qreal Z;

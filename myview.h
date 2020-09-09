@@ -16,7 +16,10 @@
 #define ROTATE 9
 #define SCALE 10
 #define NOTOOL 4
-
+#define MOVESCENE 11
+#define ROTATESCENE 12
+#define SCALESCENE 13
+#define JOIN 14
 
 #define CMD_SIMPLE 0
 #define CMD_ADDFRAME 1
@@ -49,6 +52,7 @@ public:
     void moveStickFigureZ(int increment);
     QPen    myPen;
     QBrush  myBrush;
+    StickFigure* copyStickFigureBuffer = nullptr;
     void moveToFrame(Frame *frame);
     void updateOnionSkins();
     QList<QGraphicsPixmapItem*> onionSkins;

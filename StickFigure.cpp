@@ -8,6 +8,7 @@ extern bool loadingAnimationFlag;
 extern bool undoFlag;
 extern bool libFlag;
 extern bool clearUndoFlag;
+extern bool copyFlag;
 extern QGraphicsRectItem* myRect;
 StickFigure::~StickFigure()
 {
@@ -32,7 +33,7 @@ void StickFigure::updateIcon()
     QGraphicsScene icoScene;
     iconImg->fill(Qt::white);
 
-    if(!libFlag)
+    if(!libFlag && !copyFlag)
         icoScene.setSceneRect(scene->sceneRect());
     else
         icoScene.setSceneRect(myRect->rect());
@@ -124,6 +125,7 @@ void StickFigure::refresh(int mode)
         s->refresh(mode);
     }
 }
+
 
 void StickFigure::setLineFromPoint(QPointF *point)
 {
@@ -412,13 +414,13 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         }
         if(s->master)
             myStickFigure.masterStick = s;
-        if(!undoFlag && !loadingAnimationFlag && !libFlag)
+        if(!undoFlag && !loadingAnimationFlag && !libFlag && !copyFlag)
             myStickFigure.scene->addItem(s);
         //s->refresh(0); // commentato per bug che non ho capito era necessario?
     }
     if(myStickFigure.stickList.count()>0)
         myStickFigure.currentStick = myStickFigure.stickList[0];
-    if(!undoFlag)
+    if(!undoFlag && !copyFlag)
         myStickFigure.updateIcon();
     return stream;
 }
@@ -452,8 +454,8 @@ void cloneStickFigure(StickFigure* dest, StickFigure*src){
     myStream2>>*dest;
 
 
-
-    dest->updateIcon();
+    if(!copyFlag)
+        dest->updateIcon();
 }
 // attraverso il percorso file, carica un data stream su cui caricare i dati salvati
 // chiama il deserializzatore per stickfigures per interpretare lo stream
@@ -514,5 +516,71 @@ void StickFigure::scale(QPointF *coord){
     }
     qDebug("scale = %f \r\n",scale);
 }
+void StickFigure::traslate(qreal dx, qreal dy){
+    for(stick*s:stickList){
+        s->myLine.translate(dx,dy);
+        s->refresh(1);
+    }
+}
+void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigure* toJoin){
+    QList<stick*> matchIndexes;
 
+    for(stick* s: toJoin->stickList){
+        stick* toAdd = new stick(s);
+        mainStickFigure->stickList.append(toAdd);
+        toAdd->master = false;
+        toAdd->stepchild = false;
+        matchIndexes.append(toAdd);
+        mainStickFigure->scene->addItem(toAdd);
+        toAdd->refresh(0);
+    }
+    int i = 0;
+    for(stick* s: toJoin->stickList){
+
+        stick* toAdd = matchIndexes[i];
+        if(mainStick->stepchild)
+            toAdd->stepchild = true;
+        if(s->master){
+            toAdd->master = false;
+            toAdd->parent = mainStick;
+
+        }
+        else if(s->stepchild && s->parent->master)
+        {
+
+            toAdd->parent = mainStick;
+        }
+        else{
+            toAdd->parent = matchIndexes[toJoin->stickList.indexOf(s->parent)];
+        }
+        for(stick* c: s->children){
+
+                toAdd->children.append(matchIndexes[toJoin->stickList.indexOf(c)]);
+        }
+        i++;
+    }
+    mainStick->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]->children);
+    mainStick->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]);
+
+    stick * recursive;
+    recursive = mainStick->parent;
+    while(1){
+        if(recursive == nullptr)
+            break;
+        recursive->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]->children);
+        recursive->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]);
+
+        recursive = recursive->parent;
+    }
+    QList<stick*> stepChildToRemove;
+    for(stick* child:toJoin->masterStick->children){
+        if(child->stepchild)
+            stepChildToRemove.append(matchIndexes[toJoin->stickList.indexOf(child)]);
+
+    }
+    for(stick* child:stepChildToRemove){
+         matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]->children.removeAll(child);
+    }
+
+}
 QDataStream & operator>> (QDataStream& stream, stick& myStick);

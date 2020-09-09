@@ -167,6 +167,24 @@ private slots:
 
     void on_stickFigureScaleSpinbox_editingFinished();
 
+    void on_stickFigureRotationSpinbox_editingFinished();
+
+    void on_moveSceneBtn_clicked();
+
+    void on_scaleSceneBtn_clicked();
+
+    void on_rotateSceneBtn_clicked();
+
+    void on_verticalFlipBtn_clicked();
+
+    void on_HorizontalFlipBtn_clicked();
+
+    void on_copyStickFigureBtn_clicked();
+
+    void on_pasteStickFigureBtn_clicked();
+
+    void on_joinBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };

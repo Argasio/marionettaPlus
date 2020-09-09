@@ -42,6 +42,7 @@ QSpinBox * brushOpacitySpinbox;
 QSlider * penOpacitySlider;
 QSlider * brushOpacitySlider;
 QSpinBox *stickFigureScaleSpinbox;
+QSpinBox *stickFigureRotationSpinbox;
 QTextEdit * stickFigureNameText;
 QGraphicsRectItem *myRect;
 QGraphicsRectItem *limitRect;
@@ -66,6 +67,7 @@ struct{
     bool sliderRot = false;
 }sliderFlags;
 bool playBack = false;
+bool copyFlag = false;
 float zoomLvl = 1;
 QImage * imageDrawBuffer;
 Widget::Widget(QWidget *parent)
@@ -100,6 +102,7 @@ Widget::Widget(QWidget *parent)
     brushOpacitySlider = ui->fillOpacitySlider;
     brushOpacitySpinbox = ui->fillOpacitySpinbox;
     stickFigureScaleSpinbox = ui->stickFigureScaleSpinbox;
+    stickFigureRotationSpinbox = ui->stickFigureRotationSpinbox;
     createPaths();
     detectLibraries();
     // aggiorna il colore del segnacolore
@@ -807,8 +810,92 @@ void Widget::on_stickFigureScaleSpinbox_editingFinished()
     if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
         for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
             s->scale((float)stickFigureScaleSpinbox->value()/100);
+
         }
 
     }
     stickFigureScaleSpinbox->setValue(100);
+}
+
+void Widget::on_stickFigureRotationSpinbox_editingFinished()
+{
+    view->storeUndo();
+    for(stick*s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+
+    }
+    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
+        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+            s->angleBuffer2 = s->myLine.angle();
+            s->rotate(stickFigureRotationSpinbox->value());
+            s->angleBuffer2 = s->myLine.angle();
+        }
+
+    }
+    stickFigureRotationSpinbox->setValue(0);
+}
+
+void Widget::on_moveSceneBtn_clicked()
+{
+    view->setTool(MOVESCENE);
+}
+
+void Widget::on_scaleSceneBtn_clicked()
+{
+    view->setTool(SCALESCENE);
+}
+
+void Widget::on_rotateSceneBtn_clicked()
+{
+    view->setTool(ROTATESCENE);
+}
+
+void Widget::on_verticalFlipBtn_clicked()
+{
+    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
+        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+            //s->myLine.setAngle(s->myLine.angle()+180);
+            s->angleBuffer2 = s->myLine.angle();
+            s->rotate((-2*s->myLine.angle()));
+            //s->refresh(0);
+        }
+    }
+}
+
+void Widget::on_HorizontalFlipBtn_clicked()
+{
+    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
+        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+            //s->myLine.setAngle(s->myLine.angle()+180);
+            s->angleBuffer2 = s->myLine.angle();
+            s->rotate(2*(90-s->myLine.angle()));
+            //s->refresh(0);
+        }
+    }
+}
+
+void Widget::on_copyStickFigureBtn_clicked()
+{
+    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
+        copyFlag = true;
+        view->copyStickFigureBuffer = new StickFigure();
+
+        cloneStickFigure(view->copyStickFigureBuffer,view->myAnimation->currentFrame->currentStickFigure);
+        copyFlag = false;
+    }
+}
+
+void Widget::on_pasteStickFigureBtn_clicked()
+{
+   if(view->copyStickFigureBuffer != nullptr){
+       view->storeUndo(CMD_SIMPLE);
+       StickFigure* added =addStick();
+       cloneStickFigure(added,view->copyStickFigureBuffer);
+       added->refresh(0);
+   }
+
+}
+
+void Widget::on_joinBtn_clicked()
+{
+    view->setTool(JOIN);
 }

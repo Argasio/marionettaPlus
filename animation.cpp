@@ -2,6 +2,7 @@
 
 #include <QBuffer>
 #include <QFile>
+#include <QSpinBox>
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
 extern int W;
@@ -15,6 +16,8 @@ extern QSlider* imgVOffsetSlider;
 extern QSlider* imgWidthSlider;
 extern QSlider* imgHeightSlider;
 extern QSlider* imgRotationSlider;
+extern QSpinBox *stickFigureScaleSpinbox;
+extern QSpinBox *stickFigureRotationSpinbox;
 bool loadingAnimationFlag = false;
 bool clearingAnimation = false;
 Animation::Animation()
@@ -31,7 +34,7 @@ Frame *Animation::addFrame(QListWidgetItem* item, int pos)
 
     if(frameList.isEmpty())
         currentFrame = frameBuffer;
-    frameList.append(frameBuffer);
+    frameList.insert(pos,frameBuffer);
     frameBuffer->linkedItem = item;
     return frameBuffer;
 }
@@ -131,6 +134,7 @@ void Animation::updateSelection(stick* s)
      s->setSelected(true);
      s->selected = true;
     }
+    updateSliders();
     //int idx = frameBuffer->currentStickFigure->itemList.indexOf(item);
 
 }
@@ -169,6 +173,8 @@ void Animation::updateSliders(){
         imgVOffsetSlider->setValue(cs->imgOffset.y());
         imgHOffsetSlider->setValue(cs->imgOffset.x());
         imgRotationSlider->setValue(cs->imgAngleOffset);
+
+
     }
 }
 Frame* Animation::setupFrame(int pos){

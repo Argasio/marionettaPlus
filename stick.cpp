@@ -25,12 +25,14 @@ stick::stick(stick* S)
 {
     this->setFlag(QGraphicsItem::ItemIsSelectable,true);
     Pen = S->Pen;
+    Brush = S->Brush;
     highlight = true;
     setLine(&S->myLine);
     stepchild = false;
     this->Z = S->Z;
     this->br = S->boundingRect();
     this->type = S->type;
+    this->master = S->master;
     if(S->type == IMAGE){
         this->stickImg = new QImage(*S->stickImg);
         imgAngle = S->imgAngle;
@@ -230,9 +232,9 @@ QRectF stick::updateBr(int mode)
                             QPointF(myLine.p2().x(),myLine.p1().y()));
         else
             newBr = QRectF(myLine.p2(),myLine.p1());*/
-        newBr.setX(newBr.x()-Pen.width());newBr.setY(newBr.y()-Pen.width()); // TODO padding proporzionale alla dimensione della Penna
-        newBr.setWidth(newBr.width()+Pen.width());
-        newBr.setHeight(newBr.height()+Pen.width());
+        newBr.setX(newBr.x()-Pen.width()-10);newBr.setY(newBr.y()-Pen.width()-10); // TODO padding proporzionale alla dimensione della Penna
+        newBr.setWidth(newBr.width()+Pen.width()+10);
+        newBr.setHeight(newBr.height()+Pen.width()+10);
         this->br.getCoords(&oldP1x,&oldP1y,&oldP2x,&oldP2y);
         // Se stiamo muovendo l'oggetto, teniamo conto anche del precedente bounding rect, e li fondiamo
         // per creare un bounding rect che contenga sia quello nuovo che quello vecchio così da non generare ghosting

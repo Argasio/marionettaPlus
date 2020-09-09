@@ -36,16 +36,20 @@ public:
     void updateZ();
     QIcon*stickFigureIcon;
     QPixmap * iconImg;
-
+    QPointF originPosBuffer;
+    float sceneRotationBuffer = 0;
     QString name;
+
     void updateIcon();
     bool selectingOrigin = false;
     void loadStickFigure(QString name);
     void refresh(int mode = 0);
-
+    void cloneStickFigure(StickFigure *target, StickFigure *source);
 
     void rotateStickFigure(QPointF *coord);
     void scale(QPointF *coord);
+    void traslate(qreal dx, qreal dy);
+
 private:
 
     QPointF p0;
@@ -62,4 +66,5 @@ Q_DECLARE_METATYPE(StickFigure*)
 QDataStream &operator<<(QDataStream& stream, const StickFigure& myStickFigure);
 QDataStream &operator>>(QDataStream& stream,StickFigure& myStickFigure);
 void cloneStickFigure(StickFigure *dest, StickFigure *src);
+void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigure* toJoin);
 #endif // StickFigure_H
