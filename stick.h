@@ -8,7 +8,7 @@
 
 #define STEPCHILD -1
 extern bool onionRender;
-
+class StickFigure;
 class stick:public QGraphicsItem
 {
 
@@ -62,7 +62,7 @@ public:
     QBrush Brush;
     qreal Z;
     QImage *stickImg = nullptr;
-
+    StickFigure* myStickFigure = nullptr;
     void rotate(float angle);
     void scale(float scaleFactor);
 private:

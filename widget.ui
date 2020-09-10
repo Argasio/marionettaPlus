@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1106</width>
+    <width>1360</width>
     <height>1114</height>
    </rect>
   </property>
@@ -652,17 +652,49 @@
                            <number>20</number>
                           </property>
                           <item>
-                           <widget class="QPushButton" name="joinBtn">
-                            <property name="text">
-                             <string>Join</string>
+                           <widget class="QGroupBox" name="groupBox_11">
+                            <property name="title">
+                             <string>StickFigure</string>
                             </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_32">
+                             <item>
+                              <widget class="QPushButton" name="joinBtn">
+                               <property name="text">
+                                <string>Join</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="splitBtn">
+                               <property name="text">
+                                <string>Split</string>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
                            </widget>
                           </item>
                           <item>
-                           <widget class="QPushButton" name="splitBtn">
-                            <property name="text">
-                             <string>Split</string>
+                           <widget class="QGroupBox" name="groupBox_12">
+                            <property name="title">
+                             <string>Stick</string>
                             </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_33">
+                             <item>
+                              <widget class="QPushButton" name="joinStick">
+                               <property name="text">
+                                <string>Join</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="splitStick">
+                               <property name="text">
+                                <string>Split</string>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
                            </widget>
                           </item>
                           <item>

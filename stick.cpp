@@ -437,3 +437,4 @@ void sceneRemover(QGraphicsScene *sceneToClear){
             sceneToClear->removeItem(i);
     }
 }
+

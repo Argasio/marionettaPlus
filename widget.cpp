@@ -904,3 +904,19 @@ void Widget::on_splitBtn_clicked()
 {
     view->splitStickFigure();
 }
+
+void Widget::on_joinStick_clicked()
+{
+    if(view->myAnimation->currentFrame->currentStickFigure == nullptr || view->myAnimation->currentFrame->currentStickFigure->currentStick == nullptr)
+        return;
+    view->storeUndo();
+    view->myAnimation->currentFrame->currentStickFigure->weld(view->myAnimation->currentFrame->currentStickFigure->currentStick);
+}
+
+void Widget::on_splitStick_clicked()
+{
+    if(view->myAnimation->currentFrame->currentStickFigure == nullptr || view->myAnimation->currentFrame->currentStickFigure->currentStick == nullptr)
+        return;
+    view->storeUndo();
+    view->myAnimation->currentFrame->currentStickFigure->chop(view->myAnimation->currentFrame->currentStickFigure->currentStick);
+}

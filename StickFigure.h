@@ -50,6 +50,8 @@ public:
     void scale(QPointF *coord);
     void traslate(qreal dx, qreal dy);
 
+    void weld(stick *master);
+    void chop(stick *master);
 private:
 
     QPointF p0;
@@ -68,4 +70,5 @@ QDataStream &operator>>(QDataStream& stream,StickFigure& myStickFigure);
 void cloneStickFigure(StickFigure *dest, StickFigure *src);
 void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigure* toJoin);
 void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch);
+void cloneStick(stick* dest, stick*src);
 #endif // StickFigure_H

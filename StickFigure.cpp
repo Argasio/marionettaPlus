@@ -458,6 +458,83 @@ void cloneStickFigure(StickFigure* dest, StickFigure*src){
     if(!copyFlag)
         dest->updateIcon();
 }
+//this function join parent stick with its children
+void StickFigure::weld(stick* master){
+    if(stickList.count()<= 1)
+        return;
+    //list of items to be deleted
+    QList<stick*> toWeld;
+    //populate the list with the immediate children of the selected stick
+    for(stick* s:master->children){
+        if(s->parent == master && s->stepchild == false){
+            toWeld.append(s);
+        }
+    }
+    // the master stick will now extend to the old extent of the welded element
+    QPointF newP2(toWeld[0]->myLine.p2());
+    master->myLine.setP2(newP2);
+    for(stick*s: toWeld){
+        //remove parentage of the welded sticks and put the new master in place
+        for(stick* c:s->children){
+            if(c->parent == s){
+                c->myLine.setP1(newP2); //also update children p1 position
+                c->parent = master;
+            }
+        }
+        stick* recursive = master;
+        while(recursive!=nullptr)
+        { //remove the deleted elements from the list of children of the hierarchy
+            recursive->children.removeAll(s);
+            recursive = recursive->parent;
+        }
+    }//delete and remove from scenevivi la vitas
+    for(stick*s: toWeld){
+        stickList.removeAll(s);
+        scene->removeItem(s);
+        delete s;
+    }
+    refresh(0);
+}
+void StickFigure::chop(stick* master){
+    QPointF oldP2 = master->myLine.p2();
+    QPointF newP2(0.5*(master->myLine.p2().x()+master->myLine.p1().x()),
+                 0.5*(master->myLine.p2().y()+master->myLine.p1().y() ));
+    master->myLine.setP2(newP2);
+    stick* toAdd = new stick();
+    cloneStick(toAdd,master);
+
+    toAdd->myLine = QLineF(newP2,oldP2);
+    toAdd->children = master->children;
+    toAdd->parent = master;
+    /*
+
+    toAdd->stepchild = master->stepchild;
+
+    toAdd->type = master->type;
+    toAdd->Brush = master->Brush;
+    toAdd->Pen = master->Pen;
+    if(master->type == stick::IMAGE){
+        toAdd->stickImg = master->stickImg;
+        toAdd->imgHScale = master->imgHScale;
+        toAdd->imgWScale = master->imgWScale;
+        toAdd->imgOffset = master->imgOffset;
+        toAdd->imgAngleOffset = master->imgAngleOffset;
+    }*/
+    for(stick*s:master->children)
+       {
+        if(s->parent==master)
+            s->parent = toAdd;
+    }
+    stick* recoursive = master;
+    while(recoursive != nullptr){
+        recoursive->children.append(toAdd);
+        recoursive = recoursive->parent;
+    }
+    scene->addItem(toAdd);
+    stickList.append(toAdd);
+    refresh(0);
+}
+
 // attraverso il percorso file, carica un data stream su cui caricare i dati salvati
 // chiama il deserializzatore per stickfigures per interpretare lo stream
 void StickFigure::loadStickFigure(QString name)
@@ -617,5 +694,21 @@ void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
     }
     split->deleteStick( split->stickList.indexOf(origin));
 }
-
+void cloneStick(stick* dest, stick*src){
+    // byte array stores serialized data
+    QByteArray* byteArray = new QByteArray();
+    // buffer temporarily holds serialized data
+    QBuffer buffer1(byteArray);
+    // use this buffer to store data from the object
+    buffer1.open(QIODevice::WriteOnly);
+    QDataStream myStream(&buffer1);
+    myStream<<*(src);
+    // now create a seconds buffer from which to read data of the bytearray
+    QBuffer buffer2(byteArray);
+    buffer2.open(QIODevice::ReadOnly);
+    // a new data stream to deserialize
+    QDataStream myStream2(&buffer2);
+    // hydrate new frame with previous frame data
+    myStream2>>*dest;
+}
 QDataStream & operator>> (QDataStream& stream, stick& myStick);

@@ -948,6 +948,8 @@ void myView::setGraphics(bool all, int attribute){
     myAnimation->currentFrame->currentStickFigure->updateIcon();
 }
 void myView::splitStickFigure(){
+    if(myAnimation->currentFrame->currentStickFigure== nullptr || myAnimation->currentFrame->currentStickFigure->currentStick == nullptr)
+        return;
     storeUndo();
     splitToStickFigure = myAnimation->currentFrame->currentStickFigure;
     splitToStick = splitToStickFigure->currentStick;

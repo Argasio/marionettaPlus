@@ -187,6 +187,10 @@ private slots:
 
     void on_splitBtn_clicked();
 
+    void on_joinStick_clicked();
+
+    void on_splitStick_clicked();
+
 private:
     Ui::Widget *ui;
 };
