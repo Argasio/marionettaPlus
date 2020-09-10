@@ -24,7 +24,9 @@ bool translateScene = false;
 bool rotateScene = false;
 bool scaleScene = false;
 StickFigure* joinToStickFigure;
+StickFigure* splitToStickFigure;;
 stick* joinToStick;
+stick* splitToStick;
 extern int W;
 extern int H;
 extern QGraphicsRectItem* myRect;
@@ -221,7 +223,13 @@ void myView::mousePressEvent(QMouseEvent *event)
                         qDebug("merge ok\r\n");
                     }
                 }
+                break;
             }
+            case(SPLIT):{
+
+                break;
+            }
+
         }
         QGraphicsView::mousePressEvent(event);
     }
@@ -385,6 +393,10 @@ void myView::changeTool()
             break;
         }
         case(JOIN):
+        {
+            break;
+        }
+        case(SPLIT):
         {
             break;
         }
@@ -933,5 +945,17 @@ void myView::setGraphics(bool all, int attribute){
         }
     }
 
+    myAnimation->currentFrame->currentStickFigure->updateIcon();
+}
+void myView::splitStickFigure(){
+    storeUndo();
+    splitToStickFigure = myAnimation->currentFrame->currentStickFigure;
+    splitToStick = splitToStickFigure->currentStick;
+    StickFigure * branch = myAnimation->currentFrame->addStickFigure(myStickFigureWidgetList, splitToStickFigure->name+"_split");
+    splitStickFigures(splitToStickFigure,splitToStick,branch);
+    splitToStickFigure->refresh(0);
+    branch->refresh(0);
+    myAnimation->currentFrame->currentStickFigure = branch;
+    myAnimation->currentFrame->currentStickFigure->currentStick = branch->stickList[0];
     myAnimation->currentFrame->currentStickFigure->updateIcon();
 }

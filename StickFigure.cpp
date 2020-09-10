@@ -242,6 +242,7 @@ int StickFigure::selectStick( QPointF * point)
         else if(QLineF(pBuf1,*point).length()<= minDist && stickList[idx]->master)
         {
             selectingOrigin = true;
+            minDist = QLineF(pBuf1,*point).length();
         }
         idx++;
     }
@@ -583,4 +584,38 @@ void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigur
     }
 
 }
+
+void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
+    // crea una lista parallela con gli stick corrispondenti nella stickfigure originale
+   QList<stick*> matchingIndex;
+   // clonare tutti gli stick figli dello stick selezionato
+    matchingIndex.append(origin);
+    stick* toAdd = new stick(origin);
+    branch->stickList.append(toAdd);
+    for(stick* s: origin->children){
+
+        if(s->parent != origin->parent){
+            matchingIndex.append(s);
+            toAdd = new stick(s);
+            branch->stickList.append(toAdd);
+        }
+    }
+    branch->stickList[matchingIndex.indexOf(origin)]->master = true;
+    branch->masterStick = branch->stickList[matchingIndex.indexOf(origin)];
+
+    int i = 0;
+    // in un altro ciclo for, per ogni stick clonato aggiungere gli stessi parent e gli stessi children sfruttando l'indicizzazione
+    for(stick* s: branch->stickList){
+        if(matchingIndex[i]->parent != origin->parent)
+            s->parent = branch->stickList[matchingIndex.indexOf(matchingIndex[i]->parent)];
+        for(stick*c: matchingIndex[i]->children){
+            s->children.append(branch->stickList[matchingIndex.indexOf(c)]);
+        }
+        i++;
+        split->scene->addItem(s);
+        s->refresh(0);
+    }
+    split->deleteStick( split->stickList.indexOf(origin));
+}
+
 QDataStream & operator>> (QDataStream& stream, stick& myStick);

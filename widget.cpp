@@ -899,3 +899,8 @@ void Widget::on_joinBtn_clicked()
 {
     view->setTool(JOIN);
 }
+
+void Widget::on_splitBtn_clicked()
+{
+    view->splitStickFigure();
+}

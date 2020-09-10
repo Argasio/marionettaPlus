@@ -20,6 +20,7 @@
 #define ROTATESCENE 12
 #define SCALESCENE 13
 #define JOIN 14
+#define SPLIT 15
 
 #define CMD_SIMPLE 0
 #define CMD_ADDFRAME 1
@@ -69,6 +70,7 @@ public:
     StickFigure *addStickFigureToLibrary();
     void removeFromLibrary();
     void setGraphics(bool all, int attribute);
+    void splitStickFigure();
 public slots:
     void saveLibrary(QString fileName);
 signals:

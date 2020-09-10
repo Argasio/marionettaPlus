@@ -67,4 +67,5 @@ QDataStream &operator<<(QDataStream& stream, const StickFigure& myStickFigure);
 QDataStream &operator>>(QDataStream& stream,StickFigure& myStickFigure);
 void cloneStickFigure(StickFigure *dest, StickFigure *src);
 void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigure* toJoin);
+void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch);
 #endif // StickFigure_H
