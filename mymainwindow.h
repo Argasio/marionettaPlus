@@ -29,6 +29,8 @@ private slots:
 
     void on_actionexport_as_AVI_file_triggered();
 
+    void on_actionsave_animation_current_triggered();
+
 private:
     Ui::myMainWindow *ui;
 };

@@ -13,7 +13,7 @@ public:
     ~StickFigure();
     StickFigure(QListWidgetItem* item);
     StickFigure();
-    void  startDrawing(QPointF* point, QPen pen);
+    void  startDrawing(QPointF* point, QPen pen, QBrush brush);
     void  previewDrawing(QPointF* point);
     void  endDrawing(QPointF* point);
     void  returnLine();
@@ -51,7 +51,12 @@ public:
     void traslate(qreal dx, qreal dy);
 
     void weld(stick *master);
-    void chop(stick *master);
+    void chop(stick *origin);
+    void setMaster(stick *toMaster);
+    void setDirectChainAsMaster(stick *toMaster);
+    void setStepChildAsMaster(stick *toMaster);
+    void invertMaster(stick *toMaster);
+    void stepDownMaster(stick *toMaster);
 private:
 
     QPointF p0;

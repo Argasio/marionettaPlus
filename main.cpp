@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     myMainWindow w;
     Widget* myW = new Widget();
     w.setCentralWidget(myW);
-    w.show();
+    w.showMaximized();
     w.view = myW->view;
     w.centralW = myW;
     return a.exec();

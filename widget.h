@@ -191,6 +191,20 @@ private slots:
 
     void on_splitStick_clicked();
 
+
+    void on_setMasterNodeBtn_clicked();
+
+    void on_createNewLibraryBtn_clicked();
+
+    void on_setAllDepthBtn_clicked();
+
+    void on_setDepthBtn_clicked();
+
+    void on_depthSpinbox_valueChanged(double arg1);
+
+    void on_depthSlider_valueChanged(int value);
+
+
 private:
     Ui::Widget *ui;
 };

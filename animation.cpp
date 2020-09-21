@@ -175,6 +175,7 @@ void Animation::updateSliders(){
         imgRotationSlider->setValue(cs->imgAngleOffset);
 
 
+
     }
 }
 Frame* Animation::setupFrame(int pos){

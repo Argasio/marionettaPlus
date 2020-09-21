@@ -40,6 +40,8 @@ extern QSlider* imgWidthSlider;
 extern QSlider* imgHeightSlider;
 extern QListWidget * myLibraryListWidget ;
 extern QListWidget * myCurrentLibraryWidget;
+extern QSlider * depthSlider;
+extern QDoubleSpinBox* depthSpinbox;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     onionRender = false;
@@ -243,9 +245,10 @@ void myView::keyPressEvent(QKeyEvent *event)
         case(Qt::Key_Cancel):
         case(Qt::Key_Delete):
         {
-            if(scene()->selectedItems().count() == 1)
+            if(scene()->selectedItems().count() == 1 && myAnimation->currentFrame->currentStickFigure->drawCount==0)
             {
                 storeUndo();
+
                 stick *item = (stick*)scene()->selectedItems()[0];//oggetto selezionato nella scnea
                 int idx = myAnimation->currentFrame->currentStickFigure->stickList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
                 // se si tratta dello stick master e ci sono altri stickfigure, cancella l'intero stickfigure
@@ -307,7 +310,7 @@ void myView::drawCmd(QPointF* point, int mode)
                myAnimation->currentFrame->currentStickFigure->currentStick->selected = false;
                myAnimation->currentFrame->currentStickFigure->currentStick->refresh(0);
             }
-            myAnimation->currentFrame->currentStickFigure->startDrawing(point, myPen);
+            myAnimation->currentFrame->currentStickFigure->startDrawing(point, myPen, myBrush);
             myAnimation->currentFrame->currentStickFigure->currentStick->selected = true;
             // se stiamo usando il tool per generare cerchi cambiamo il tipo dello stick
             if(mode == DRAWCIRCLE){
@@ -868,6 +871,13 @@ void myView::saveLibrary(QString fileName){
     file.close();
     libFlag = false;
 }
+void myView::clearCurrentLib(){
+    libFlag = true;
+    myCurrentLibraryWidget->clear();
+    delete stickLibraryBuffer;
+    stickLibraryBuffer = new Frame();
+    libFlag = false;
+}
 void myView::loadLibrary(QString fileName){
     libFlag = true;
     QFile file(fileName);
@@ -925,8 +935,9 @@ void myView::removeFromLibrary(){
 void myView::setGraphics(bool all, int attribute){
     storeUndo(CMD_SIMPLE);
     if(!all){
-        if(attribute == ATTRIBUTE_PENCOLOR)
+        if(attribute == ATTRIBUTE_PENCOLOR){
             myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setColor(myPen.color());
+        }
         else if(attribute== ATTRIBUTE_PENWIDTH)
             myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setWidth(myPen.width());
         else if(attribute== ATTRIBUTE_BRUSHCOLOR)

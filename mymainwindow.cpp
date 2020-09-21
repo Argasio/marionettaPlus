@@ -2,12 +2,13 @@
 #include "ui_mymainwindow.h"
 #include "animation.h"
 #include "QFileDialog"
-
+#include  <QDir>
 #include <QProcess>
 extern QDir programFolder;
 extern int W;
 extern int H;
 extern QGraphicsRectItem *myRect;
+QString animationPath = "";
 
 bool loadFile = false;
 myMainWindow::myMainWindow(QWidget *parent) :
@@ -26,8 +27,10 @@ void myMainWindow::on_actionsave_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,tr("Save StickFigure"),
                        "C:/", "Stickfigure (*.stck)");
-    QDataStream myStream;
-    view->myAnimation->currentFrame->currentStickFigure->saveStickFigure(fileName);
+    if(fileName.length()>1){
+        QDataStream myStream;
+        view->myAnimation->currentFrame->currentStickFigure->saveStickFigure(fileName);
+    }
 }
 
 void myMainWindow::on_actionload_triggered()
@@ -46,7 +49,9 @@ void myMainWindow::on_actionsave_animation_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,tr("Save Animation"),
                        "C:/", "Marionetta Animation (*.mAnim)");
-    view->myAnimation->saveAnimation(fileName);
+    animationPath = fileName;
+    if(fileName.length()>1)
+        view->myAnimation->saveAnimation(fileName);
 }
 
 void myMainWindow::on_actionload_animation_triggered()
@@ -54,6 +59,7 @@ void myMainWindow::on_actionload_animation_triggered()
     QString fileName = QFileDialog::getOpenFileName(this,tr("Load Animation"),
                        "C:/", "Marionetta Animation (*.mAnim)");
      view->clearUndo();
+     animationPath = fileName;
     if(QFile::exists(fileName)){
         loadFile = true;
         QDataStream myStream;
@@ -125,5 +131,15 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
     for(QString s: paramList){
         p->write(s.toUtf8(),s.length());
         p->write("\n");
+    }
+}
+
+void myMainWindow::on_actionsave_animation_current_triggered()
+{
+    if(QFile::exists(animationPath)){
+        view->myAnimation->saveAnimation(animationPath);
+    }
+    else{
+        on_actionsave_animation_triggered();
     }
 }

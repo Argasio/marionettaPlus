@@ -71,6 +71,7 @@ public:
     void removeFromLibrary();
     void setGraphics(bool all, int attribute);
     void splitStickFigure();
+    void clearCurrentLib();
 public slots:
     void saveLibrary(QString fileName);
 signals:

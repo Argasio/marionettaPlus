@@ -21,7 +21,7 @@
 #include <QStandardPaths>
 #include <QFileDialog>
 #include <QDirIterator>
-
+#include <QFileInfo>
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QGraphicsScene *scene;
@@ -41,8 +41,10 @@ QSpinBox * penOpacitySpinbox;
 QSpinBox * brushOpacitySpinbox;
 QSlider * penOpacitySlider;
 QSlider * brushOpacitySlider;
+QSlider * depthSlider;
 QSpinBox *stickFigureScaleSpinbox;
 QSpinBox *stickFigureRotationSpinbox;
+QDoubleSpinBox * depthSpinbox;
 QTextEdit * stickFigureNameText;
 QGraphicsRectItem *myRect;
 QGraphicsRectItem *limitRect;
@@ -103,6 +105,8 @@ Widget::Widget(QWidget *parent)
     brushOpacitySpinbox = ui->fillOpacitySpinbox;
     stickFigureScaleSpinbox = ui->stickFigureScaleSpinbox;
     stickFigureRotationSpinbox = ui->stickFigureRotationSpinbox;
+    depthSpinbox = ui->depthSpinbox;
+    depthSlider = ui->depthSlider;
     createPaths();
     detectLibraries();
     // aggiorna il colore del segnacolore
@@ -119,6 +123,8 @@ Widget::Widget(QWidget *parent)
     scene = new QGraphicsScene(this);
     //crea il pannello e collegalo alla scena
     view = new myView(this);
+    view->setBackgroundBrush(QBrush(QColor(Qt::darkGray)));
+    scene->setBackgroundBrush(QBrush(QColor(Qt::white)));
     view->setScene(scene);
     view->myAnimation->scene = scene;
     addFrame();
@@ -126,7 +132,9 @@ Widget::Widget(QWidget *parent)
     ui->viewLayout->addWidget(view);
     //crea la cornice
     myRect = new QGraphicsRectItem(0, 0, W, H);
+    myRect->setBrush(QBrush(QColor(Qt::white)));
     limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
+    limitRect->setBrush(QBrush(QColor(Qt::white)));
     scene->addItem(myRect);
     scene->setSceneRect(limitRect->rect());
     // adjust image editing offset sliders according to max size of scene
@@ -145,6 +153,7 @@ Widget::Widget(QWidget *parent)
     }
     myLibraryListWidget->clear();
     detectLibraries();
+    myLibraryListWidget->setCurrentRow(0);
 }
 void Widget::createPaths(){
     QString  path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
@@ -477,7 +486,7 @@ void Widget::on_saveLibraryBtn_clicked()
 {
     QString fileName = QFileDialog::getSaveFileName(this,tr("save marionetta library"),
                        libFolder.path(),"Marionetta Library(*.marlib)");
-    if(QFile::exists(fileName)){
+    if(fileName.length()>0){
         QDataStream myStream;
 
         view->saveLibrary(fileName);
@@ -725,6 +734,7 @@ void Widget::on_setPenThicknessAllBtn_clicked()
 void Widget::on_selectBrushColorBtn_clicked()
 {
     QColor color = QColorDialog::getColor(Qt::yellow, this );
+    color.setAlphaF((float)brushOpacitySlider->value()/100);
     view->myBrush.setColor(color);
     // aggiorna il colore del segnacolore
     if(color.isValid()) {
@@ -920,3 +930,75 @@ void Widget::on_splitStick_clicked()
     view->storeUndo();
     view->myAnimation->currentFrame->currentStickFigure->chop(view->myAnimation->currentFrame->currentStickFigure->currentStick);
 }
+
+
+
+void Widget::on_setMasterNodeBtn_clicked()
+{
+    if(view->myAnimation->currentFrame->currentStickFigure == nullptr ||
+            view->myAnimation->currentFrame->currentStickFigure->stickList.isEmpty()||
+            view->myAnimation->currentFrame->currentStickFigure->currentStick == nullptr)
+        return;
+    view->storeUndo();
+    view->myAnimation->currentFrame->currentStickFigure->setMaster(view->myAnimation->currentFrame->currentStickFigure->currentStick);
+}
+
+void Widget::on_createNewLibraryBtn_clicked()
+{
+    on_saveCurrentLibraryBtn_clicked();
+    QString fileName = QFileDialog::getSaveFileName(this,tr("create a new marionetta library"),
+                       libFolder.path(),"Marionetta Library(*.marlib)");
+    if(fileName.length()>0){
+        QDataStream myStream;
+        view->clearCurrentLib();
+        view->saveLibrary(fileName);
+        myLibraryListWidget->clear();
+        detectLibraries();
+    }
+    if(QFile::exists(fileName)){
+        QDataStream myStream;
+
+        view->loadLibrary(fileName);
+
+        QListWidgetItem *added = myLibraryListWidget->findItems(QFileInfo(fileName).fileName(),Qt::MatchExactly)[0];
+        int row = myLibraryListWidget->row(added);
+        myLibraryListWidget->setCurrentRow(row);
+    }
+
+}
+
+void Widget::on_setAllDepthBtn_clicked()
+{
+    if(!view->myAnimation->currentFrame->currentStickFigure->stickList.isEmpty()){
+        view->storeUndo(CMD_SIMPLE);
+        float val = depthSpinbox->value();
+        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+            s->Z = val;
+        }
+        view->myAnimation->currentFrame->currentStickFigure->baseZ = val;
+        view->myAnimation->currentFrame->currentStickFigure->refresh(0);
+    }
+}
+
+void Widget::on_setDepthBtn_clicked()
+{
+    if(!view->myAnimation->currentFrame->currentStickFigure->stickList.isEmpty()
+            && view->myAnimation->currentFrame->currentStickFigure->currentStick){
+        view->storeUndo(CMD_SIMPLE);
+        float val = depthSpinbox->value();
+        view->myAnimation->currentFrame->currentStickFigure->currentStick->Z = val;
+        view->myAnimation->currentFrame->currentStickFigure->refresh(0);
+    }
+}
+
+void Widget::on_depthSpinbox_valueChanged(double arg1)
+{
+    depthSlider->setValue((int)arg1*100);
+}
+
+void Widget::on_depthSlider_valueChanged(int value)
+{
+    depthSpinbox->setValue((float)value/100);
+}
+
+

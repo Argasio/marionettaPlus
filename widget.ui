@@ -6,16 +6,342 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1360</width>
+    <width>1376</width>
     <height>1114</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>150</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Widget</string>
   </property>
+  <property name="toolTip">
+   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;flip the current stickfigure around the vertical axis&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/*
+	Copyright 2013 Emanuel Claesson
+
+	Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+/*
+	COLOR_DARK     = #191919
+	COLOR_MEDIUM   = #353535
+	COLOR_MEDLIGHT = #5A5A5A
+	COLOR_LIGHT    = #DDDDDD
+	COLOR_ACCENT   = #3D7848
+*/
+
+* {
+	background: #191919;
+	color: #DDDDDD;
+	border: 1px solid #5A5A5A;
+}
+QListWidget{
+	background: #353535
+}
+QTextEdit{
+	background: #353535
+}
+QWidget::item:selected {
+	background: #3D7848;
+}
+
+QCheckBox, QRadioButton {
+	border: none;
+}
+QTabWidget::pane {
+  border: 1px solid lightgray;
+  top:-1px; 
+  background: #191919; 
+} 
+
+QTabBar::tab {
+  background: #191919; 
+  border: 1px solid lightgray; 
+  padding: 15px;
+} 
+
+QTabBar::tab:selected { 
+  background: #191919; 
+  margin-bottom: -1px; 
+}
+QRadioButton::indicator, QCheckBox::indicator {
+	width: 13px;
+	height: 13px;
+}
+
+QRadioButton::indicator::unchecked, QCheckBox::indicator::unchecked {
+	border: 1px solid #5A5A5A;
+	background: none;
+}
+
+QRadioButton::indicator:unchecked:hover, QCheckBox::indicator:unchecked:hover {
+	border: 1px solid #DDDDDD;
+}
+
+QRadioButton::indicator::checked, QCheckBox::indicator::checked {
+	border: 1px solid #5A5A5A;
+	background: #5A5A5A;
+}
+
+QRadioButton::indicator:checked:hover, QCheckBox::indicator:checked:hover {
+	border: 1px solid #DDDDDD;
+	background: #DDDDDD;
+}
+
+QGroupBox {
+	border: 0px solid #DDDDDD;
+	margin-top: 6px;
+}
+QFrame {
+	border: 0px solid #DDDDDD;
+	margin-top: 6px;
+}
+QGroupBox::title {
+	top: -7px;
+	left: 7px;
+}
+
+QScrollBar {
+	border: 1px solid #5A5A5A;
+	background: #191919;
+}
+
+QScrollBar:horizontal {
+	height: 15px;
+	margin: 0px 0px 0px 32px;
+}
+
+QScrollBar:vertical {
+	width: 15px;
+	margin: 32px 0px 0px 0px;
+}
+
+QScrollBar::handle {
+	background: #353535;
+	border: 1px solid #5A5A5A;
+}
+
+QScrollBar::handle:horizontal {
+	border-width: 0px 1px 0px 1px;
+}
+
+QScrollBar::handle:vertical {
+	border-width: 1px 0px 1px 0px;
+}
+
+QScrollBar::handle:horizontal {
+	min-width: 20px;
+}
+
+QScrollBar::handle:vertical {
+	min-height: 20px;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+	background:#353535;
+	border: 1px solid #5A5A5A;
+	subcontrol-origin: margin;
+}
+
+QScrollBar::add-line {
+	position: absolute;
+}
+
+QScrollBar::add-line:horizontal {
+	width: 15px;
+	subcontrol-position: left;
+	left: 15px;
+}
+
+QScrollBar::add-line:vertical {
+	height: 15px;
+	subcontrol-position: top;
+	top: 15px;
+}
+
+QScrollBar::sub-line:horizontal {
+	width: 15px;
+	subcontrol-position: top left;
+}
+
+QScrollBar::sub-line:vertical {
+	height: 15px;
+	subcontrol-position: top;
+}
+
+QScrollBar:left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow, QScrollBar::down-arrow {
+	border: 1px solid #5A5A5A;
+	width: 3px;
+	height: 3px;
+}
+
+QScrollBar::add-page, QScrollBar::sub-page {
+	background: none;
+}
+
+QAbstractButton:hover {
+	background: #353535;
+}
+
+QAbstractButton:pressed {
+	background: #5A5A5A;
+}
+
+QAbstractItemView {
+	show-decoration-selected: 1;
+	selection-background-color: #3D7848;
+	selection-color: #DDDDDD;
+	alternate-background-color: #353535;
+}
+
+QHeaderView {
+	border: 1px solid #5A5A5A;
+}
+
+QHeaderView::section {
+	background: #191919;
+	border: 1px solid #5A5A5A;
+	padding: 4px;
+}
+
+QHeaderView::section:selected, QHeaderView::section::checked {
+	background: #353535;
+}
+
+QTableView {
+	gridline-color: #5A5A5A;
+}
+
+QTabBar {
+	margin-left: 2px;
+}
+
+QTabBar::tab {
+	border-radius: 0px;
+	padding: 4px;
+	margin: 4px;
+}
+
+QTabBar::tab:selected {
+	background: #353535;
+}
+
+QComboBox::down-arrow {
+	border: 1px solid #5A5A5A;
+	background: #353535;
+}
+
+QComboBox::drop-down {
+	border: 1px solid #5A5A5A;
+	background: #353535;
+}
+
+QComboBox::down-arrow {
+	width: 3px;
+	height: 3px;
+	border: 1px solid #5A5A5A;
+}
+
+QAbstractSpinBox {
+	padding-right: 15px;
+}
+
+QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {
+	border: 1px solid #5A5A5A;
+	background: #353535;
+	subcontrol-origin: border;
+}
+
+QAbstractSpinBox::up-arrow, QAbstractSpinBox::down-arrow {
+	width: 3px;
+	height: 3px;
+	border: 1px solid #5A5A5A;
+}
+
+QSlider {
+	border: none;
+}
+
+QSlider::groove:horizontal {
+	height: 5px;
+	margin: 4px 0px 4px 0px;
+}
+
+QSlider::groove:vertical {
+	width: 5px;
+	margin: 0px 4px 0px 4px;
+}
+
+QSlider::handle {
+	border: 1px solid #5A5A5A;
+	background: #353535;
+}
+
+QSlider::handle:horizontal {
+	width: 15px;
+	margin: -4px 0px -4px 0px;
+}
+
+QSlider::handle:vertical {
+	height: 15px;
+	margin: 0px -4px 0px -4px;
+}
+
+QSlider::add-page:vertical, QSlider::sub-page:horizontal {
+	background: #3D7848;
+}
+
+QSlider::sub-page:vertical, QSlider::add-page:horizontal {
+	background: #353535;
+}
+
+QLabel {
+	border: none;
+	margin: 0px -6px 0px -6px;
+}
+
+QProgressBar {
+	text-align: center;
+}
+
+QProgressBar::chunk {
+	width: 1px;
+	background-color: #3D7848;
+}
+
+QMenu::separator {
+	background: #353535;
+}</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="topMargin">
+    <number>11</number>
+   </property>
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -24,6 +350,9 @@
        <string>Animate</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QFrame" name="topFrame">
          <property name="sizePolicy">
@@ -286,6 +615,9 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select &amp;amp; Move tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>Arrow tool</string>
                   </property>
@@ -445,7 +777,10 @@
              </sizepolicy>
             </property>
             <property name="title">
-             <string>GroupBox</string>
+             <string/>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_30">
              <property name="leftMargin">
@@ -486,6 +821,9 @@
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
                </property>
+               <property name="lineWidth">
+                <number>0</number>
+               </property>
                <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
                  <widget class="QTabWidget" name="toolsTabWidget">
@@ -496,7 +834,7 @@
                    </size>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="drawingTab">
                    <attribute name="title">
@@ -532,6 +870,9 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw Lines Tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         </property>
                          <property name="text">
                           <string>Draw stick</string>
                          </property>
@@ -551,6 +892,9 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load and draw an image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         </property>
                          <property name="text">
                           <string>Draw Image</string>
                          </property>
@@ -563,6 +907,9 @@
                            <width>100</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw circles tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
                          <property name="text">
                           <string>Draw Circle</string>
@@ -592,6 +939,9 @@
                           </property>
                           <item>
                            <widget class="QPushButton" name="verticalFlipBtn">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Flip selected stickfigure around the horizontal axis&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="text">
                              <string>Flip V</string>
                             </property>
@@ -599,6 +949,9 @@
                           </item>
                           <item>
                            <widget class="QPushButton" name="HorizontalFlipBtn">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;flip the current stickfigure around the vertical axis&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="text">
                              <string>Flip H</string>
                             </property>
@@ -698,7 +1051,20 @@
                            </widget>
                           </item>
                           <item>
+                           <widget class="QPushButton" name="setMasterNodeBtn">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set current stick as Master&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
+                            <property name="text">
+                             <string>Set Master Node</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
                            <widget class="QPushButton" name="manipulateBtn">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Plastic Move Tool:&lt;/p&gt;&lt;p&gt;this tool freely moves the stick endpoint&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="text">
                              <string>Manipulator</string>
                             </property>
@@ -885,7 +1251,7 @@
                         <number>0</number>
                        </property>
                        <property name="topMargin">
-                        <number>0</number>
+                        <number>10</number>
                        </property>
                        <property name="rightMargin">
                         <number>0</number>
@@ -926,7 +1292,7 @@
                              <number>4</number>
                             </property>
                             <property name="topMargin">
-                             <number>4</number>
+                             <number>8</number>
                             </property>
                             <property name="rightMargin">
                              <number>4</number>
@@ -959,13 +1325,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QLabel" name="label_13">
@@ -1012,13 +1378,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QSlider" name="imgHOffsetSlider">
@@ -1058,7 +1424,7 @@
                              <number>4</number>
                             </property>
                             <property name="topMargin">
-                             <number>4</number>
+                             <number>8</number>
                             </property>
                             <property name="rightMargin">
                              <number>4</number>
@@ -1091,13 +1457,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QLabel" name="label_14">
@@ -1144,13 +1510,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QSlider" name="imgVOfsetSlider">
@@ -1196,7 +1562,7 @@
                              <number>4</number>
                             </property>
                             <property name="topMargin">
-                             <number>4</number>
+                             <number>8</number>
                             </property>
                             <property name="rightMargin">
                              <number>4</number>
@@ -1229,13 +1595,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QLabel" name="label_15">
@@ -1282,13 +1648,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QSlider" name="imgWSlider">
@@ -1328,7 +1694,7 @@
                              <number>4</number>
                             </property>
                             <property name="topMargin">
-                             <number>4</number>
+                             <number>8</number>
                             </property>
                             <property name="rightMargin">
                              <number>4</number>
@@ -1361,13 +1727,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QLabel" name="label_16">
@@ -1414,13 +1780,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QSlider" name="imgHSlider">
@@ -1469,7 +1835,7 @@
                              <number>4</number>
                             </property>
                             <property name="topMargin">
-                             <number>4</number>
+                             <number>8</number>
                             </property>
                             <property name="rightMargin">
                              <number>4</number>
@@ -1502,13 +1868,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QLabel" name="label_17">
@@ -1555,13 +1921,13 @@
                                 <number>4</number>
                                </property>
                                <property name="topMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <property name="rightMargin">
                                 <number>4</number>
                                </property>
                                <property name="bottomMargin">
-                                <number>4</number>
+                                <number>1</number>
                                </property>
                                <item>
                                 <widget class="QSlider" name="imgRotationSlider">
@@ -1598,6 +1964,40 @@
                         </spacer>
                        </item>
                       </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QListWidget" name="imgListWidget">
+                      <property name="frameShape">
+                       <enum>QFrame::Panel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <property name="midLineWidth">
+                       <number>1</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="addImgBtn">
+                      <property name="text">
+                       <string>add image to list</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="removeImgBtn">
+                      <property name="text">
+                       <string>remove image from list</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="setImgBtn">
+                      <property name="text">
+                       <string>display selected</string>
+                      </property>
                      </widget>
                     </item>
                     <item>
@@ -1645,6 +2045,13 @@
                      <widget class="QPushButton" name="saveCurrentLibraryBtn">
                       <property name="text">
                        <string>save current library</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="createNewLibraryBtn">
+                      <property name="text">
+                       <string>Create new library</string>
                       </property>
                      </widget>
                     </item>
@@ -1718,6 +2125,9 @@
                     <height>500</height>
                    </size>
                   </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
                   <property name="title">
                    <string>Frame</string>
                   </property>
@@ -1745,6 +2155,12 @@
             <property name="title">
              <string>Style</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
             <layout class="QVBoxLayout" name="verticalLayout_20">
              <property name="spacing">
               <number>0</number>
@@ -1753,7 +2169,7 @@
               <number>1</number>
              </property>
              <property name="topMargin">
-              <number>1</number>
+              <number>10</number>
              </property>
              <property name="rightMargin">
               <number>1</number>
@@ -1774,7 +2190,7 @@
                  <number>0</number>
                 </property>
                 <property name="topMargin">
-                 <number>0</number>
+                 <number>10</number>
                 </property>
                 <property name="rightMargin">
                  <number>0</number>
@@ -1844,6 +2260,17 @@
              </item>
              <item>
               <widget class="QGroupBox" name="groupBox_4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>150</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QGroupBox{
+border: 1px solid #5A5A5A;
+}</string>
+               </property>
                <property name="title">
                 <string>Fill</string>
                </property>
@@ -1852,7 +2279,7 @@
                  <number>2</number>
                 </property>
                 <property name="topMargin">
-                 <number>2</number>
+                 <number>10</number>
                 </property>
                 <property name="rightMargin">
                  <number>2</number>
@@ -1866,7 +2293,10 @@
                    <enum>QFrame::StyledPanel</enum>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Raised</enum>
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                  <property name="lineWidth">
+                   <number>0</number>
                   </property>
                   <layout class="QHBoxLayout" name="horizontalLayout_23">
                    <property name="leftMargin">
@@ -1947,7 +2377,7 @@
                     <number>0</number>
                    </property>
                    <property name="topMargin">
-                    <number>0</number>
+                    <number>10</number>
                    </property>
                    <property name="rightMargin">
                     <number>0</number>
@@ -2060,11 +2490,22 @@
              </item>
              <item>
               <widget class="QGroupBox" name="groupBox">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>150</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
                  <height>200</height>
                 </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QGroupBox{
+border: 1px solid #5A5A5A;
+}</string>
                </property>
                <property name="title">
                 <string>Line </string>
@@ -2077,7 +2518,7 @@
                  <number>0</number>
                 </property>
                 <property name="topMargin">
-                 <number>0</number>
+                 <number>10</number>
                 </property>
                 <property name="rightMargin">
                  <number>0</number>
@@ -2175,7 +2616,7 @@
                     <number>0</number>
                    </property>
                    <property name="topMargin">
-                    <number>0</number>
+                    <number>10</number>
                    </property>
                    <property name="rightMargin">
                     <number>0</number>
@@ -2287,6 +2728,120 @@
               </widget>
              </item>
              <item>
+              <widget class="QGroupBox" name="groupBox_13">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>150</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QGroupBox{
+border: 1px solid #5A5A5A;
+}</string>
+               </property>
+               <property name="title">
+                <string>Depth</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_21">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>4</number>
+                </property>
+                <property name="topMargin">
+                 <number>10</number>
+                </property>
+                <property name="rightMargin">
+                 <number>4</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>10</number>
+                </property>
+                <item>
+                 <widget class="QSlider" name="depthSlider">
+                  <property name="maximum">
+                   <number>9999</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QFrame" name="frame_27">
+                  <property name="frameShape">
+                   <enum>QFrame::StyledPanel</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_34">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QDoubleSpinBox" name="depthSpinbox">
+                     <property name="decimals">
+                      <number>2</number>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QFrame" name="frame_28">
+                  <property name="frameShape">
+                   <enum>QFrame::StyledPanel</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_35">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QPushButton" name="setAllDepthBtn">
+                     <property name="text">
+                      <string>Set All</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="setDepthBtn">
+                     <property name="text">
+                      <string>Set</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <spacer name="verticalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -2356,6 +2911,9 @@
                  <height>16777215</height>
                 </size>
                </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
                <property name="alternatingRowColors">
                 <bool>true</bool>
                </property>
@@ -2394,6 +2952,9 @@
                  <height>30</height>
                 </size>
                </property>
+               <property name="placeholderText">
+                <string>type name...</string>
+               </property>
               </widget>
              </item>
              <item>
@@ -2419,20 +2980,6 @@
                </property>
                <property name="text">
                 <string>Move Down</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton">
-               <property name="text">
-                <string>Copy</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_2">
-               <property name="text">
-                <string>Paste</string>
                </property>
               </widget>
              </item>
