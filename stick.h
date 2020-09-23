@@ -16,7 +16,10 @@ public:
     enum stickType{
         LINE = 0,
         CIRCLE = 1,
-        IMAGE = 2
+        IMAGE = 2,
+        RECT = 3,
+        TAPER = 4,
+
     };
 //-------- methods ----------//
     stick(QLineF *line);

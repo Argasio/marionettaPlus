@@ -33,8 +33,9 @@ stick::stick(stick* S)
     this->br = S->boundingRect();
     this->type = S->type;
     this->master = S->master;
-    if(S->type == IMAGE){
-        this->stickImg = new QImage(*S->stickImg);
+    if(S->type == IMAGE|| S->type == RECT){
+        if(S->type == IMAGE)
+            this->stickImg = new QImage(*S->stickImg);
         imgAngle = S->imgAngle;
         imgWScale = S->imgWScale;
         imgHScale = S->imgHScale;
@@ -98,11 +99,20 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         painter->translate(-p.x(),-p.y());
 
     }
+    else if(type == stickType::RECT){
+        QPointF p(myLine.p1().x(),myLine.p1().y());
+        QPointF c(-imgWScale/2,0);
+
+        painter->setBrush(Brush);
+        painter->translate(p);
+        painter->rotate(imgAngle);
+        painter->drawRect(c.x(),c.y(),imgWScale,myLine.length());
+        painter->rotate(-imgAngle);
+        painter->translate(-p.x(),-p.y());
+
+    }
     else if(type == stickType::LINE){
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
-        //painter->drawEllipse(myLine.p1().x()-Pen.width()/2,myLine.p1().y()-Pen.width()/2,Pen.width()/2,Pen.width()/2);
-       // painter->drawEllipse(myLine.p2().x()-Pen.width()/2,myLine.p2().y()-Pen.width()/2,Pen.width()/2,Pen.width()/2);
-        //painter->rotate(imgAngle+imgAngleOffset);
     }
     //Pen.setColor(Qt::red); //draw bounding box
     if(!onionRender){
@@ -207,7 +217,7 @@ QRectF stick::updateBr(int mode)
                    QPointF(0.5*(myLine.p1().x()+myLine.p2().x())+myLine.length()*0.5, // bottom right corner =
                                        0.5*(myLine.p1().y()+myLine.p2().y())+myLine.length()*0.5));     // line center shifted by adding half line length (pushing bottom right)
 
-    if(type == IMAGE && myLine.length()>0){
+    if((type == IMAGE ) && myLine.length()>0){
 
 
 
@@ -330,7 +340,7 @@ void stick::rotate(QPointF *point)
         }
         children[i]->refresh(1);
     }
-    if(type == IMAGE && !traslationOnly){
+    if((type == IMAGE || type == RECT) && !traslationOnly){
         imgAngle = angle;
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }
@@ -380,7 +390,7 @@ void stick::manipulate(QPointF *point)
         children[i]->refresh(1);
     }
     // se stiamo con un immagine ruotala anche
-    if(type== stick::IMAGE){
+    if(type== stick::IMAGE || type == RECT){
         imgAngle= -atan2(myLine.dx(),myLine.dy())*180/M_PI;
     }
     refresh(0);

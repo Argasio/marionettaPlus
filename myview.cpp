@@ -57,6 +57,7 @@ myView::myView(QWidget *parent) : QGraphicsView(parent)
 void myView::setTool(int Tool)
 {
     changeTool();
+
     tool = Tool;
 }
 /*
@@ -155,6 +156,7 @@ void myView::mousePressEvent(QMouseEvent *event)
             }
             case DRAW:
             case DRAWCIRCLE:
+            case DRAWRECT:
             case DRAWIMG:
             {
                 drawCmd(&coord,(int)tool);
@@ -312,16 +314,21 @@ void myView::drawCmd(QPointF* point, int mode)
             }
             myAnimation->currentFrame->currentStickFigure->startDrawing(point, myPen, myBrush);
             myAnimation->currentFrame->currentStickFigure->currentStick->selected = true;
+            myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
             // se stiamo usando il tool per generare cerchi cambiamo il tipo dello stick
             if(mode == DRAWCIRCLE){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::CIRCLE;
+            }
+            else if(mode == DRAWRECT){
+                myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::RECT;
+                myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setJoinStyle(Qt::MiterJoin);
             }
             else if(mode == DRAWIMG){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::IMAGE;
                 myAnimation->currentFrame->currentStickFigure->currentStick->stickImg = new QImage(*imageDrawBuffer);
 
             }
-            myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
+
             //aggiungi il nuovo elemento alla scena mediante puntatore dell'elemento linea dell'oggetto stick
            scene()->addItem(myAnimation->currentFrame->currentStickFigure->currentStick);
            qDebug("Draw 1 = %f, %f",point->x(),point->y());
@@ -331,6 +338,7 @@ void myView::drawCmd(QPointF* point, int mode)
             myAnimation->currentFrame->currentStickFigure->endDrawing(point);
             qDebug("Draw 2 = %f, %f",point->x(),point->y());
             myAnimation->currentFrame->updateIcon();
+            myAnimation->updateTab(myAnimation->currentFrame->currentStickFigure->currentStick->type);
         }
     }
     else
@@ -351,6 +359,7 @@ void myView::changeTool()
         }
         case(DRAW):
         case(DRAWCIRCLE):
+        case(DRAWRECT):
         case(DRAWIMG):
         {
             if(!myAnimation->currentFrame->stickFigures.isEmpty())
@@ -455,6 +464,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         }
         case DRAW:
         case DRAWCIRCLE:
+        case DRAWRECT:
         case DRAWIMG:
         {
         // durante il disegno,l'estremo libero della linea segue il mouse

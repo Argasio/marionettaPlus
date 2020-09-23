@@ -116,7 +116,7 @@ void StickFigure::previewDrawing(QPointF *point)
 {
     setLineFromPoint(point);
     stickBuffer->refresh(1);
-    if(stickBuffer->type== stick::IMAGE){
+    if(stickBuffer->type== stick::IMAGE || stickBuffer->type== stick::RECT){
         stickBuffer->imgAngle= -atan2(stickBuffer->myLine.dx(),stickBuffer->myLine.dy())*180/M_PI;
     }
 }
@@ -303,29 +303,17 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     stream<<myStick.Pen;
     stream<<myStick.Brush;
     stream<<myStick.master;
-    if(myStick.type == stick::IMAGE){
-        QSize imgSize = myStick.stickImg->size();
-        stream<<imgSize;
-
+    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)){
+        if(myStick.type == stick::IMAGE){
+            QSize imgSize = myStick.stickImg->size();
+            stream<<imgSize;
+        }
         stream<<myStick.imgAngle;
         stream<<myStick.imgHScale;
         stream<<myStick.imgWScale;
         stream<<myStick.imgOffset;
-        stream<<*myStick.stickImg;
-        /*
-        QByteArray imgInArray;
-        // buffer temporarily holds serialized data
-        QBuffer buffer1(&imgInArray);
-        // use this buffer to store data from the object
-        buffer1.open(QIODevice::WriteOnly);
-        //QDataStream myStream(&buffer1);
-
-        myStick.stickImg->save(&buffer1,"JPG");
-        buffer1.close();
-        //int bytesize= imgInArray.size();
-        //stream<<bytesize;
-        stream<<imgInArray;
-        buffer1.close();*/
+        if(myStick.type == stick::IMAGE)
+            stream<<*myStick.stickImg;
     }
 
     return stream;
@@ -340,10 +328,12 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.Pen;
     stream>>myStick.Brush;
     stream>>myStick.master;
-    if(myStick.type == stick::IMAGE){
+    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)){
+        if(myStick.type == stick::IMAGE){
         QSize mysize;
-        stream>>mysize;
-        myStick.stickImg = new QImage(mysize,QImage::Format_ARGB32);
+            stream>>mysize;
+            myStick.stickImg = new QImage(mysize,QImage::Format_ARGB32);
+        }
 
         stream>>myStick.imgAngle;
         stream>>myStick.imgHScale;
@@ -351,19 +341,9 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
         stream>>myStick.imgOffset;
         int bytesize = 0;
         //stream>>bytesize;
-        stream>>*myStick.stickImg;
-        /*
-        char tempbuf[bytesize];
-        QByteArray imgInArray;
-        // buffer temporarily holds serialized data
-        QBuffer buffer1(&imgInArray);
-        // use this buffer to store data from the object
-        buffer1.open(QIODevice::ReadOnly);
-        QDataStream myStream(&buffer1);
-        stream.readRawData(tempbuf,bytesize);
-        imgInArray.append(tempbuf,bytesize);
-        myStick.stickImg->loadFromData(imgInArray,"JPG");
-        buffer1.close();*/
+        if(myStick.type == stick::IMAGE){
+            stream>>*myStick.stickImg;
+        }
     }
     return stream;
 }

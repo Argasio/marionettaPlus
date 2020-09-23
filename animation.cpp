@@ -3,6 +3,12 @@
 #include <QBuffer>
 #include <QFile>
 #include <QSpinBox>
+#include "advancedtab.h"
+#include "advancedlinewidget.h"
+#include "advancedcirclewidget.h"
+extern advancedTab* advancedRectTab;
+extern QTabWidget* myTabWidget;
+extern QWidget * advancedImgTab;
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
 extern int W;
@@ -18,8 +24,13 @@ extern QSlider* imgHeightSlider;
 extern QSlider* imgRotationSlider;
 extern QSpinBox *stickFigureScaleSpinbox;
 extern QSpinBox *stickFigureRotationSpinbox;
+extern advancedLineWidget* advancedLineTab;
+extern advancedCircleWidget* advancedCircleTab;
 bool loadingAnimationFlag = false;
 bool clearingAnimation = false;
+bool changeTypeFlag = false;
+namespace Ui { class Widget; }
+extern Ui::Widget *myUi;
 Animation::Animation()
 {
 
@@ -100,17 +111,34 @@ void Animation::updateSelection(QPointF point)
                 }
             }
         }
-
+        if(selectedStickFigure->stickList[selectedIdx]->type != currentFrame->currentStickFigure->currentStick->type){
+            updateTab(selectedStickFigure->stickList[selectedIdx]->type );
+        }
         currentFrame->currentStickFigure->currentStick = selectedStickFigure->stickList[selectedIdx];
         selectedStickFigure->stickList[selectedIdx]->setSelected(true);
         selectedStickFigure->highlight(true);
         currentFrame->currentStickFigure->currentStick->selected = true;
         currentFrame->currentStickFigure = selectedStickFigure;
+
         updateSliders();
     }
 
 }
-
+void Animation::updateTab(int t){
+    myTabWidget->removeTab(1);
+    if(t == stick::IMAGE){
+        myTabWidget->insertTab(1,advancedImgTab,"Image Editing");
+    }
+    else if(t == stick::RECT){
+        myTabWidget->insertTab(1,advancedRectTab,"Rect Editing");
+    }
+    else if(t == stick::LINE){
+        myTabWidget->insertTab(1,advancedLineTab,"Line Editing");
+    }
+    else if(t == stick::CIRCLE){
+        myTabWidget->insertTab(1,advancedCircleTab,"Circle Editing");
+    }
+}
 void Animation::updateSelection(stick* s)
 {
     //update current frame
@@ -153,6 +181,7 @@ void Animation::updateSelection(StickFigure* S)
         currentFrame->selectStick(S); //update selected stick
     }
 }
+
 void Animation::updateSliders(){
     stick *cs = currentFrame->currentStickFigure->currentStick;
     if(cs->type == stick::IMAGE){
@@ -173,10 +202,8 @@ void Animation::updateSliders(){
         imgVOffsetSlider->setValue(cs->imgOffset.y());
         imgHOffsetSlider->setValue(cs->imgOffset.x());
         imgRotationSlider->setValue(cs->imgAngleOffset);
-
-
-
     }
+
 }
 Frame* Animation::setupFrame(int pos){
     QString name;

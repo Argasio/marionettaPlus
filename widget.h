@@ -205,6 +205,11 @@ private slots:
     void on_depthSlider_valueChanged(int value);
 
 
+
+    void on_drawRectBtn_clicked();
+
+    void on_pushButton_clicked();
+
 private:
     Ui::Widget *ui;
 };

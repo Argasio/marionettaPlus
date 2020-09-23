@@ -22,10 +22,15 @@
 #include <QFileDialog>
 #include <QDirIterator>
 #include <QFileInfo>
+#include "advancedtab.h"
+#include "advancedlinewidget.h"
+#include "advancedcirclewidget.h"
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
-QGraphicsScene *scene;
 
+QGraphicsScene *scene;
+Ui::Widget *myUi;
+myView* V;
 QList <StickFigure*> layerList;
 QListWidget * myStickFigureWidgetList;
 QListWidget * myFrameWidgetList;
@@ -58,7 +63,11 @@ QPointF onionOffset;
 QDir programFolder;
 QDir libFolder;
 QDir tempRenderFolder;
-
+advancedTab* advancedRectTab;
+advancedLineWidget* advancedLineTab;
+advancedCircleWidget* advancedCircleTab;
+QTabWidget* myTabWidget;
+QWidget * advancedImgTab;
 int W = 600;
 int H = 600;
 struct{
@@ -78,9 +87,13 @@ Widget::Widget(QWidget *parent)
 {
     //stickLib *myStickLib = new stickLib(this);
     ui->setupUi(this);
+    myUi = ui;
     //crea la scena virtuale
     //ui->tabWidget->addTab(myStickLib, "StickFigure Library");
-
+    advancedImgTab = ui->advancedTab;
+    advancedLineTab = new advancedLineWidget();
+    advancedCircleTab = new advancedCircleWidget();
+    myTabWidget = ui->toolsTabWidget;
     ui->toolsTabWidget->setCurrentWidget(ui->drawingTab);
     myStickFigureWidgetList = ui->stickLayerView;
     myLibraryListWidget = ui->libraryList;
@@ -107,6 +120,7 @@ Widget::Widget(QWidget *parent)
     stickFigureRotationSpinbox = ui->stickFigureRotationSpinbox;
     depthSpinbox = ui->depthSpinbox;
     depthSlider = ui->depthSlider;
+    advancedRectTab = new advancedTab();
     createPaths();
     detectLibraries();
     // aggiorna il colore del segnacolore
@@ -123,6 +137,7 @@ Widget::Widget(QWidget *parent)
     scene = new QGraphicsScene(this);
     //crea il pannello e collegalo alla scena
     view = new myView(this);
+    V = view;
     view->setBackgroundBrush(QBrush(QColor(Qt::darkGray)));
     scene->setBackgroundBrush(QBrush(QColor(Qt::white)));
     view->setScene(scene);
@@ -1002,3 +1017,24 @@ void Widget::on_depthSlider_valueChanged(int value)
 }
 
 
+
+
+
+void Widget::on_drawRectBtn_clicked()
+{
+        view->setTool(DRAWRECT);
+}
+
+void Widget::on_pushButton_clicked()
+{
+    static bool yo = false;
+    yo = !yo;
+    if(yo){
+    ui->toolsTabWidget->removeTab(1);
+    ui->toolsTabWidget->insertTab(1,advancedImgTab,"rectangle");
+    }
+    else{
+        ui->toolsTabWidget->removeTab(1);
+        ui->toolsTabWidget->insertTab(1,ui->advancedTab,"advanced");
+    }
+}

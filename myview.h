@@ -11,6 +11,7 @@
 #include <animation.h>
 #define DRAW 5
 #define DRAWCIRCLE 6
+
 #define DRAWIMG 7
 #define MANIPULATE 8
 #define ROTATE 9
@@ -21,6 +22,7 @@
 #define SCALESCENE 13
 #define JOIN 14
 #define SPLIT 15
+#define DRAWRECT 16
 
 #define CMD_SIMPLE 0
 #define CMD_ADDFRAME 1

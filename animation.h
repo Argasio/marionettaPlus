@@ -23,6 +23,7 @@ public:
     void loadAnimation(QString name);
     void clearAnimation();
     void updateSliders();
+    void updateTab(int t);
 };
 Q_DECLARE_METATYPE(Animation*)
 QDataStream &operator<<(QDataStream& stream, const Animation& myAnimation);

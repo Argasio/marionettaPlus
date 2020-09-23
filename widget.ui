@@ -901,6 +901,19 @@ QMenu::separator {
                         </widget>
                        </item>
                        <item>
+                        <widget class="QPushButton" name="drawRectBtn">
+                         <property name="maximumSize">
+                          <size>
+                           <width>100</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Draw Rect</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
                         <widget class="QPushButton" name="drawCircleBtn">
                          <property name="maximumSize">
                           <size>
@@ -2839,6 +2852,13 @@ border: 1px solid #5A5A5A;
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton">
+               <property name="text">
+                <string>PushButton</string>
+               </property>
               </widget>
              </item>
              <item>

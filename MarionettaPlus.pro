@@ -17,6 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     StickFigure.cpp \
+    advancedcirclewidget.cpp \
+    advancedlinewidget.cpp \
+    advancedtab.cpp \
     animation.cpp \
     frame.cpp \
     main.cpp \
@@ -30,6 +33,9 @@ SOURCES += \
 
 HEADERS += \
     StickFigure.h \
+    advancedcirclewidget.h \
+    advancedlinewidget.h \
+    advancedtab.h \
     animation.h \
     frame.h \
     mymainwindow.h \
@@ -42,6 +48,9 @@ HEADERS += \
     widget.h
 
 FORMS += \
+    advancedcirclewidget.ui \
+    advancedlinewidget.ui \
+    advancedtab.ui \
     mymainwindow.ui \
     sticklib.ui \
     widget.ui
