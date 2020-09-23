@@ -116,7 +116,11 @@ void StickFigure::previewDrawing(QPointF *point)
 {
     setLineFromPoint(point);
     stickBuffer->refresh(1);
-    if(stickBuffer->type== stick::IMAGE || stickBuffer->type== stick::RECT){
+    if(stickBuffer->type == stick::IMAGE ||
+            stickBuffer->type == stick::RECT||
+            (stickBuffer->type == stick::RECT)||
+            (stickBuffer->type == stick::TRAPEZOID)||
+            (stickBuffer->type == stick::TAPER)){
         stickBuffer->imgAngle= -atan2(stickBuffer->myLine.dx(),stickBuffer->myLine.dy())*180/M_PI;
     }
 }
@@ -303,7 +307,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     stream<<myStick.Pen;
     stream<<myStick.Brush;
     stream<<myStick.master;
-    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)){
+    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)||(myStick.type == stick::TRAPEZOID)||(myStick.type == stick::TAPER)){
         if(myStick.type == stick::IMAGE){
             QSize imgSize = myStick.stickImg->size();
             stream<<imgSize;
@@ -328,7 +332,7 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.Pen;
     stream>>myStick.Brush;
     stream>>myStick.master;
-    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)){
+    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)||(myStick.type == stick::TRAPEZOID)||(myStick.type == stick::TAPER)){
         if(myStick.type == stick::IMAGE){
         QSize mysize;
             stream>>mysize;

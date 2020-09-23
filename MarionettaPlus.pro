@@ -20,6 +20,7 @@ SOURCES += \
     advancedcirclewidget.cpp \
     advancedlinewidget.cpp \
     advancedtab.cpp \
+    advancedtaperwidget.cpp \
     animation.cpp \
     frame.cpp \
     main.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     advancedcirclewidget.h \
     advancedlinewidget.h \
     advancedtab.h \
+    advancedtaperwidget.h \
     animation.h \
     frame.h \
     mymainwindow.h \
@@ -51,6 +53,7 @@ FORMS += \
     advancedcirclewidget.ui \
     advancedlinewidget.ui \
     advancedtab.ui \
+    advancedtaperwidget.ui \
     mymainwindow.ui \
     sticklib.ui \
     widget.ui

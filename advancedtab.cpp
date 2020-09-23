@@ -5,6 +5,7 @@ extern int W;
 extern int H;
 extern myView *V;
 bool rectWSliderFlag = false;
+QSlider* advancedRectSlider;
 advancedTab::advancedTab(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::advancedTab)
@@ -12,6 +13,7 @@ advancedTab::advancedTab(QWidget *parent) :
     ui->setupUi(this);
     ui->rectWidthSlider->setRange(0,W);
     ui->rectWidthSpinbox->setRange(0,W);
+    advancedRectSlider = ui->rectWidthSlider;
 }
 
 advancedTab::~advancedTab()

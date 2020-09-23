@@ -23,6 +23,8 @@
 #define JOIN 14
 #define SPLIT 15
 #define DRAWRECT 16
+#define DRAWTRAPEZOID 17
+#define DRAWTAPER 18
 
 #define CMD_SIMPLE 0
 #define CMD_ADDFRAME 1

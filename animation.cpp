@@ -6,6 +6,10 @@
 #include "advancedtab.h"
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
+#include "advancedtaperwidget.h"
+extern QSlider* taperWSlider;
+extern QSlider* advancedRectSlider;
+extern QSlider* taperHSlider;
 extern advancedTab* advancedRectTab;
 extern QTabWidget* myTabWidget;
 extern QWidget * advancedImgTab;
@@ -26,6 +30,7 @@ extern QSpinBox *stickFigureScaleSpinbox;
 extern QSpinBox *stickFigureRotationSpinbox;
 extern advancedLineWidget* advancedLineTab;
 extern advancedCircleWidget* advancedCircleTab;
+extern advancedTaperWidget* advancedTaperTab;
 bool loadingAnimationFlag = false;
 bool clearingAnimation = false;
 bool changeTypeFlag = false;
@@ -138,6 +143,12 @@ void Animation::updateTab(int t){
     else if(t == stick::CIRCLE){
         myTabWidget->insertTab(1,advancedCircleTab,"Circle Editing");
     }
+    else if(t == stick::TAPER){
+        myTabWidget->insertTab(1,advancedTaperTab,"Taper Editing");
+    }
+    else if(t == stick::TRAPEZOID){
+        myTabWidget->insertTab(1,advancedTaperTab,"Trapezoid Editing");
+    }
 }
 void Animation::updateSelection(stick* s)
 {
@@ -204,7 +215,11 @@ void Animation::updateSliders(){
         imgRotationSlider->setValue(cs->imgAngleOffset);
     }
     else if(cs->type == stick::RECT){
-        imgWidthSlider->setValue(cs->imgWScale);
+        advancedRectSlider->setValue(cs->imgWScale);
+    }
+    else if(cs->type == stick::TAPER||cs->type == stick::TRAPEZOID){
+        taperWSlider->setValue(cs->imgWScale);
+        taperHSlider->setValue(cs->imgHScale);
     }
 
 }

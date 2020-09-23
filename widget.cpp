@@ -25,6 +25,7 @@
 #include "advancedtab.h"
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
+#include "advancedtaperwidget.h"
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 
@@ -66,6 +67,7 @@ QDir tempRenderFolder;
 advancedTab* advancedRectTab;
 advancedLineWidget* advancedLineTab;
 advancedCircleWidget* advancedCircleTab;
+advancedTaperWidget* advancedTaperTab;
 QTabWidget* myTabWidget;
 QWidget * advancedImgTab;
 int W = 600;
@@ -93,6 +95,7 @@ Widget::Widget(QWidget *parent)
     advancedImgTab = ui->advancedTab;
     advancedLineTab = new advancedLineWidget();
     advancedCircleTab = new advancedCircleWidget();
+    advancedTaperTab = new advancedTaperWidget();
     myTabWidget = ui->toolsTabWidget;
     ui->toolsTabWidget->setCurrentWidget(ui->drawingTab);
     myStickFigureWidgetList = ui->stickLayerView;
@@ -1037,4 +1040,14 @@ void Widget::on_pushButton_clicked()
         ui->toolsTabWidget->removeTab(1);
         ui->toolsTabWidget->insertTab(1,ui->advancedTab,"advanced");
     }
+}
+
+void Widget::on_drawTaperBtn_clicked()
+{
+    view->setTool(DRAWTAPER);
+}
+
+void Widget::on_drawTrapezoidBtn_clicked()
+{
+    view->setTool(DRAWTRAPEZOID);
 }

@@ -210,6 +210,10 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_drawTaperBtn_clicked();
+
+    void on_drawTrapezoidBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };

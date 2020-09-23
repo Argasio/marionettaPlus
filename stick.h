@@ -19,7 +19,7 @@ public:
         IMAGE = 2,
         RECT = 3,
         TAPER = 4,
-
+        TRAPEZOID = 5
     };
 //-------- methods ----------//
     stick(QLineF *line);

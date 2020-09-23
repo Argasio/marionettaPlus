@@ -157,6 +157,8 @@ void myView::mousePressEvent(QMouseEvent *event)
             case DRAW:
             case DRAWCIRCLE:
             case DRAWRECT:
+            case DRAWTRAPEZOID:
+            case DRAWTAPER:
             case DRAWIMG:
             {
                 drawCmd(&coord,(int)tool);
@@ -323,6 +325,13 @@ void myView::drawCmd(QPointF* point, int mode)
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::RECT;
                 myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setJoinStyle(Qt::MiterJoin);
             }
+            else if(mode == DRAWTAPER){
+                myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::TAPER;
+            }
+            else if(mode == DRAWTRAPEZOID){
+                myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::TRAPEZOID;
+                myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setJoinStyle(Qt::MiterJoin);
+            }
             else if(mode == DRAWIMG){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::IMAGE;
                 myAnimation->currentFrame->currentStickFigure->currentStick->stickImg = new QImage(*imageDrawBuffer);
@@ -360,6 +369,8 @@ void myView::changeTool()
         case(DRAW):
         case(DRAWCIRCLE):
         case(DRAWRECT):
+        case(DRAWTAPER):
+        case(DRAWTRAPEZOID):
         case(DRAWIMG):
         {
             if(!myAnimation->currentFrame->stickFigures.isEmpty())
@@ -465,6 +476,8 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         case DRAW:
         case DRAWCIRCLE:
         case DRAWRECT:
+        case DRAWTAPER:
+        case DRAWTRAPEZOID:
         case DRAWIMG:
         {
         // durante il disegno,l'estremo libero della linea segue il mouse
