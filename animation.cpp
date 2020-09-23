@@ -203,6 +203,9 @@ void Animation::updateSliders(){
         imgHOffsetSlider->setValue(cs->imgOffset.x());
         imgRotationSlider->setValue(cs->imgAngleOffset);
     }
+    else if(cs->type == stick::RECT){
+        imgWidthSlider->setValue(cs->imgWScale);
+    }
 
 }
 Frame* Animation::setupFrame(int pos){

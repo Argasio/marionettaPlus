@@ -427,7 +427,11 @@ void stick::scale(float scaleFactor){
     DX = oldEndPos.x()-myLine.p2().x(); //traslazione dei nodi figli
     DY = oldEndPos.y()-myLine.p2().y();
     refresh(1);
+    float previousFactor = Pen.widthF()/widthBuffer;
     Pen.setWidthF(widthBuffer*scaleFactor);
+    if(type == RECT){
+        imgWScale = (imgWScale/previousFactor)*scaleFactor;
+    }
     for(int i= 0; i<children.length();i++)
     {
         // se non è uno stepchild oppure lo è ma stai ruotando uno stepchild a sua volta
