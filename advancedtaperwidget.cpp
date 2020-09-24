@@ -1,6 +1,7 @@
 #include "advancedtaperwidget.h"
 #include "ui_advancedtaperwidget.h"
 #include "myview.h"
+#include <QCheckBox>
 extern int W;
 extern int H;
 extern myView *V;
@@ -8,6 +9,8 @@ bool taperWSliderFlag = false;
 bool taperHSliderFlag = false;
 QSlider* taperWSlider;
 QSlider* taperHSlider;
+QCheckBox* hardTopCheck;
+QCheckBox* hardBottomCheck;
 advancedTaperWidget::advancedTaperWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::advancedTaperWidget)
@@ -19,6 +22,8 @@ advancedTaperWidget::advancedTaperWidget(QWidget *parent) :
     ui->taperHeightSpinbox->setRange(0,W);
     taperWSlider = ui->taperWidthSlider;
     taperHSlider = ui->taperHeightSlider;
+    hardTopCheck = ui->hardTopTaperCheck;
+    hardBottomCheck = ui->hardBottomTaperCheck;
 }
 
 advancedTaperWidget::~advancedTaperWidget()
@@ -44,6 +49,7 @@ void advancedTaperWidget::on_taperWidthSlider_valueChanged(int value)
 void advancedTaperWidget::on_taperWidthSlider_sliderReleased()
 {
     taperWSliderFlag = false;
+    V->myAnimation->currentFrame->updateIcon();
 }
 
 void advancedTaperWidget::on_taperHeightSpinbox_valueChanged(int arg1)
@@ -73,6 +79,7 @@ void advancedTaperWidget::on_taperHeightSlider_valueChanged(int value)
 void advancedTaperWidget::on_taperHeightSlider_sliderReleased()
 {
     taperHSliderFlag = false;
+    V->myAnimation->currentFrame->updateIcon();
 }
 
 void advancedTaperWidget::on_taperWidthSpinbox_valueChanged(int arg1)
@@ -83,4 +90,20 @@ void advancedTaperWidget::on_taperWidthSpinbox_valueChanged(int arg1)
     V->myAnimation->currentFrame->currentStickFigure->currentStick->imgWScale = arg1;
     V->myAnimation->currentFrame->currentStickFigure->refresh();
     ui->taperWidthSlider->setValue(arg1);
+}
+
+void advancedTaperWidget::on_hardTopTaperCheck_stateChanged(int arg1)
+{
+    V->storeUndo();
+    V->myAnimation->currentFrame->currentStickFigure->currentStick->hardTop=((bool) arg1);
+    V->myAnimation->currentFrame->currentStickFigure->refresh();
+    V->myAnimation->currentFrame->updateIcon();
+}
+
+void advancedTaperWidget::on_hardBottomTaperCheck_stateChanged(int arg1)
+{
+   V->storeUndo();
+   V->myAnimation->currentFrame->currentStickFigure->currentStick->hardBottom=((bool) arg1);
+   V->myAnimation->currentFrame->currentStickFigure->refresh();
+   V->myAnimation->currentFrame->updateIcon();
 }

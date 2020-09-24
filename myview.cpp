@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QSpinBox>
 #include <QBuffer>
+#include <QCheckBox>
 bool    isPressed = false;
 QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
@@ -32,6 +33,8 @@ extern int H;
 extern QGraphicsRectItem* myRect;
 extern bool playBack ;
 extern bool loadFile;
+extern QCheckBox* hardTopCheck;
+extern QCheckBox* hardBottomCheck;
 extern QPointF onionOffset;
 extern QImage * imageDrawBuffer ;
 extern QSlider* imgHOffsetSlider;
@@ -319,6 +322,8 @@ void myView::drawCmd(QPointF* point, int mode)
             }
             myAnimation->currentFrame->currentStickFigure->startDrawing(point, myPen, myBrush);
             myAnimation->currentFrame->currentStickFigure->currentStick->selected = true;
+            myAnimation->currentFrame->currentStickFigure->currentStick->hardTop = hardTopCheck->isChecked();
+            myAnimation->currentFrame->currentStickFigure->currentStick->hardBottom = hardBottomCheck->isChecked();
             myAnimation->currentFrame->currentStickFigure->currentStick->Pen = myPen;
             // se stiamo usando il tool per generare cerchi cambiamo il tipo dello stick
             if(mode == DRAWCIRCLE){

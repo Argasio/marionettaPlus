@@ -33,7 +33,9 @@ stick::stick(stick* S)
     this->br = S->boundingRect();
     this->type = S->type;
     this->master = S->master;
-    if(S->type == IMAGE|| S->type == RECT){
+    hardTop = S->hardTop;
+    hardBottom = S->hardBottom;
+    if(S->type == IMAGE|| S->type == RECT || S->type == TRAPEZOID|| S->type== TAPER){
         if(S->type == IMAGE)
             this->stickImg = new QImage(*S->stickImg);
         imgAngle = S->imgAngle;
@@ -126,10 +128,12 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
             QPainterPath totalPath;
             totalPath.setFillRule(Qt::WindingFill);
             QRectF pie1(QPointF(-imgWScale/2,-imgWScale/2),QSize(imgWScale,imgWScale));
-            totalPath.addEllipse(pie1);
+            if(!hardBottom)
+                totalPath.addEllipse(pie1);
             totalPath.addPolygon(poly);
             QRectF pie2(QPointF(-imgHScale/2,myLine.length()-imgHScale/2),QSize(imgHScale,imgHScale));
-            totalPath.addEllipse(pie2);
+            if(!hardTop)
+                totalPath.addEllipse(pie2);
             painter->drawPath(totalPath.simplified());
             //painter->drawPie(pie2,0,-180*16);
             //painter->drawEllipse(pie2);

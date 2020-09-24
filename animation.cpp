@@ -7,6 +7,7 @@
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
 #include "advancedtaperwidget.h"
+#include <QCheckBox>
 extern QSlider* taperWSlider;
 extern QSlider* advancedRectSlider;
 extern QSlider* taperHSlider;
@@ -31,6 +32,8 @@ extern QSpinBox *stickFigureRotationSpinbox;
 extern advancedLineWidget* advancedLineTab;
 extern advancedCircleWidget* advancedCircleTab;
 extern advancedTaperWidget* advancedTaperTab;
+extern QCheckBox* hardTopCheck;
+extern QCheckBox* hardBottomCheck;
 bool loadingAnimationFlag = false;
 bool clearingAnimation = false;
 bool changeTypeFlag = false;
@@ -220,6 +223,9 @@ void Animation::updateSliders(){
     else if(cs->type == stick::TAPER||cs->type == stick::TRAPEZOID){
         taperWSlider->setValue(cs->imgWScale);
         taperHSlider->setValue(cs->imgHScale);
+        hardTopCheck->setChecked(cs->hardTop);
+        hardBottomCheck->setChecked(cs->hardBottom);
+
     }
 
 }

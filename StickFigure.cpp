@@ -316,6 +316,8 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
         stream<<myStick.imgHScale;
         stream<<myStick.imgWScale;
         stream<<myStick.imgOffset;
+        stream<<myStick.hardTop;
+        stream<<myStick.hardBottom;
         if(myStick.type == stick::IMAGE)
             stream<<*myStick.stickImg;
     }
@@ -343,6 +345,8 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
         stream>>myStick.imgHScale;
         stream>>myStick.imgWScale;
         stream>>myStick.imgOffset;
+        stream>>myStick.hardTop;
+        stream>>myStick.hardBottom;
         int bytesize = 0;
         //stream>>bytesize;
         if(myStick.type == stick::IMAGE){

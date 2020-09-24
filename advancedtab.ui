@@ -137,10 +137,13 @@
               <item>
                <widget class="QSpinBox" name="rectWidthSpinbox">
                 <property name="minimum">
-                 <number>-100</number>
+                 <number>0</number>
                 </property>
                 <property name="maximum">
-                 <number>100</number>
+                 <number>1000</number>
+                </property>
+                <property name="value">
+                 <number>10</number>
                 </property>
                </widget>
               </item>
@@ -183,10 +186,13 @@
               <item>
                <widget class="QSlider" name="rectWidthSlider">
                 <property name="minimum">
-                 <number>-100</number>
+                 <number>0</number>
                 </property>
                 <property name="maximum">
-                 <number>100</number>
+                 <number>1000</number>
+                </property>
+                <property name="value">
+                 <number>10</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>

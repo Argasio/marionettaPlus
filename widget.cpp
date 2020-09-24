@@ -1051,3 +1051,5 @@ void Widget::on_drawTrapezoidBtn_clicked()
 {
     view->setTool(DRAWTRAPEZOID);
 }
+
+

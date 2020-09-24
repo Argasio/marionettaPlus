@@ -28,6 +28,10 @@ private slots:
 
     void on_taperWidthSpinbox_valueChanged(int arg1);
 
+    void on_hardTopTaperCheck_stateChanged(int arg1);
+
+    void on_hardBottomTaperCheck_stateChanged(int arg1);
+
 private:
     Ui::advancedTaperWidget *ui;
 };

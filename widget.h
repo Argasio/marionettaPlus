@@ -214,6 +214,8 @@ private slots:
 
     void on_drawTrapezoidBtn_clicked();
 
+    void on_horizontalSlider_valueChanged(int value);
+
 private:
     Ui::Widget *ui;
 };
