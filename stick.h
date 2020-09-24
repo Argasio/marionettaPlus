@@ -14,12 +14,12 @@ class stick:public QGraphicsItem
 
 public:
     enum stickType{
-        LINE = 0,
-        CIRCLE = 1,
-        IMAGE = 2,
-        RECT = 3,
-        TAPER = 4,
-        TRAPEZOID = 5
+        LINE = 5,
+        CIRCLE = 6,
+        IMAGE = 7,
+        RECT = 16,
+        TAPER = 18,
+        TRAPEZOID = 17
     };
 //-------- methods ----------//
     stick(QLineF *line);
@@ -43,6 +43,8 @@ public:
     bool selected = false;
     bool stepchild = false;
     bool master = false;
+    bool hardTop = false;
+    bool hardBottom = false;
     int parentIdx = 0;
     int rotationSpinboxBuffer = 0;
     int scaleSpinBoxBuffer = 100;

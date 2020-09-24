@@ -1,6 +1,6 @@
 #include "stick.h"
 #include <QGraphicsItem>
-
+#include <QVector>
 bool onionRender = false;
 extern QGraphicsRectItem* myRect;
 extern QPixmap * imageDrawBuffer ;
@@ -115,16 +115,27 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         QPointF points[] = { QPointF(-imgWScale/2,0),QPointF(imgWScale/2,0),QPointF(imgHScale/2,myLine.length()), QPointF(-imgHScale/2,myLine.length())};
         QPointF p(myLine.p1().x(),myLine.p1().y());
 
-
+        QVector <QPointF>pVect = {points[0],points[1],points[2],points[3]};
+        QPolygonF poly(pVect);
         painter->setBrush(Brush);
         painter->translate(p);
         painter->rotate(imgAngle);
-        //painter->drawPolygon(points,4);
+
         if(type == TAPER){
-            QRectF pie1(QPointF(imgWScale/2,imgWScale/2),QSize(imgWScale,imgWScale));
-            painter->drawPie(pie1,0,-16*180);
-           // QRectF pie2(QPointF(myLine.length()+imgHScale/2,myLine.length()+imgHScale/2),QSize(imgHScale,imgHScale));
-           // painter->drawPie(pie2,0,16*180);
+
+            QPainterPath totalPath;
+            totalPath.setFillRule(Qt::WindingFill);
+            QRectF pie1(QPointF(-imgWScale/2,-imgWScale/2),QSize(imgWScale,imgWScale));
+            totalPath.addEllipse(pie1);
+            totalPath.addPolygon(poly);
+            QRectF pie2(QPointF(-imgHScale/2,myLine.length()-imgHScale/2),QSize(imgHScale,imgHScale));
+            totalPath.addEllipse(pie2);
+            painter->drawPath(totalPath.simplified());
+            //painter->drawPie(pie2,0,-180*16);
+            //painter->drawEllipse(pie2);
+        }
+        else{
+            painter->drawPolygon(points,4);
         }
         painter->rotate(-imgAngle);
         painter->translate(-p.x(),-p.y());
@@ -236,12 +247,16 @@ QRectF stick::updateBr(int mode)
                    QPointF(0.5*(myLine.p1().x()+myLine.p2().x())+myLine.length()*0.5, // bottom right corner =
                                        0.5*(myLine.p1().y()+myLine.p2().y())+myLine.length()*0.5));     // line center shifted by adding half line length (pushing bottom right)
 
-    if((type == IMAGE ) && myLine.length()>0){
+    if((type == IMAGE || type ==RECT || type == TRAPEZOID || type == TAPER ) && myLine.length()>0){
+        float d = 0;
 
-
-
-        QImage scaled = calcImg();
-        float d = sqrt(pow(scaled.width(),2)+pow(scaled.height(),2));
+        if(type == IMAGE ){
+            QImage scaled = calcImg();
+            d = sqrt(pow(scaled.width(),2)+pow(scaled.height(),2));
+        }
+        else{
+            d = sqrt(pow(imgWScale,2)+pow(myLine.length()+2*imgHScale,2));
+        }
         newBr = QRectF(QPointF                                                      // Upper left corner of rect =
                        (myLine.p1().x()-d, //           line center X shifted by minus half line length
                         myLine.p1().y()-d), //          line center Y shifted by minus half line length (pushing top left)
@@ -359,7 +374,7 @@ void stick::rotate(QPointF *point)
         }
         children[i]->refresh(1);
     }
-    if((type == IMAGE || type == RECT) && !traslationOnly){
+    if((type == IMAGE || type == RECT || type == TAPER || type == TRAPEZOID) && !traslationOnly){
         imgAngle = angle;
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }
@@ -389,7 +404,7 @@ void stick::rotate(float angle){
         }
         children[i]->refresh(1);
     }
-    if(type == IMAGE){
+    if(type == IMAGE || type == TRAPEZOID || type == TAPER || type == RECT){
         imgAngle = angle;
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }
@@ -409,7 +424,7 @@ void stick::manipulate(QPointF *point)
         children[i]->refresh(1);
     }
     // se stiamo con un immagine ruotala anche
-    if(type== stick::IMAGE || type == RECT
+    if(type == stick::IMAGE || type == RECT
             || type == TRAPEZOID || type == TAPER){
         imgAngle= -atan2(myLine.dx(),myLine.dy())*180/M_PI;
     }

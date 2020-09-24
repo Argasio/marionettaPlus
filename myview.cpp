@@ -38,6 +38,9 @@ extern QSlider* imgHOffsetSlider;
 extern QSlider* imgVOffsetSlider;
 extern QSlider* imgWidthSlider;
 extern QSlider* imgHeightSlider;
+extern QSlider* taperWSlider;
+extern QSlider* advancedRectSlider;
+extern QSlider* taperHSlider;
 extern QListWidget * myLibraryListWidget ;
 extern QListWidget * myCurrentLibraryWidget;
 extern QSlider * depthSlider;
@@ -323,13 +326,18 @@ void myView::drawCmd(QPointF* point, int mode)
             }
             else if(mode == DRAWRECT){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::RECT;
+                myAnimation->currentFrame->currentStickFigure->currentStick->imgWScale = advancedRectSlider->value();
                 myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setJoinStyle(Qt::MiterJoin);
             }
             else if(mode == DRAWTAPER){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::TAPER;
+                myAnimation->currentFrame->currentStickFigure->currentStick->imgHScale = taperHSlider->value();
+                myAnimation->currentFrame->currentStickFigure->currentStick->imgWScale = taperWSlider->value();
             }
             else if(mode == DRAWTRAPEZOID){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::TRAPEZOID;
+                myAnimation->currentFrame->currentStickFigure->currentStick->imgHScale = taperHSlider->value();
+                myAnimation->currentFrame->currentStickFigure->currentStick->imgWScale = taperWSlider->value();
                 myAnimation->currentFrame->currentStickFigure->currentStick->Pen.setJoinStyle(Qt::MiterJoin);
             }
             else if(mode == DRAWIMG){
@@ -373,6 +381,7 @@ void myView::changeTool()
         case(DRAWTRAPEZOID):
         case(DRAWIMG):
         {
+            myAnimation->updateTab(tool); // updates ui panels
             if(!myAnimation->currentFrame->stickFigures.isEmpty())
             {
                 // se stavi disegnando uno stick e cambi prima di averlo finito, cancellalo!
