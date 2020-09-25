@@ -129,6 +129,7 @@ void Animation::updateSelection(QPointF point)
         currentFrame->currentStickFigure = selectedStickFigure;
 
         updateSliders();
+
     }
 
 }

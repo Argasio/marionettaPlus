@@ -28,7 +28,7 @@
 #include "advancedtaperwidget.h"
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
-
+QString imageNameBuffer;
 QGraphicsScene *scene;
 Ui::Widget *myUi;
 myView* V;
@@ -37,6 +37,7 @@ QListWidget * myStickFigureWidgetList;
 QListWidget * myFrameWidgetList;
 QListWidget * myLibraryListWidget ;
 QListWidget * myCurrentLibraryWidget;
+QListWidget* imgListWidget;
 QSpinBox * onionSkinSB;
 QSpinBox * imgHOffsetSpinbox;
 QSpinBox * imgVOffsetSpinbox;
@@ -123,6 +124,7 @@ Widget::Widget(QWidget *parent)
     stickFigureRotationSpinbox = ui->stickFigureRotationSpinbox;
     depthSpinbox = ui->depthSpinbox;
     depthSlider = ui->depthSlider;
+    imgListWidget = ui->imgListWidget;
     advancedRectTab = new advancedTab();
     createPaths();
     detectLibraries();
@@ -443,11 +445,32 @@ void Widget::on_drawImageBtn_clicked()
     if(1/*fileName.length()>0*/){
         //imageDrawBuffer = new QImage("C:/Users/riccim3/Pictures/immagine.jpg" );
         imageDrawBuffer = new QImage("C:/immagine.jpg" );
+        imageNameBuffer = QFileInfo(QFile("C:/immagine.jpg")).fileName();
         view->setTool(DRAWIMG);
     }
 
 }
+void Widget::on_addImgBtn_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Load Image"),
+                       "C:/", tr("Images (*.png *.bmp *.jpg)"));
+    if(fileName.length()>0){
+        //imageDrawBuffer = new QImage("C:/Users/riccim3/Pictures/immagine.jpg" );
+        imageDrawBuffer = new QImage(fileName);
+        view->myAnimation->currentFrame->currentStickFigure->currentStick->addImage(imageDrawBuffer,
+                                                                                    QFileInfo(QFile(fileName)).fileName());
+    }
+}
 
+void Widget::on_removeImgBtn_clicked()
+{
+
+}
+
+void Widget::on_setImgBtn_clicked()
+{
+
+}
 void Widget::on_imgHOffsetSlider_sliderMoved(int position)
 {
 
@@ -1051,5 +1074,7 @@ void Widget::on_drawTrapezoidBtn_clicked()
 {
     view->setTool(DRAWTRAPEZOID);
 }
+
+
 
 

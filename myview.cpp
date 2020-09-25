@@ -28,6 +28,7 @@ StickFigure* joinToStickFigure;
 StickFigure* splitToStickFigure;;
 stick* joinToStick;
 stick* splitToStick;
+extern QString imageNameBuffer;
 extern int W;
 extern int H;
 extern QGraphicsRectItem* myRect;
@@ -46,6 +47,7 @@ extern QSlider* advancedRectSlider;
 extern QSlider* taperHSlider;
 extern QListWidget * myLibraryListWidget ;
 extern QListWidget * myCurrentLibraryWidget;
+extern QWidgetList * imgListWidget;
 extern QSlider * depthSlider;
 extern QDoubleSpinBox* depthSpinbox;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
@@ -347,7 +349,8 @@ void myView::drawCmd(QPointF* point, int mode)
             }
             else if(mode == DRAWIMG){
                 myAnimation->currentFrame->currentStickFigure->currentStick->type = stick::stickType::IMAGE;
-                myAnimation->currentFrame->currentStickFigure->currentStick->stickImg = new QImage(*imageDrawBuffer);
+                QImage* img = new QImage(*imageDrawBuffer);
+                myAnimation->currentFrame->currentStickFigure->currentStick->addImage(img, imageNameBuffer);
 
             }
 

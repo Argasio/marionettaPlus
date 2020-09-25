@@ -318,8 +318,20 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
         stream<<myStick.imgOffset;
         stream<<myStick.hardTop;
         stream<<myStick.hardBottom;
-        if(myStick.type == stick::IMAGE)
+
+        if(myStick.type == stick::IMAGE){
+            stream<< myStick.stickImgList.length();
+            stream<< myStick.stickImgList.indexOf(myStick.stickImg);
+            int j = 0;
+            for(QImage*i:myStick.stickImgList){
+
+                stream<<*i;
+                stream<<myStick.imgNameList[j];
+                j++;
+            }
             stream<<*myStick.stickImg;
+
+        }
     }
 
     return stream;
@@ -335,12 +347,11 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.Brush;
     stream>>myStick.master;
     if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)||(myStick.type == stick::TRAPEZOID)||(myStick.type == stick::TAPER)){
-        if(myStick.type == stick::IMAGE){
         QSize mysize;
-            stream>>mysize;
-            myStick.stickImg = new QImage(mysize,QImage::Format_ARGB32);
-        }
+        if(myStick.type == stick::IMAGE){
 
+            stream>>mysize;
+        }
         stream>>myStick.imgAngle;
         stream>>myStick.imgHScale;
         stream>>myStick.imgWScale;
@@ -350,7 +361,20 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
         int bytesize = 0;
         //stream>>bytesize;
         if(myStick.type == stick::IMAGE){
-            stream>>*myStick.stickImg;
+            int numOfImgs;
+            int stickImgIdx;
+            stream>>numOfImgs;
+            stream>>stickImgIdx;
+            int j = 0;
+            for(int i = 0; i<numOfImgs;i++){
+                QImage *img = new QImage(mysize,QImage::Format_ARGB32);
+                stream>>*img;
+                QString name;
+                myStick.stickImgList.append(img);
+                stream>>name;
+                myStick.imgNameList.append(name);
+            }
+            myStick.stickImg = myStick.stickImgList[stickImgIdx];
         }
     }
     return stream;

@@ -214,7 +214,11 @@ private slots:
 
     void on_drawTrapezoidBtn_clicked();
 
-    void on_horizontalSlider_valueChanged(int value);
+    void on_addImgBtn_clicked();
+
+    void on_removeImgBtn_clicked();
+
+    void on_setImgBtn_clicked();
 
 private:
     Ui::Widget *ui;

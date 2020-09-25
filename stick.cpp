@@ -1,9 +1,13 @@
 #include "stick.h"
 #include <QGraphicsItem>
 #include <QVector>
+#include <QListWidget>
 bool onionRender = false;
 extern QGraphicsRectItem* myRect;
 extern QPixmap * imageDrawBuffer ;
+extern QListWidget* imgListWidget;
+extern bool libFlag;
+extern bool undoFlag;
 //lo stick si basa fondamentalmente su un QGraphicsLineObject, uno stick alloca una lineobject
 stick::stick(QLineF *line)
 {
@@ -36,8 +40,14 @@ stick::stick(stick* S)
     hardTop = S->hardTop;
     hardBottom = S->hardBottom;
     if(S->type == IMAGE|| S->type == RECT || S->type == TRAPEZOID|| S->type== TAPER){
-        if(S->type == IMAGE)
-            this->stickImg = new QImage(*S->stickImg);
+        if(S->type == IMAGE){
+            for(QImage*i:S->stickImgList){
+                stickImgList.append(new QImage(*i));
+                if(i == S->stickImg)
+                    stickImg = stickImgList.last();
+            }
+            imgNameList = S->imgNameList;
+        }
         imgAngle = S->imgAngle;
         imgWScale = S->imgWScale;
         imgHScale = S->imgHScale;
@@ -46,8 +56,21 @@ stick::stick(stick* S)
     }
 }
 stick::~stick(){
-    if(type == IMAGE)
-        delete stickImg;
+    if(type == IMAGE){
+        int j = 0;
+        for(QImage*i:stickImgList){
+            delete i;
+            if(!onionRender && !undoFlag && !libFlag){
+                QListWidgetItem * item= imgListWidget->takeItem(j);
+                delete  item;
+            }
+            j++;
+        }
+
+        stickImgList.clear();
+        stickImg = nullptr;
+
+    }
 }
 void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
@@ -486,6 +509,32 @@ void stick::scale(float scaleFactor){
         }
     }
     qDebug("scale = %f \r\n",trueScale);
+}
+void stick::addImage(QImage* imgToAdd, QString name){
+    stickImgList.append(imgToAdd);
+    stickImg = imgToAdd;
+    QListWidgetItem * addedItem = new QListWidgetItem();
+    QVariant newData(QVariant::fromValue(imgToAdd));
+    addedItem->setData(Qt::UserRole,newData);
+    addedItem->setData(Qt::DisplayRole,name);
+    addedItem->setIcon(QIcon(QPixmap::fromImage(*imgToAdd)));
+    imgNameList.append(name);
+    imgListWidget->addItem(addedItem);
+}
+void stick::populateImageListWidget(){
+    if(type == stick::IMAGE){
+        imgListWidget->clear();
+        int j = 0;
+        for(QImage* img:stickImgList){
+            QListWidgetItem * addedItem = new QListWidgetItem();
+            QVariant newData(QVariant::fromValue(img));
+            addedItem->setData(Qt::UserRole,newData);
+            addedItem->setData(Qt::DisplayRole,imgNameList[0]);
+            addedItem->setIcon(QIcon(QPixmap::fromImage(*img)));
+            imgListWidget->addItem(addedItem);
+            j++;
+        }
+    }
 }
 void sceneRemover(QGraphicsScene *sceneToClear){
     QList<QGraphicsItem*> thingsOnScene = sceneToClear->items( Qt::DescendingOrder);

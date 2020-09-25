@@ -50,6 +50,7 @@ public:
     int scaleSpinBoxBuffer = 100;
     int version = 1;
     int type = stickType::LINE;
+
     float imgAngle = 0;
     float imgWScale = 1;
     float imgHScale = 1;
@@ -63,13 +64,17 @@ public:
     QRectF imgRect;
     QList<stick*> children;
     QList<void*> linkedStickFigure;
+    QList<QString> imgNameList;
     QPen Pen;
     QBrush Brush;
     qreal Z;
-    QImage *stickImg = nullptr;
+    QImage* stickImg;
+    QList<QImage*>stickImgList;
     StickFigure* myStickFigure = nullptr;
     void rotate(float angle);
     void scale(float scaleFactor);
+    void addImage(QImage *imgToAdd, QString name);
+    void populateImageListWidget();
 private:
     //-------- methods----------//
     QRectF updateBr(int mode);
