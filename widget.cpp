@@ -26,6 +26,10 @@
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
 #include "advancedtaperwidget.h"
+
+#define CS view->myAnimation->currentFrame->currentStickFigure->currentStick
+#define CURRENTSTICKFIGURE view->myAnimation->currentFrame->currentStickFigure
+#define CURRENTFRAME view->myAnimation->currentFrame
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QString imageNameBuffer;
@@ -212,8 +216,10 @@ void Widget::detectLibraries(){
         }
     }
 }
+extern bool undoFlag;
 Widget::~Widget()
 {
+    undoFlag = true;
     delete ui;
 }
 
@@ -235,7 +241,7 @@ void Widget::on_addStickBtn_clicked()
 }
 
 StickFigure* Widget::addStick(){
-    StickFigure * added = view->myAnimation->currentFrame->addStickFigure(ui->stickLayerView, stickFigureNameText->toPlainText());
+    StickFigure * added = CURRENTFRAME->addStickFigure(ui->stickLayerView, stickFigureNameText->toPlainText());
     stickFigureNameText->clear();
     return added;
 }
@@ -300,7 +306,7 @@ void Widget::addFrame(void)
     view->storeUndo(CMD_ADDFRAME);
     int pos = 0;
     if(view->myAnimation->frameList.count()>=1)
-        pos = view->myAnimation->currentFrame->frameNumber+1;
+        pos = CURRENTFRAME->frameNumber+1;
     Frame* addedFrame = setUpFrame(pos);
     view->moveToFrame(addedFrame);
     addStick();
@@ -326,7 +332,7 @@ void Widget::on_copyFrame_clicked()
     // use this buffer to store data from the object
     buffer1.open(QIODevice::WriteOnly);
     QDataStream myStream(&buffer1);
-    myStream<<*(view->myAnimation->currentFrame);
+    myStream<<*(CURRENTFRAME);
     // now create a seconds buffer from which to read data of the bytearray
     QBuffer buffer2(&byteArray);
     buffer2.open(QIODevice::ReadOnly);
@@ -335,7 +341,7 @@ void Widget::on_copyFrame_clicked()
     // prepare new frame
     int pos = 0;
     if(view->myAnimation->frameList.count()>=1)
-        pos = view->myAnimation->currentFrame->frameNumber+1;
+        pos = CURRENTFRAME->frameNumber+1;
     Frame* addedFrame = setUpFrame(pos);
     // hydrate new frame with previous frame data
     myStream2>>*addedFrame;
@@ -364,8 +370,8 @@ void Widget::on_deleteFrameBtn_clicked()
 {
     if(view->myAnimation->frameList.count()>1){
         view->storeUndo(CMD_DELETEFRAME);
-        view->deleteFrame(view->myAnimation->currentFrame);
-        view->moveToFrame(view->myAnimation->currentFrame);
+        view->deleteFrame(CURRENTFRAME);
+        view->moveToFrame(CURRENTFRAME);
     }
 }
 
@@ -419,7 +425,7 @@ void Widget::on_zoomInBtn_clicked()
     view->scale(1/zoomLvl,1/zoomLvl);
     zoomLvl*=2;
     view->scale(zoomLvl,zoomLvl);
-    view->moveToFrame(view->myAnimation->currentFrame);
+    view->moveToFrame(CURRENTFRAME);
 }
 
 void Widget::on_zoomOutBtn_clicked()
@@ -428,14 +434,14 @@ void Widget::on_zoomOutBtn_clicked()
     view->scale(1/zoomLvl,1/zoomLvl);
     zoomLvl/=2;
     view->scale(zoomLvl,zoomLvl);
-    view->moveToFrame(view->myAnimation->currentFrame);
+    view->moveToFrame(CURRENTFRAME);
 }
 
 void Widget::on_resetZoomBtn_clicked()
 {
     view->scale(1/zoomLvl,1/zoomLvl);
     zoomLvl = 1.0;
-    view->moveToFrame(view->myAnimation->currentFrame);
+    view->moveToFrame(CURRENTFRAME);
 }
 
 void Widget::on_drawImageBtn_clicked()
@@ -452,12 +458,14 @@ void Widget::on_drawImageBtn_clicked()
 }
 void Widget::on_addImgBtn_clicked()
 {
+    stick* cs = CS;
     QString fileName = QFileDialog::getOpenFileName(this,tr("Load Image"),
                        "C:/", tr("Images (*.png *.bmp *.jpg)"));
     if(fileName.length()>0){
         //imageDrawBuffer = new QImage("C:/Users/riccim3/Pictures/immagine.jpg" );
-        imageDrawBuffer = new QImage(fileName);
-        view->myAnimation->currentFrame->currentStickFigure->currentStick->addImage(imageDrawBuffer,
+        QImage* myImg = new QImage(fileName);
+        view->storeUndo();
+        cs->addImage(myImg,
                                                                                     QFileInfo(QFile(fileName)).fileName());
     }
 }
@@ -467,9 +475,18 @@ void Widget::on_removeImgBtn_clicked()
 
 }
 
+// imposta l'immagine contenuta nello stick dalla lista delle immagini
 void Widget::on_setImgBtn_clicked()
 {
-
+    stick* cs = CS;
+    int idx = imgListWidget->currentRow(); // indice immagine correntmente selezionata
+    if(cs != nullptr){
+        if(cs->type == stick::IMAGE){
+            view->storeUndo();
+            cs->stickImg = cs->stickImgList[idx];
+            CURRENTSTICKFIGURE->refresh(0);
+        }
+    }
 }
 void Widget::on_imgHOffsetSlider_sliderMoved(int position)
 {
@@ -595,7 +612,7 @@ void Widget::on_addItemFromLibraryToSceneBtn_clicked()
     view->myAnimation->updateSelection(added);
     //added->refresh();
     //scene->update();
-    //view->myAnimation->currentFrame->currentStickFigure->loadStickFigure(fileName)
+    //CURRENTSTICKFIGURE->loadStickFigure(fileName)
 }
 
 void Widget::on_saveCurrentLibraryBtn_clicked()
@@ -619,7 +636,7 @@ void Widget::on_saveCurrentLibraryBtn_clicked()
 
 void Widget::on_imgHOffsetSlider_valueChanged(int value)
 {
-    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    stick*cs =  CS;
     if(cs == nullptr)
         return;
     else{
@@ -632,7 +649,7 @@ void Widget::on_imgHOffsetSlider_valueChanged(int value)
             val = (float)imgHOffsetSlider->value();
             imgHOffsetSpinbox->setValue(imgHOffsetSlider->value());
             cs->imgOffset.setX(val);
-             view->myAnimation->currentFrame->currentStickFigure->refresh();
+             CURRENTSTICKFIGURE->refresh();
         }
     }
 }
@@ -640,7 +657,7 @@ void Widget::on_imgHOffsetSlider_valueChanged(int value)
 
 void Widget::on_imgVOfsetSlider_valueChanged(int value)
 {
-    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    stick*cs =  CS;
     if(cs == nullptr)
         return;
     else{
@@ -653,14 +670,14 @@ void Widget::on_imgVOfsetSlider_valueChanged(int value)
             imgVOffsetSpinbox->setValue(imgVOffsetSlider->value());
             val = (float)imgVOffsetSlider->value();
             cs->imgOffset.setY(val);
-             view->myAnimation->currentFrame->currentStickFigure->refresh();
+             CURRENTSTICKFIGURE->refresh();
         }
     }
 }
 
 void Widget::on_imgWSlider_valueChanged(int value)
 {
-    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    stick*cs =  CS;
     if(cs == nullptr)
         return;
     else{
@@ -673,14 +690,14 @@ void Widget::on_imgWSlider_valueChanged(int value)
             imgWidthSlider->value()>0?scale = (float)imgWidthSlider->value()/10+1:scale = 1/((float)(-imgWidthSlider->value())/10+1);
             imgWidthSpinbox->setValue(imgWidthSlider->value());
             cs->imgWScale = scale;
-            view->myAnimation->currentFrame->currentStickFigure->refresh();
+            CURRENTSTICKFIGURE->refresh();
         }
     }
 }
 
 void Widget::on_imgHSlider_valueChanged(int value)
 {
-    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    stick*cs =  CS;
     if(cs == nullptr)
         return;
     else{
@@ -693,14 +710,14 @@ void Widget::on_imgHSlider_valueChanged(int value)
             imgHeightSlider->value()>0?scale = (float)imgHeightSlider->value()/10+1 : scale = 1/((float)(-imgHeightSlider->value())/10+1);
             imgHeightSpinbox->setValue(imgHeightSlider->value());
             cs->imgHScale = scale;
-             view->myAnimation->currentFrame->currentStickFigure->refresh();
+             CURRENTSTICKFIGURE->refresh();
         }
     }
 }
 
 void Widget::on_imgRotationSlider_valueChanged(int value)
 {
-    stick*cs =  view->myAnimation->currentFrame->currentStickFigure->currentStick;
+    stick*cs =  CS;
     if(cs == nullptr)
         return;
     else{
@@ -713,7 +730,7 @@ void Widget::on_imgRotationSlider_valueChanged(int value)
             val =imgRotationSlider->value();
             imgRotationSpinbox->setValue(val);
             cs->imgAngleOffset = val;
-             view->myAnimation->currentFrame->currentStickFigure->refresh();
+             CURRENTSTICKFIGURE->refresh();
         }
     }
 }
@@ -854,12 +871,12 @@ void Widget::on_stickFigureRotationSpinbox_valueChanged(int arg1)
 void Widget::on_stickFigureScaleSpinbox_editingFinished()
 {
     view->storeUndo();
-    for(stick*s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+    for(stick*s:CURRENTSTICKFIGURE->stickList){
         s->scaleBuffer = s->myLine.length();
         s->widthBuffer = s->Pen.width();
     }
-    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
-        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+    if(CURRENTSTICKFIGURE != nullptr){
+        for(stick* s:CURRENTSTICKFIGURE->stickList){
             s->scale((float)stickFigureScaleSpinbox->value()/100);
 
         }
@@ -871,11 +888,11 @@ void Widget::on_stickFigureScaleSpinbox_editingFinished()
 void Widget::on_stickFigureRotationSpinbox_editingFinished()
 {
     view->storeUndo();
-    for(stick*s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+    for(stick*s:CURRENTSTICKFIGURE->stickList){
 
     }
-    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
-        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+    if(CURRENTSTICKFIGURE != nullptr){
+        for(stick* s:CURRENTSTICKFIGURE->stickList){
             s->angleBuffer2 = s->myLine.angle();
             s->rotate(stickFigureRotationSpinbox->value());
             s->angleBuffer2 = s->myLine.angle();
@@ -902,8 +919,8 @@ void Widget::on_rotateSceneBtn_clicked()
 
 void Widget::on_verticalFlipBtn_clicked()
 {
-    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
-        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+    if(CURRENTSTICKFIGURE != nullptr){
+        for(stick* s:CURRENTSTICKFIGURE->stickList){
             //s->myLine.setAngle(s->myLine.angle()+180);
             s->angleBuffer2 = s->myLine.angle();
             s->rotate((-2*s->myLine.angle()));
@@ -914,8 +931,8 @@ void Widget::on_verticalFlipBtn_clicked()
 
 void Widget::on_HorizontalFlipBtn_clicked()
 {
-    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
-        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+    if(CURRENTSTICKFIGURE != nullptr){
+        for(stick* s:CURRENTSTICKFIGURE->stickList){
             //s->myLine.setAngle(s->myLine.angle()+180);
             s->angleBuffer2 = s->myLine.angle();
             s->rotate(2*(90-s->myLine.angle()));
@@ -926,11 +943,11 @@ void Widget::on_HorizontalFlipBtn_clicked()
 
 void Widget::on_copyStickFigureBtn_clicked()
 {
-    if(view->myAnimation->currentFrame->currentStickFigure != nullptr){
+    if(CURRENTSTICKFIGURE != nullptr){
         copyFlag = true;
         view->copyStickFigureBuffer = new StickFigure();
 
-        cloneStickFigure(view->copyStickFigureBuffer,view->myAnimation->currentFrame->currentStickFigure);
+        cloneStickFigure(view->copyStickFigureBuffer,CURRENTSTICKFIGURE);
         copyFlag = false;
     }
 }
@@ -958,30 +975,30 @@ void Widget::on_splitBtn_clicked()
 
 void Widget::on_joinStick_clicked()
 {
-    if(view->myAnimation->currentFrame->currentStickFigure == nullptr || view->myAnimation->currentFrame->currentStickFigure->currentStick == nullptr)
+    if(CURRENTSTICKFIGURE == nullptr || CS == nullptr)
         return;
     view->storeUndo();
-    view->myAnimation->currentFrame->currentStickFigure->weld(view->myAnimation->currentFrame->currentStickFigure->currentStick);
+    CURRENTSTICKFIGURE->weld(CS);
 }
 
 void Widget::on_splitStick_clicked()
 {
-    if(view->myAnimation->currentFrame->currentStickFigure == nullptr || view->myAnimation->currentFrame->currentStickFigure->currentStick == nullptr)
+    if(CURRENTSTICKFIGURE == nullptr || CS == nullptr)
         return;
     view->storeUndo();
-    view->myAnimation->currentFrame->currentStickFigure->chop(view->myAnimation->currentFrame->currentStickFigure->currentStick);
+    CURRENTSTICKFIGURE->chop(CS);
 }
 
 
 
 void Widget::on_setMasterNodeBtn_clicked()
 {
-    if(view->myAnimation->currentFrame->currentStickFigure == nullptr ||
-            view->myAnimation->currentFrame->currentStickFigure->stickList.isEmpty()||
-            view->myAnimation->currentFrame->currentStickFigure->currentStick == nullptr)
+    if(CURRENTSTICKFIGURE == nullptr ||
+            CURRENTSTICKFIGURE->stickList.isEmpty()||
+            CS == nullptr)
         return;
     view->storeUndo();
-    view->myAnimation->currentFrame->currentStickFigure->setMaster(view->myAnimation->currentFrame->currentStickFigure->currentStick);
+    CURRENTSTICKFIGURE->setMaster(CS);
 }
 
 void Widget::on_createNewLibraryBtn_clicked()
@@ -1010,25 +1027,25 @@ void Widget::on_createNewLibraryBtn_clicked()
 
 void Widget::on_setAllDepthBtn_clicked()
 {
-    if(!view->myAnimation->currentFrame->currentStickFigure->stickList.isEmpty()){
+    if(!CURRENTSTICKFIGURE->stickList.isEmpty()){
         view->storeUndo(CMD_SIMPLE);
         float val = depthSpinbox->value();
-        for(stick* s:view->myAnimation->currentFrame->currentStickFigure->stickList){
+        for(stick* s:CURRENTSTICKFIGURE->stickList){
             s->Z = val;
         }
-        view->myAnimation->currentFrame->currentStickFigure->baseZ = val;
-        view->myAnimation->currentFrame->currentStickFigure->refresh(0);
+        CURRENTSTICKFIGURE->baseZ = val;
+        CURRENTSTICKFIGURE->refresh(0);
     }
 }
 
 void Widget::on_setDepthBtn_clicked()
 {
-    if(!view->myAnimation->currentFrame->currentStickFigure->stickList.isEmpty()
-            && view->myAnimation->currentFrame->currentStickFigure->currentStick){
+    if(!CURRENTSTICKFIGURE->stickList.isEmpty()
+            && CS){
         view->storeUndo(CMD_SIMPLE);
         float val = depthSpinbox->value();
-        view->myAnimation->currentFrame->currentStickFigure->currentStick->Z = val;
-        view->myAnimation->currentFrame->currentStickFigure->refresh(0);
+        CS->Z = val;
+        CURRENTSTICKFIGURE->refresh(0);
     }
 }
 

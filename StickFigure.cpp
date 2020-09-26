@@ -9,6 +9,7 @@ extern bool undoFlag;
 extern bool libFlag;
 extern bool clearUndoFlag;
 extern bool copyFlag;
+extern bool iconUpdateFlag;
 extern QGraphicsRectItem* myRect;
 StickFigure::~StickFigure()
 {
@@ -29,6 +30,7 @@ StickFigure::~StickFigure()
 // questa funzione aggiorna l'iconea del livello
 void StickFigure::updateIcon()
 {
+    iconUpdateFlag = true;
     //crea una scena fittizia, falla bianca e delle stesse dimensioni di quella principale
     QGraphicsScene icoScene;
     iconImg->fill(Qt::white);
@@ -56,6 +58,7 @@ void StickFigure::updateIcon()
     for(stick* S: tempList){
         delete S;
     }
+    iconUpdateFlag = false;
 }
 StickFigure::StickFigure(QListWidgetItem* item)
 {
@@ -329,8 +332,6 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
                 stream<<myStick.imgNameList[j];
                 j++;
             }
-            stream<<*myStick.stickImg;
-
         }
     }
 
@@ -358,7 +359,6 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
         stream>>myStick.imgOffset;
         stream>>myStick.hardTop;
         stream>>myStick.hardBottom;
-        int bytesize = 0;
         //stream>>bytesize;
         if(myStick.type == stick::IMAGE){
             int numOfImgs;

@@ -39,6 +39,11 @@ bool clearingAnimation = false;
 bool changeTypeFlag = false;
 namespace Ui { class Widget; }
 extern Ui::Widget *myUi;
+
+#define CS currentFrame->currentStickFigure->currentStick
+#define CURRENTSTICKFIGURE currentFrame->currentStickFigure
+
+
 Animation::Animation()
 {
 
@@ -97,9 +102,9 @@ void Animation::updateSelection(QPointF point)
     int selectedIdx = -1;
     scene->clearSelection();
     StickFigure *selectedStickFigure;
-    currentFrame->currentStickFigure->highlight(false);
+    CURRENTSTICKFIGURE->highlight(false);
 
-    if(!currentFrame->currentStickFigure->stickList.isEmpty())
+    if(!CURRENTSTICKFIGURE->stickList.isEmpty())
     {
         for(StickFigure * S: currentFrame->stickFigures)
         {
@@ -119,14 +124,14 @@ void Animation::updateSelection(QPointF point)
                 }
             }
         }
-        if(selectedStickFigure->stickList[selectedIdx]->type != currentFrame->currentStickFigure->currentStick->type){
+        if(selectedStickFigure->stickList[selectedIdx]->type != CS->type){
             updateTab(selectedStickFigure->stickList[selectedIdx]->type );
         }
-        currentFrame->currentStickFigure->currentStick = selectedStickFigure->stickList[selectedIdx];
+        CS = selectedStickFigure->stickList[selectedIdx];
         selectedStickFigure->stickList[selectedIdx]->setSelected(true);
         selectedStickFigure->highlight(true);
-        currentFrame->currentStickFigure->currentStick->selected = true;
-        currentFrame->currentStickFigure = selectedStickFigure;
+        CS->selected = true;
+        CURRENTSTICKFIGURE = selectedStickFigure;
 
         updateSliders();
 
@@ -134,6 +139,7 @@ void Animation::updateSelection(QPointF point)
 
 }
 void Animation::updateTab(int t){
+    int idx = myTabWidget->currentIndex();
     myTabWidget->removeTab(1);
     if(t == stick::IMAGE){
         myTabWidget->insertTab(1,advancedImgTab,"Image Editing");
@@ -153,6 +159,7 @@ void Animation::updateTab(int t){
     else if(t == stick::TRAPEZOID){
         myTabWidget->insertTab(1,advancedTaperTab,"Trapezoid Editing");
     }
+    myTabWidget->setCurrentIndex(idx);
 }
 void Animation::updateSelection(stick* s)
 {
@@ -160,20 +167,20 @@ void Animation::updateSelection(stick* s)
 
     // update current stickfigure
     scene->clearSelection();
-    currentFrame->currentStickFigure->highlight(false);
+    CURRENTSTICKFIGURE->highlight(false);
 
     for(StickFigure *S : currentFrame->stickFigures)
     {
         if(S->stickList.contains(s))
         {
-            currentFrame->currentStickFigure = S;
+            CURRENTSTICKFIGURE = S;
             S->highlight(true);
         }
     }
     // update current stick
-    if(!currentFrame->currentStickFigure->stickList.isEmpty())
+    if(!CURRENTSTICKFIGURE->stickList.isEmpty())
     {
-     currentFrame->currentStickFigure->currentStick = s;
+     CS = s;
      s->setSelected(true);
      s->selected = true;
     }
@@ -186,8 +193,8 @@ void Animation::updateSelection(StickFigure* S)
     //update current frame
 
     // update current stickfigure
-    currentFrame->currentStickFigure->highlight(false); //de highlight old selection
-    currentFrame->currentStickFigure = S; //update currentStickFigure buffer
+    CURRENTSTICKFIGURE->highlight(false); //de highlight old selection
+    CURRENTSTICKFIGURE = S; //update currentStickFigure buffer
     S->highlight(true); //highlight new one
 
     // update current stick
@@ -198,7 +205,7 @@ void Animation::updateSelection(StickFigure* S)
 }
 
 void Animation::updateSliders(){
-    stick *cs = currentFrame->currentStickFigure->currentStick;
+    stick *cs = CS;
     if(cs->type == stick::IMAGE){
         //aggiorna gli slider di modifica alla scala e all'offset
         if(cs->imgWScale>=1){

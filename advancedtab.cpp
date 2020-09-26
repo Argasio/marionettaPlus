@@ -6,6 +6,10 @@ extern int H;
 extern myView *V;
 bool rectWSliderFlag = false;
 QSlider* advancedRectSlider;
+
+#define CS V->myAnimation->currentFrame->currentStickFigure->currentStick
+#define CURRENTSTICKFIGURE V->myAnimation->currentFrame->currentStickFigure
+#define CURRENTFRAME V->myAnimation->currentFrame
 advancedTab::advancedTab(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::advancedTab)
@@ -29,25 +33,25 @@ void advancedTab::on_imgHOffsetSpinbox_valueChanged(int arg1)
 void advancedTab::on_rectWidthSlider_valueChanged(int value)
 {
     ui->rectWidthSpinbox->setValue(value);
-    if(V->myAnimation->currentFrame->currentStickFigure->currentStick==nullptr)
+    if(CS==nullptr)
         return;
     if(rectWSliderFlag == false){
         rectWSliderFlag = true;
 
         V->storeUndo();
     }
-    V->myAnimation->currentFrame->currentStickFigure->currentStick->imgWScale = value;
-    V->myAnimation->currentFrame->currentStickFigure->refresh();
+    CS->imgWScale = value;
+    CURRENTSTICKFIGURE->refresh();
 
 }
 
 void advancedTab::on_rectWidthSpinbox_valueChanged(int arg1)
 {
     ui->rectWidthSlider->setValue(arg1);
-    if(V->myAnimation->currentFrame->currentStickFigure->currentStick==nullptr)
+    if(CS==nullptr)
         return;
-    V->myAnimation->currentFrame->currentStickFigure->currentStick->imgWScale = arg1;
-    V->myAnimation->currentFrame->currentStickFigure->refresh();
+    CS->imgWScale = arg1;
+    CURRENTSTICKFIGURE->refresh();
     ui->rectWidthSlider->setValue(arg1);
 }
 

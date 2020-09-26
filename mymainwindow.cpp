@@ -4,6 +4,9 @@
 #include "QFileDialog"
 #include  <QDir>
 #include <QProcess>
+#define CS view->myAnimation->currentFrame->currentStickFigure->currentStick
+#define CURRENTSTICKFIGURE view->myAnimation->currentFrame->currentStickFigure
+#define CURRENTFRAME view->myAnimation->currentFrame
 extern QDir programFolder;
 extern int W;
 extern int H;
@@ -29,7 +32,7 @@ void myMainWindow::on_actionsave_triggered()
                        "C:/", "Stickfigure (*.stck)");
     if(fileName.length()>1){
         QDataStream myStream;
-        view->myAnimation->currentFrame->currentStickFigure->saveStickFigure(fileName);
+        CURRENTSTICKFIGURE->saveStickFigure(fileName);
     }
 }
 
@@ -41,7 +44,7 @@ void myMainWindow::on_actionload_triggered()
     if(QFile::exists(fileName)){
         QDataStream myStream;
         centralW->addStick();
-        view->myAnimation->currentFrame->currentStickFigure->loadStickFigure(fileName);
+        CURRENTSTICKFIGURE->loadStickFigure(fileName);
     }
 }
 

@@ -8,6 +8,7 @@ extern QPixmap * imageDrawBuffer ;
 extern QListWidget* imgListWidget;
 extern bool libFlag;
 extern bool undoFlag;
+extern bool iconUpdateFlag;
 //lo stick si basa fondamentalmente su un QGraphicsLineObject, uno stick alloca una lineobject
 stick::stick(QLineF *line)
 {
@@ -60,14 +61,15 @@ stick::~stick(){
         int j = 0;
         for(QImage*i:stickImgList){
             delete i;
-            if(!onionRender && !undoFlag && !libFlag){
+            if(!onionRender && !undoFlag && !libFlag && !iconUpdateFlag){
                 QListWidgetItem * item= imgListWidget->takeItem(j);
                 delete  item;
             }
             j++;
         }
-
-        stickImgList.clear();
+        if(!onionRender && !undoFlag && !libFlag && !iconUpdateFlag){
+            stickImgList.clear();
+        }
         stickImg = nullptr;
 
     }
@@ -520,6 +522,7 @@ void stick::addImage(QImage* imgToAdd, QString name){
     addedItem->setIcon(QIcon(QPixmap::fromImage(*imgToAdd)));
     imgNameList.append(name);
     imgListWidget->addItem(addedItem);
+    populateImageListWidget();
 }
 void stick::populateImageListWidget(){
     if(type == stick::IMAGE){

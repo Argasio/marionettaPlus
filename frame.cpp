@@ -2,6 +2,8 @@
 #include <QListWidget>
 #include <QDebug>
 #include <QBuffer>
+
+#define CS currentStickFigure->currentStick
 QListWidget * ListWidget;
 extern bool undoFlag;
 extern bool libFlag;
@@ -9,6 +11,7 @@ extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
 extern QListWidget * myLibraryListWidget ;
 extern QListWidget * myCurrentLibraryWidget;
+bool iconUpdateFlag = false;
 Frame::Frame()
 {
     frameIcon       = new QIcon();
@@ -202,6 +205,7 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
 // questa funzione aggiorna l'iconea del livello
 void Frame::updateIcon()
 {
+    iconUpdateFlag = true;
     //crea una scena fittizia, falla bianca e delle stesse dimensioni di quella principale
     QGraphicsScene icoScene;
     iconImg->fill(Qt::white);
@@ -230,6 +234,7 @@ void Frame::updateIcon()
         delete S;
     }
     painter.end();
+    iconUpdateFlag = false;
 }
 
 void Frame::updateRender(){
