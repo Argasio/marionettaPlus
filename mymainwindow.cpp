@@ -101,6 +101,7 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
     renderFolder.setPath(path);
     // per ogni frame crea una scena temporanea, popolala con cloni degli sticks del progetto,
     // renderizza la scena su una QImage tramite un painter e salva l'immagine nella cartella
+    emptyDirectory( path);
     exportImageSequence(path);
     // apri il programma avi2Image, passagli i parametri per iniziale la conversione da immagini a file video
     // 1 in folder, 2 outfolder, 3 fps, 4 larghezza, 5 altezza, n immagini
@@ -141,7 +142,7 @@ void myMainWindow::exportImageSequence(QString path){
         painter.setBackground(QBrush(QColor(Qt::transparent)));
         renderScene.render(&painter);
         QString itemPath = path;
-        itemPath.insert(path.lastIndexOf(".")-1,"_"+QString::number(f->frameNumber));
+        itemPath.insert(path.lastIndexOf("."),"_"+QString::number(f->frameNumber));
         renderImg->save(itemPath);
         painter.end();
         delete renderImg;
@@ -209,9 +210,11 @@ void myMainWindow::exportUsingFFMPEG(){
 void myMainWindow::startffmpegRender(QStringList options){
     // per ogni frame crea una scena temporanea, popolala con cloni degli sticks del progetto,
     // renderizza la scena su una QImage tramite un painter e salva l'immagine nella cartella
+    emptyDirectory( renderFolder.path());
     exportImageSequence(renderFolder.path());
     //
-    QString imagePath = programFolder.path()+"/render";
+
+    //QString imagePath = programFolder.path()+"/render";
 
     QProcess *p = new QProcess(this);
 
