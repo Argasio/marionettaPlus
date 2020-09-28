@@ -76,6 +76,8 @@ public:
     void setGraphics(bool all, int attribute);
     void splitStickFigure();
     void clearCurrentLib();
+    void sizeChange(int option);
+    void scaleFrame(Frame *F, float scaleAmount, QRectF R);
 public slots:
     void saveLibrary(QString fileName);
 signals:

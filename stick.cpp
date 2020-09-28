@@ -524,6 +524,24 @@ void stick::addImage(QImage* imgToAdd, QString name){
     imgListWidget->addItem(addedItem);
     populateImageListWidget();
 }
+void stick::removeImgFromList(int idx){
+    if(type == stick::IMAGE){
+        if(stickImgList.length()>1){
+            QImage* toRemove = stickImgList[idx];
+            stickImgList.removeAt(idx);
+            imgNameList.removeAt(idx);
+            QListWidgetItem * itemToRemove = imgListWidget->takeItem(idx);
+            if(toRemove== stickImg)
+                stickImg = stickImgList[0];
+            delete itemToRemove;
+            delete toRemove;
+
+            populateImageListWidget();
+        }
+    }
+
+
+}
 void stick::populateImageListWidget(){
     if(type == stick::IMAGE){
         imgListWidget->clear();
@@ -532,7 +550,7 @@ void stick::populateImageListWidget(){
             QListWidgetItem * addedItem = new QListWidgetItem();
             QVariant newData(QVariant::fromValue(img));
             addedItem->setData(Qt::UserRole,newData);
-            addedItem->setData(Qt::DisplayRole,imgNameList[0]);
+            addedItem->setData(Qt::DisplayRole,imgNameList[j]);
             addedItem->setIcon(QIcon(QPixmap::fromImage(*img)));
             imgListWidget->addItem(addedItem);
             j++;

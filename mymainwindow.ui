@@ -303,54 +303,84 @@ QMenu::separator {
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menufile">
     <property name="title">
      <string>file</string>
     </property>
-    <addaction name="actionsave"/>
-    <addaction name="actionload"/>
+    <addaction name="actionNew_Blank_Animation"/>
+    <addaction name="actionsave_animation_current"/>
     <addaction name="actionsave_animation"/>
     <addaction name="actionload_animation"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_video_using_FFMPEG"/>
+    <addaction name="actionExport_as_image_sequence"/>
     <addaction name="actionexport_as_AVI_file"/>
-    <addaction name="actionsave_animation_current"/>
+    <addaction name="separator"/>
+    <addaction name="actionsave"/>
+    <addaction name="actionload"/>
+    <addaction name="separator"/>
+    <addaction name="actionAnimation_Options"/>
    </widget>
    <addaction name="menufile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionsave">
    <property name="text">
-    <string>save stickfigure</string>
+    <string>Load StickFiguire</string>
    </property>
   </action>
   <action name="actionload">
    <property name="text">
-    <string>load stickfigure</string>
+    <string>Load StickFigure</string>
    </property>
   </action>
   <action name="actionsave_animation">
    <property name="text">
-    <string>save animation as</string>
+    <string>Save Animation As</string>
    </property>
   </action>
   <action name="actionload_animation">
    <property name="text">
-    <string>load animation</string>
+    <string>Load Animation</string>
    </property>
   </action>
   <action name="actionexport_as_AVI_file">
    <property name="text">
-    <string>export as AVI file</string>
+    <string>Export video as AVI file</string>
    </property>
   </action>
   <action name="actionsave_animation_current">
    <property name="text">
-    <string>save animation</string>
+    <string>Save Animation</string>
+   </property>
+  </action>
+  <action name="actionNew_Blank_Animation">
+   <property name="text">
+    <string>New Blank Animation</string>
+   </property>
+  </action>
+  <action name="actionAnimation_Options">
+   <property name="text">
+    <string>Animation Settings</string>
+   </property>
+  </action>
+  <action name="actionExport_as_image_sequence">
+   <property name="text">
+    <string>Export as image sequence</string>
+   </property>
+  </action>
+  <action name="actionExport_video_using_FFMPEG">
+   <property name="text">
+    <string>Export video using FFMPEG</string>
    </property>
   </action>
  </widget>
  <resources/>
  <connections/>
+ <slots>
+  <slot>animationOptionsChanged()</slot>
+ </slots>
 </ui>

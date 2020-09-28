@@ -7,6 +7,7 @@
 #include <QSpinBox>
 #include <QBuffer>
 #include <QCheckBox>
+#include <animationoptions.h>
 #define CS myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE myAnimation->currentFrame->currentStickFigure
 #define CURRENTFRAME myAnimation->currentFrame
@@ -36,6 +37,7 @@ extern QString imageNameBuffer;
 extern int W;
 extern int H;
 extern QGraphicsRectItem* myRect;
+extern QGraphicsRectItem* limitRect;
 extern bool playBack ;
 extern bool loadFile;
 extern QCheckBox* hardTopCheck;
@@ -626,6 +628,26 @@ void myView::mouseMoveEvent(QMouseEvent *event)
     }
     QGraphicsView::mouseMoveEvent(event);
 }
+//funzione usata per riscalare interamente il frame quando si riscala l'animazione intera
+void myView::scaleFrame(Frame* F, float scaleAmount, QRectF R){
+    QPointF center(R.width()/2,R.height()/2);
+    if(F->stickFigures.isEmpty())
+        return;
+    for(StickFigure * S:F->stickFigures){
+        if(!S->stickList.isEmpty()){
+            QLineF actualDistFromCenter(S->masterStick->myLine.p1(),center);
+            float dx =-(scaleAmount-1)*actualDistFromCenter.dx();
+            float dy =-(scaleAmount-1)*actualDistFromCenter.dy();
+            S->traslate(dx,dy);
+            for(stick* s:S->stickList){
+                s->scaleBuffer = s->myLine.length();
+                s->widthBuffer = s->Pen.widthF();
+                s->scale(scaleAmount);
+            }
+        }
+
+    }
+}
 Frame* myView::setUpFrame(int pos){
     //decidi il nome
     //int intName = 0;
@@ -707,6 +729,7 @@ void myView::moveToFrame(Frame* frame){
         }
         if(myRect == nullptr){
             myRect = new QGraphicsRectItem(0,0,W,H);
+            myRect->setPen(Qt::NoPen);
         }
         scene()->addItem(myRect);
 
@@ -1017,4 +1040,44 @@ void myView::splitStickFigure(){
     CURRENTSTICKFIGURE = branch;
     CS = branch->stickList[0];
     CURRENTSTICKFIGURE->updateIcon();
+}
+void myView::sizeChange(int option){
+
+    QRectF oldRect = myRect->rect();
+    QPointF oldCenter = myRect->rect().center();
+    float amount =  W/myRect->rect().width();
+    myRect->setPen(Qt::NoPen);
+    myRect->setBrush(QBrush(QColor(Qt::white)));
+    scene()->setBackgroundBrush(QBrush(QColor(Qt::white)));
+    myRect->setRect(0,0,W,H);
+    QPointF newCenter = myRect->rect().center();
+    limitRect->setRect(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
+    scene()->setSceneRect(limitRect->rect());
+    float dx = newCenter.x()-oldCenter.x();
+    float dy = newCenter.y()-oldCenter.y();
+    switch(option){
+
+        case REPOSCALE:
+
+            for(Frame*F:myAnimation->frameList){
+                scaleFrame(F,amount,oldRect);
+                for(StickFigure* S: F->stickFigures){
+                    S->traslate(dx,dy);
+                }
+
+            }
+            break;
+        case REPO:
+            for(Frame*F:myAnimation->frameList){
+                for(StickFigure* S: F->stickFigures){
+                    S->traslate(dx,dy);
+                }
+            }
+            break;
+        case NOREPO:
+            break;
+    }
+
+    //()->addItem(myRect);
+   // scene()->update(0,0,1000,1000);
 }

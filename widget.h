@@ -23,6 +23,9 @@ public:
     Frame *setUpFrame(int pos);
     void createPaths();
     void detectLibraries();
+    void createJson(QString path);
+    void readJson(QString path);
+    void writeJson();
 private slots:
     void on_drawBtn_clicked();
 

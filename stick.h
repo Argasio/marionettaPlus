@@ -75,6 +75,7 @@ public:
     void scale(float scaleFactor);
     void addImage(QImage *imgToAdd, QString name);
     void populateImageListWidget();
+    void removeImgFromList(int idx);
 private:
     //-------- methods----------//
     QRectF updateBr(int mode);

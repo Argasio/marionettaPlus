@@ -2164,6 +2164,12 @@ QMenu::separator {
                     <height>500</height>
                    </size>
                   </property>
+                  <property name="tabletTracking">
+                   <bool>false</bool>
+                  </property>
+                  <property name="acceptDrops">
+                   <bool>false</bool>
+                  </property>
                   <property name="autoFillBackground">
                    <bool>false</bool>
                   </property>

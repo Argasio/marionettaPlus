@@ -22,6 +22,8 @@ SOURCES += \
     advancedtab.cpp \
     advancedtaperwidget.cpp \
     animation.cpp \
+    animationoptions.cpp \
+    ffmpegexport.cpp \
     frame.cpp \
     main.cpp \
     mymainwindow.cpp \
@@ -39,6 +41,8 @@ HEADERS += \
     advancedtab.h \
     advancedtaperwidget.h \
     animation.h \
+    animationoptions.h \
+    ffmpegexport.h \
     frame.h \
     mymainwindow.h \
     myrect.h \
@@ -54,6 +58,8 @@ FORMS += \
     advancedlinewidget.ui \
     advancedtab.ui \
     advancedtaperwidget.ui \
+    animationoptions.ui \
+    ffmpegexport.ui \
     mymainwindow.ui \
     sticklib.ui \
     widget.ui

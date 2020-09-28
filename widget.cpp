@@ -22,6 +22,8 @@
 #include <QFileDialog>
 #include <QDirIterator>
 #include <QFileInfo>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include "advancedtab.h"
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
@@ -30,6 +32,9 @@
 #define CS view->myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE view->myAnimation->currentFrame->currentStickFigure
 #define CURRENTFRAME view->myAnimation->currentFrame
+#define DEFAULTWIDTH 720
+#define DEFAULTHEIGHT 480
+#define DEFAULTFPS 24
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QString imageNameBuffer;
@@ -69,14 +74,16 @@ QPointF onionOffset;
 QDir programFolder;
 QDir libFolder;
 QDir tempRenderFolder;
+
 advancedTab* advancedRectTab;
 advancedLineWidget* advancedLineTab;
 advancedCircleWidget* advancedCircleTab;
 advancedTaperWidget* advancedTaperTab;
 QTabWidget* myTabWidget;
 QWidget * advancedImgTab;
-int W = 600;
-int H = 600;
+int W = DEFAULTWIDTH;
+int H = DEFAULTHEIGHT;
+int FPS = DEFAULTFPS;
 struct{
     bool sliderHOffset = false;
     bool sliderVOffset = false;
@@ -87,7 +94,9 @@ struct{
 bool playBack = false;
 bool copyFlag = false;
 float zoomLvl = 1;
+bool  firstTimeOpened = false;
 QImage * imageDrawBuffer;
+QString FFMPEGPath = "";
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -159,6 +168,7 @@ Widget::Widget(QWidget *parent)
     myRect->setBrush(QBrush(QColor(Qt::white)));
     limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
     limitRect->setBrush(QBrush(QColor(Qt::white)));
+    myRect->setPen(Qt::NoPen);
     scene->addItem(myRect);
     scene->setSceneRect(limitRect->rect());
     // adjust image editing offset sliders according to max size of scene
@@ -175,9 +185,61 @@ Widget::Widget(QWidget *parent)
     else{
         view->loadLibrary(libFolder.path()+"/defaultLib.marlib");
     }
+    QString jsonConfigPath = programFolder.path()+"/config.json";
+    if(!QFile::exists(jsonConfigPath)){
+        createJson(jsonConfigPath);
+    }
+    else{
+        readJson(jsonConfigPath);
+    }
     myLibraryListWidget->clear();
     detectLibraries();
     myLibraryListWidget->setCurrentRow(0);
+}
+void Widget::readJson(QString path ){
+    QFile file(path);
+    /*if(!file.open(QIODevice::ReadOnly))
+        return;
+
+    QDataStream myStream(&file);
+    QJsonDocument doc;
+    QByteArray raw;
+    myStream>>raw;
+    doc.fromBinaryData(raw);
+    QJsonObject recordObject = doc.object();
+    W = recordObject.value(QString("Width")).toInt();
+    H = recordObject.value(QString("Height")).toInt();
+    FPS = recordObject.value(QString("Fps")).toInt();
+    firstTimeOpened = recordObject.value(QString("First time opened")).toInt();*/
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    QJsonObject recordObject = doc.object();
+    W = recordObject.value(QString("Width")).toInt();
+    H = recordObject.value(QString("Height")).toInt();
+    FPS = recordObject.value(QString("Fps")).toInt();
+    firstTimeOpened = recordObject.value(QString("First time opened")).toInt();
+    file.close();
+
+}
+void Widget::writeJson( ){
+    QString path = programFolder.path()+"/config.json";
+    createJson(path);
+}
+void Widget::createJson(QString path ){
+    QJsonObject recordObject;
+    recordObject.insert("First time opened", QJsonValue::fromVariant(true));
+    recordObject.insert("Width", QJsonValue::fromVariant(W));
+    recordObject.insert("Height", QJsonValue::fromVariant(H));
+    recordObject.insert("Fps", QJsonValue::fromVariant(FPS));
+    recordObject.insert("FFMPEG Located", QJsonValue::fromVariant(false));
+    recordObject.insert("FFMPEG path", QJsonValue::fromVariant(FFMPEGPath));
+    QJsonDocument doc(recordObject);
+    QFile file(path);
+    if(!file.open(QIODevice::WriteOnly))
+        return;
+    file.write(doc.toJson());
+    file.close();
 }
 void Widget::createPaths(){
     QString  path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
@@ -199,6 +261,7 @@ void Widget::createPaths(){
         qDebug("temporary render folder created");
         programFolder.mkpath(path+"/MarionettaPlus/temporaryRender");
     }
+
 
 }
 void Widget::detectLibraries(){
@@ -473,6 +536,14 @@ void Widget::on_addImgBtn_clicked()
 void Widget::on_removeImgBtn_clicked()
 {
 
+    if(CS != nullptr){
+        if(CS->type == stick::IMAGE && CS->stickImgList.length()>1){
+            int idx = imgListWidget->currentRow(); // indice immagine correntmente selezionata
+            view->storeUndo();
+            CS->removeImgFromList(idx);
+            CURRENTSTICKFIGURE->refresh(0);
+        }
+    }
 }
 
 // imposta l'immagine contenuta nello stick dalla lista delle immagini
