@@ -4,7 +4,7 @@
 #include <QMessageBox>
 
 float AR = 1.0;
-animationOptions::animationOptions(QWidget *parent, int W, int H, int FPS) :
+animationOptions::animationOptions(QWidget *parent, int W, int H, int FPS, int autoSaveInput) :
     QWidget(parent),
     ui(new Ui::animationOptions)
 {
@@ -12,6 +12,7 @@ animationOptions::animationOptions(QWidget *parent, int W, int H, int FPS) :
     ui->widthSpinbox->setValue(W);
     ui->heightSpinbox->setValue(H);
     ui->fpsSpinbox->setValue(FPS);
+    ui->autoSaveSpinbox->setValue(autoSaveInterval);
     AR = (float)W/(float)H;
 }
 
@@ -26,6 +27,7 @@ void animationOptions::on_okBtn_clicked()
     width = ui->widthSpinbox->value();
     height = ui->heightSpinbox->value();
     fps = ui->fpsSpinbox->value();
+    autoSaveInterval = ui->autoSaveSpinbox->value();
     if(ui->repositionBtn->isChecked())
         optionVal = REPO;
     else if(ui->rescaleAndRepositionBtn->isChecked())

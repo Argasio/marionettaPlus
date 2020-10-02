@@ -9,6 +9,7 @@ extern int FPS;
 QString outputFile = "";
 extern QString FFMPEGPath;
 extern QDir programFolder;
+extern QDir renderFolder;
 ffmpegExport::ffmpegExport(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ffmpegExport)
@@ -21,16 +22,16 @@ ffmpegExport::~ffmpegExport()
 {
     delete ui;
 }
-extern QDir renderFolder;
+
 
 //https://walterebert.com/blog/creating-wmv-videos-with-ffmpeg/
 // https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
 // https://trac.ffmpeg.org/wiki/Encode/MPEG-4
 void ffmpegExport::on_exportVideoBtn_clicked()
 {
-
+    // Prima salviamo tutit i frame come immagini, poi chiamiamo ffmpeg.exe per convertirle in video
     QString imagePath = programFolder.path()+"/render";
-    QDir renderFolder = QDir(imagePath);
+    renderFolder = QDir(imagePath);
     QString imgName = imagePath+"/img";
     if(renderFolder.exists()){
         qDebug("folder located");
@@ -43,18 +44,21 @@ void ffmpegExport::on_exportVideoBtn_clicked()
 
     QStringList paramList;
     paramList<<
-                "-r"<<QString(ui->fpsSpinbox->value())<< // framerate
+                "-r"<<QString::number(ui->fpsSpinbox->value())<< // framerate
                 "-f"<<"image2"<< // force format, image2 is the image muxer
-                "s"<<QString(W)+"x"+QString(H)<< //size
-                "-i"<<imgName+"%d.png"; //input location
+                "-s"<<QString::number(W)+"x"+QString::number(H)<< //size
+                "-i"<<imgName+"_%d.png"; //input location
     if(ui->vmwRadioBtn->isChecked())
-        paramList<<"-vcodec"<<"msmpeg4"<<"-qscale"<<QString(2); //codec
+        paramList<<"-vcodec"<<"msmpeg4"<<"-qscale"<<"2"; //codec
     else if(ui->mp4RadioBtn->isChecked())
         paramList<<"-vcodec"<<"libx264"; //codec
     else if(ui->aviRadioButton->isChecked())
        paramList<< "-vcodec"<<"mpeg4"<<"-vtag"<<"xvid"; //codec
+    else if(ui->gifRadioBtn->isChecked())
+       {}
     paramList<<"-crf"<<"25"<<// quality
                 outputFile;
+    emit exportVideo(paramList);
     /*paramList<<"-i"<<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/input.mp4"
             <<"C:/Users/Argasio/Documents/GitHub/MarionettaPlus/MarionettaPlus/output.webm";*/
 }
@@ -64,15 +68,19 @@ void ffmpegExport::on_selectFolderBtn_clicked()
     QString fileName = "";
     if(ui->mp4RadioBtn->isChecked()){
        fileName = QFileDialog::getSaveFileName(this,tr("Export animation as an mp4 h264 video"),
-                           "C:/", "PNG Image (*.mp4)");
+                           "C:/", "Mp4 video (*.mp4)");
     }
     else if(ui->vmwRadioBtn->isChecked()){
        fileName = QFileDialog::getSaveFileName(this,tr("Export animation as windows media video"),
-                           "C:/", "PNG Image (*.wmv)");
+                           "C:/", "Windows media video (*.wmv)");
     }
     else if(ui->aviRadioButton->isChecked()){
        fileName = QFileDialog::getSaveFileName(this,tr("Export animation as a avi mpeg4-4 video"),
-                           "C:/", "avi (*.avi)");
+                           "C:/", "avi video (*.avi)");
+    }
+    else if(ui->gifRadioBtn->isChecked()){
+       fileName = QFileDialog::getSaveFileName(this,tr("Export animation as a gif"),
+                           "C:/", "gif  (*.gif)");
     }
     if(fileName.length()>0){
         ui->folderLabel->setText(fileName);
@@ -115,5 +123,27 @@ void ffmpegExport::on_vmwRadioBtn_clicked()
         int lastChar = outputFile.length()-1;
         outputFile.remove(extBegin,extBegin-lastChar);
         outputFile.append("wmv");
+    }
+}
+
+void emptyDirectory(QString path){
+    QDir dir(path);
+    dir.setNameFilters(QStringList() << "*.*");
+    dir.setFilter(QDir::Files);
+    foreach(QString dirFile, dir.entryList())
+    {
+        dir.remove(dirFile);
+    }
+}
+
+void ffmpegExport::on_gifRadioBtn_clicked()
+{
+    if(outputFile.length()>1){
+        int extBegin = outputFile.lastIndexOf(".")+1;
+        if(extBegin == -1)
+            return;
+        int lastChar = outputFile.length()-1;
+        outputFile.remove(extBegin,extBegin-lastChar);
+        outputFile.append("gif");
     }
 }

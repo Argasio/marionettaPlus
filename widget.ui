@@ -20,7 +20,7 @@
    <string>Widget</string>
   </property>
   <property name="toolTip">
-   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;flip the current stickfigure around the vertical axis&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   <string/>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -833,10 +833,16 @@ QMenu::separator {
                     <height>500</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="drawingTab">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw and edit your stickfigure with multiple tools&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <attribute name="title">
                     <string>Tools</string>
                    </attribute>
@@ -871,7 +877,7 @@ QMenu::separator {
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw Lines Tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Line tool:&lt;/p&gt;&lt;p&gt;Draw your sticks as simple lines &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
                          <property name="text">
                           <string>Draw stick</string>
@@ -893,7 +899,7 @@ QMenu::separator {
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load and draw an image&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Image draw tool:&lt;/p&gt;&lt;p&gt;Load and draw an image that is to be embedded in your stickfigure&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
                          <property name="text">
                           <string>Draw Image</string>
@@ -907,6 +913,9 @@ QMenu::separator {
                            <width>100</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw Rectangle tool:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Draw your sticks as rectangles&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
                          <property name="text">
                           <string>Draw Rect</string>
@@ -922,7 +931,7 @@ QMenu::separator {
                           </size>
                          </property>
                          <property name="toolTip">
-                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw circles tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw circles tool:&lt;/p&gt;&lt;p&gt;Draw your stick as a circle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
                          <property name="text">
                           <string>Draw Circle</string>
@@ -937,6 +946,9 @@ QMenu::separator {
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw trapezoid tool:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Draw your stick as a trapezoid with variable base and top widths&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         </property>
                          <property name="text">
                           <string>Draw Trapezoid</string>
                          </property>
@@ -949,6 +961,9 @@ QMenu::separator {
                            <width>100</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Draw Tapered stick tool:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Draw your stick with a variable base and top width, also you can choose if&lt;/p&gt;&lt;p&gt;your extremities should squared or round&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                          </property>
                          <property name="text">
                           <string>Draw Tapered Stick</string>
@@ -1007,6 +1022,9 @@ QMenu::separator {
                          <layout class="QHBoxLayout" name="horizontalLayout_12">
                           <item>
                            <widget class="QPushButton" name="copyStickFigureBtn">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Copy the whole selected stickfigure&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="text">
                              <string>Copy </string>
                             </property>
@@ -1014,6 +1032,9 @@ QMenu::separator {
                           </item>
                           <item>
                            <widget class="QPushButton" name="pasteStickFigureBtn">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paste the previously copied stickfigure&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
                             <property name="text">
                              <string>Paste</string>
                             </property>
@@ -1051,6 +1072,9 @@ QMenu::separator {
                             <layout class="QHBoxLayout" name="horizontalLayout_32">
                              <item>
                               <widget class="QPushButton" name="joinBtn">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Join a stickfigure with another, mergin them together&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
                                 <string>Join</string>
                                </property>
@@ -1058,12 +1082,25 @@ QMenu::separator {
                              </item>
                              <item>
                               <widget class="QPushButton" name="splitBtn">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split the current stickfigure into 2 separate layers starting from the selected stick&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
                                 <string>Split</string>
                                </property>
                               </widget>
                              </item>
                             </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="moveStickFigureToCenterBtn">
+                            <property name="toolTip">
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;move selected stickfigure to the center of the scene&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            </property>
+                            <property name="text">
+                             <string>Move to Center</string>
+                            </property>
                            </widget>
                           </item>
                           <item>
@@ -1074,15 +1111,21 @@ QMenu::separator {
                             <layout class="QHBoxLayout" name="horizontalLayout_33">
                              <item>
                               <widget class="QPushButton" name="joinStick">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Weld the currently selected stick and its parent stick together&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
-                                <string>Join</string>
+                                <string>Weld</string>
                                </property>
                               </widget>
                              </item>
                              <item>
                               <widget class="QPushButton" name="splitStick">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Divide the current stick into two halves&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
-                                <string>Split</string>
+                                <string>Chop</string>
                                </property>
                               </widget>
                              </item>
@@ -1092,7 +1135,7 @@ QMenu::separator {
                           <item>
                            <widget class="QPushButton" name="setMasterNodeBtn">
                             <property name="toolTip">
-                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set current stick as Master&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set current stick as Master stick of your stickfigure&lt;/p&gt;&lt;p&gt;On a &amp;quot;peripheral&amp;quot; stick Click a second time to switch from the end point to the starting point and vice-versa&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                             </property>
                             <property name="text">
                              <string>Set Master Node</string>
@@ -1132,6 +1175,9 @@ QMenu::separator {
                              </property>
                              <item>
                               <widget class="QPushButton" name="scaleStickFigureBtn">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scale Tool:&lt;/p&gt;&lt;p&gt;Edit the current stickfigure Scale by dragging the mouse with the left button pressed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
                                 <string>Scale</string>
                                </property>
@@ -1176,6 +1222,9 @@ QMenu::separator {
                              </property>
                              <item>
                               <widget class="QPushButton" name="rotateStickFigureBtn">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rotate tool:&lt;/p&gt;&lt;p&gt;Rotate the current stickfigure around the master node by clicking and dragging the mouse&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
                                 <string>Rotate</string>
                                </property>
@@ -1196,6 +1245,12 @@ QMenu::separator {
                           </item>
                           <item>
                            <widget class="QGroupBox" name="groupBox_8">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>35</height>
+                             </size>
+                            </property>
                             <property name="title">
                              <string>Scene</string>
                             </property>
@@ -1211,6 +1266,9 @@ QMenu::separator {
                              </property>
                              <item>
                               <widget class="QPushButton" name="scaleSceneBtn">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click and Drag the mouse to resize the whole scene,&lt;/p&gt;&lt;p&gt;can be used to implement a zoom effect!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
                                 <string>Scale </string>
                                </property>
@@ -1218,6 +1276,9 @@ QMenu::separator {
                              </item>
                              <item>
                               <widget class="QPushButton" name="moveSceneBtn">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click &amp;amp; Drag with your mouse to move the whole scene,&lt;/p&gt;&lt;p&gt;This can be used to easily  implement a camera Pan or shake effect in your animation!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
                                 <string>Move</string>
                                </property>
@@ -1225,6 +1286,9 @@ QMenu::separator {
                              </item>
                              <item>
                               <widget class="QPushButton" name="rotateSceneBtn">
+                               <property name="toolTip">
+                                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click and Drag the mouse to rotate the whole scene,&lt;/p&gt;&lt;p&gt;can be used to implement a camera rotation effect!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                               </property>
                                <property name="text">
                                 <string>Rotate</string>
                                </property>
@@ -1255,6 +1319,9 @@ QMenu::separator {
                    </layout>
                   </widget>
                   <widget class="QWidget" name="advancedTab">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Move, Scale and Rotate images embedded in your stickfigures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <attribute name="title">
                     <string>Edit</string>
                    </attribute>
@@ -2055,6 +2122,9 @@ QMenu::separator {
                    </layout>
                   </widget>
                   <widget class="QWidget" name="libraryTab">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create &amp;amp; Manage your stickfigures libraries&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <attribute name="title">
                     <string>Libraries</string>
                    </attribute>
@@ -2850,6 +2920,9 @@ border: 1px solid #5A5A5A;
                      <property name="decimals">
                       <number>2</number>
                      </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
                     </widget>
                    </item>
                   </layout>
@@ -2887,6 +2960,32 @@ border: 1px solid #5A5A5A;
                     <widget class="QPushButton" name="setDepthBtn">
                      <property name="text">
                       <string>Set</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QFrame" name="frame_29">
+                  <property name="frameShape">
+                   <enum>QFrame::StyledPanel</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
+                  </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_36">
+                   <item>
+                    <widget class="QPushButton" name="pushToTopBtn">
+                     <property name="text">
+                      <string>Push to Top</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushToButtonBtn">
+                     <property name="text">
+                      <string>Push To Bottom</string>
                      </property>
                     </widget>
                    </item>

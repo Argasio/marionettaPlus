@@ -24,6 +24,8 @@
 #include <QFileInfo>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QFile>
+#include <QMessageBox>
 #include "advancedtab.h"
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
@@ -35,6 +37,7 @@
 #define DEFAULTWIDTH 720
 #define DEFAULTHEIGHT 480
 #define DEFAULTFPS 24
+#define DEFAULTAUTOSAVE 50;
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QString imageNameBuffer;
@@ -84,6 +87,7 @@ QWidget * advancedImgTab;
 int W = DEFAULTWIDTH;
 int H = DEFAULTHEIGHT;
 int FPS = DEFAULTFPS;
+int autoSaveInterval = DEFAULTAUTOSAVE;
 struct{
     bool sliderHOffset = false;
     bool sliderVOffset = false;
@@ -147,7 +151,7 @@ Widget::Widget(QWidget *parent)
        QString qss = QString("background-color: %1").arg(color.name());
        ui->currentColorBtn->setStyleSheet(qss);
     }
-    QColor colorBrush(Qt::black);
+    QColor colorBrush(Qt::gray);
     if(color.isValid()) {
        QString qss = QString("background-color: %1").arg(colorBrush.name());
        ui->currentBrushColorBtn->setStyleSheet(qss);
@@ -215,10 +219,24 @@ void Widget::readJson(QString path ){
         return;
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
     QJsonObject recordObject = doc.object();
+    if( recordObject.value(QString("Width")) == QJsonValue::Undefined||
+        recordObject.value(QString("Height")) == QJsonValue::Undefined||
+        recordObject.value(QString("Fps")) == QJsonValue::Undefined||
+        recordObject.value(QString("First time opened")) == QJsonValue::Undefined||
+        recordObject.value(QString("FFMPEG path")) == QJsonValue::Undefined||
+        recordObject.value(QString("Autosave operation interval")) == QJsonValue::Undefined
+       )
+    {
+        file.remove();
+        createJson(path);
+    }
+
     W = recordObject.value(QString("Width")).toInt();
     H = recordObject.value(QString("Height")).toInt();
     FPS = recordObject.value(QString("Fps")).toInt();
     firstTimeOpened = recordObject.value(QString("First time opened")).toInt();
+    FFMPEGPath = recordObject.value("FFMPEG path").toString();
+    autoSaveInterval = recordObject.value(QString("Autosave operation interval")).toInt();
     file.close();
 
 }
@@ -226,6 +244,7 @@ void Widget::writeJson( ){
     QString path = programFolder.path()+"/config.json";
     createJson(path);
 }
+extern int opCount;
 void Widget::createJson(QString path ){
     QJsonObject recordObject;
     recordObject.insert("First time opened", QJsonValue::fromVariant(true));
@@ -234,6 +253,7 @@ void Widget::createJson(QString path ){
     recordObject.insert("Fps", QJsonValue::fromVariant(FPS));
     recordObject.insert("FFMPEG Located", QJsonValue::fromVariant(false));
     recordObject.insert("FFMPEG path", QJsonValue::fromVariant(FFMPEGPath));
+    recordObject.insert("Autosave operation interval", QJsonValue::fromVariant(autoSaveInterval));
     QJsonDocument doc(recordObject);
     QFile file(path);
     if(!file.open(QIODevice::WriteOnly))
@@ -324,11 +344,6 @@ void Widget::on_stickLayerView_currentItemChanged(QListWidgetItem *current, QLis
     }
 }
 
-void Widget::on_stickLayerView_itemClicked(QListWidgetItem *item)
-{
-
-}
-
 void Widget::on_deleteStickFigureBtn_clicked()
 {
     view->deleteStickFigure();
@@ -376,10 +391,6 @@ void Widget::addFrame(void)
     //view->myAnimation->storeUndo();
 }
 
-void Widget::on_frameListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
-{
-
-}
 // questa funzione crea il frame e gli oggetti lista appropriati
 Frame* Widget::setUpFrame(int pos){
     return view->setUpFrame(pos);
@@ -417,12 +428,6 @@ void Widget::on_copyFrame_clicked()
     // update list icons
 
 }
-void Widget::copyFrame(QDataStream& stream, Frame* destination)
-{
-
-
-
-}
 
 void Widget::on_onionSkinSpinBox_valueChanged(const QString &arg1)
 {
@@ -447,11 +452,6 @@ void Widget::on_frameListWidget_itemClicked(QListWidgetItem *item)
     view->moveToFrame(cs);
 }
 
-void Widget::on_frameListWidget_itemDoubleClicked(QListWidgetItem *item)
-{
-
-}
-
 void Widget::on_stickLayerView_itemDoubleClicked(QListWidgetItem *item)
 {
     QString text = QInputDialog::getText(this,"rename layer","text");
@@ -471,15 +471,15 @@ void Widget::on_PlayButton_clicked()
     // non voglio onionskins in questa modalità
     onionSkinSB->setValue(0);
     view->moveToFrame(view->myAnimation->frameList[0]);
-    playBack = true;//flag globale
+
     // calcola il delay da usare nel timer di passaggio da un frame al segunte
     int delay = 1000/fps;
     if(delay>5)
-        delay-=5;
+        delay = delay/2;
     mySleeper *play = new mySleeper(view,delay);
     onionSkinSB->setValue(onions);
-    playBack = false;
-    view->moveToFrame(view->myAnimation->frameList[0]);
+
+    //view->moveToFrame(view->myAnimation->frameList[0]);
 
 }
 
@@ -509,12 +509,12 @@ void Widget::on_resetZoomBtn_clicked()
 
 void Widget::on_drawImageBtn_clicked()
 {
-    /*QString fileName = QFileDialog::getOpenFileName(this,tr("Load Image"),
-                       "C:/", tr("Images (*.png *.bmp *.jpg)"));*/
-    if(1/*fileName.length()>0*/){
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Load Image"),
+                       "C:/", tr("Images (*.png *.bmp *.jpg)"));
+    if(QFile::exists(fileName)){
         //imageDrawBuffer = new QImage("C:/Users/riccim3/Pictures/immagine.jpg" );
-        imageDrawBuffer = new QImage("C:/immagine.jpg" );
-        imageNameBuffer = QFileInfo(QFile("C:/immagine.jpg")).fileName();
+        imageDrawBuffer = new QImage(fileName );
+        imageNameBuffer = QFileInfo(QFile(fileName)).fileName();
         view->setTool(DRAWIMG);
     }
 
@@ -535,7 +535,8 @@ void Widget::on_addImgBtn_clicked()
 
 void Widget::on_removeImgBtn_clicked()
 {
-
+    if(CURRENTSTICKFIGURE== nullptr)
+        return;
     if(CS != nullptr){
         if(CS->type == stick::IMAGE && CS->stickImgList.length()>1){
             int idx = imgListWidget->currentRow(); // indice immagine correntmente selezionata
@@ -549,39 +550,14 @@ void Widget::on_removeImgBtn_clicked()
 // imposta l'immagine contenuta nello stick dalla lista delle immagini
 void Widget::on_setImgBtn_clicked()
 {
-    stick* cs = CS;
     int idx = imgListWidget->currentRow(); // indice immagine correntmente selezionata
-    if(cs != nullptr){
-        if(cs->type == stick::IMAGE){
+    if(CS != nullptr){
+        if(CS->type == stick::IMAGE){
             view->storeUndo();
-            cs->stickImg = cs->stickImgList[idx];
+            CS->stickImg = CS->stickImgList[idx];
             CURRENTSTICKFIGURE->refresh(0);
         }
     }
-}
-void Widget::on_imgHOffsetSlider_sliderMoved(int position)
-{
-
-}
-
-void Widget::on_imgWSlider_sliderMoved(int position)
-{
-
-}
-
-void Widget::on_imgHSlider_sliderMoved(int position)
-{
-
-}
-
-void Widget::on_imgVOfsetSlider_sliderMoved(int position)
-{
-
-}
-
-void Widget::on_imgRotationSlider_sliderMoved(int position)
-{
-
 }
 
 void Widget::on_imgHOffsetSlider_sliderReleased()
@@ -929,15 +905,6 @@ void Widget::on_scaleStickFigureBtn_clicked()
 
 extern bool startStickFigureScale;
 
-void Widget::on_stickFigureScaleSpinbox_valueChanged(int arg1)
-{
-
-}
-
-void Widget::on_stickFigureRotationSpinbox_valueChanged(int arg1)
-{
-
-}
 
 void Widget::on_stickFigureScaleSpinbox_editingFinished()
 {
@@ -1031,12 +998,21 @@ void Widget::on_pasteStickFigureBtn_clicked()
        cloneStickFigure(added,view->copyStickFigureBuffer);
        added->refresh(0);
    }
+   else{
+       QMessageBox::about(this,"error","no stickfigure was copied in memory");
+   }
 
 }
 
 void Widget::on_joinBtn_clicked()
 {
+    if(CURRENTSTICKFIGURE== nullptr){
+        QMessageBox::about(this,"Error","First you must select a stickfigure");
+        return;
+
+    }
     view->setTool(JOIN);
+    QMessageBox::about(this,"Info","select which stickfigure must be joined with the current one");
 }
 
 void Widget::on_splitBtn_clicked()
@@ -1122,17 +1098,14 @@ void Widget::on_setDepthBtn_clicked()
 
 void Widget::on_depthSpinbox_valueChanged(double arg1)
 {
-    depthSlider->setValue((int)arg1*100);
+    depthSlider->setValue(arg1*100);
 }
 
 void Widget::on_depthSlider_valueChanged(int value)
 {
-    depthSpinbox->setValue((float)value/100);
+    float val = (float)value;
+    depthSpinbox->setValue(val/100);
 }
-
-
-
-
 
 void Widget::on_drawRectBtn_clicked()
 {
@@ -1163,6 +1136,59 @@ void Widget::on_drawTrapezoidBtn_clicked()
     view->setTool(DRAWTRAPEZOID);
 }
 
+void Widget::on_moveStickFigureToCenterBtn_clicked()
+{
+    if(CURRENTSTICKFIGURE == nullptr)
+        return;
+    if(CURRENTSTICKFIGURE->stickList.isEmpty())
+        return;
+    int dx = -CURRENTSTICKFIGURE->masterStick->myLine.p1().x()+W/2;
+    int dy = -CURRENTSTICKFIGURE->masterStick->myLine.p1().y()+H/2;
+    CURRENTSTICKFIGURE->traslate(dx,dy);
+}
 
+void Widget::on_pushToTopBtn_clicked()
+{
+    if(CURRENTSTICKFIGURE == nullptr)
+        return;
+    if(CURRENTSTICKFIGURE->stickList.isEmpty() || CS== nullptr)
+        return;
+    view->storeUndo();
+    double maxZ = CS->Z;
+    for(StickFigure* S:CURRENTFRAME->stickFigures){
+        for(stick*s:S->stickList){
+            if(s->Z>maxZ){
+                maxZ = s->Z;
+            }
+            else if(s->Z == maxZ){
+                maxZ+= s->Z+0.001;
+            }
+        }
+    }
+    CS->Z = maxZ;
+    CS->setZValue(CS->Z);
+    CURRENTFRAME->refresh();
+}
 
-
+void Widget::on_pushToButtonBtn_clicked()
+{
+    if(CURRENTSTICKFIGURE == nullptr)
+        return;
+    if(CURRENTSTICKFIGURE->stickList.isEmpty() || CS== nullptr)
+        return;
+    view->storeUndo();
+    double minZ = CS->Z;
+    for(StickFigure* S:CURRENTFRAME->stickFigures){
+        for(stick*s:S->stickList){
+            if(s->Z<minZ){
+                minZ = s->Z;
+            }
+            else if(s->Z == minZ){
+                minZ = s->Z-0.001;
+            }
+        }
+    }
+    CS->Z = minZ;
+    CS->setZValue(CS->Z);
+    CURRENTFRAME->refresh();
+}

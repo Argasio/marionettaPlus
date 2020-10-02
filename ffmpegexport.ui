@@ -56,6 +56,13 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QRadioButton" name="gifRadioBtn">
+           <property name="text">
+            <string>Gif</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>

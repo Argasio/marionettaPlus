@@ -12,5 +12,6 @@ int main(int argc, char *argv[])
     w.showMaximized();
     w.view = myW->view;
     w.centralW = myW;
+    w.doConnections();
     return a.exec();
 }

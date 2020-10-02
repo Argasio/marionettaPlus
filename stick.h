@@ -71,6 +71,7 @@ public:
     QImage* stickImg;
     QList<QImage*>stickImgList;
     StickFigure* myStickFigure = nullptr;
+    QRectF updateBr(int mode);
     void rotate(float angle);
     void scale(float scaleFactor);
     void addImage(QImage *imgToAdd, QString name);
@@ -78,7 +79,7 @@ public:
     void removeImgFromList(int idx);
 private:
     //-------- methods----------//
-    QRectF updateBr(int mode);
+
     void  calcAngle();
     //-------- variables----------//
 

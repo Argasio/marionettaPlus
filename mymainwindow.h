@@ -19,12 +19,13 @@ public:
     myView *view;
     Widget *centralW;
 
-
+    void doConnections();
     void exportImageSequence(QString path);
     void exportUsingFFMPEG();
 public slots:
     void getAnimationParams(int optionVal);
     void startffmpegRender(QStringList options);
+    void autoSave();
 private slots:
     void on_actionsave_triggered();
 
@@ -49,6 +50,10 @@ private slots:
 private:
     Ui::myMainWindow *ui;
 
+
+    // QWidget interface
+protected:
+    virtual void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MYMAINWINDOW_H

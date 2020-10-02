@@ -19,7 +19,6 @@ public:
 
     StickFigure* addStick();
     void addFrame();
-    void copyFrame(QDataStream &stream, Frame *destination);
     Frame *setUpFrame(int pos);
     void createPaths();
     void detectLibraries();
@@ -34,8 +33,6 @@ private slots:
     void on_addStickBtn_clicked();
 
     void on_thicknessSpinBox_valueChanged(int arg1);
-
-    void on_stickLayerView_itemClicked(QListWidgetItem *item);
 
     void on_stickLayerView_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
@@ -55,8 +52,6 @@ private slots:
 
     void on_addFrameBtn_clicked();
 
-    void on_frameListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-
     void on_copyFrame_clicked();
 
     void on_onionSkinSpinBox_valueChanged(const QString &arg1);
@@ -64,8 +59,6 @@ private slots:
     void on_deleteFrameBtn_clicked();
 
     void on_frameListWidget_itemClicked(QListWidgetItem *item);
-
-    void on_frameListWidget_itemDoubleClicked(QListWidgetItem *item);
 
     void on_stickLayerView_itemDoubleClicked(QListWidgetItem *item);
 
@@ -78,16 +71,6 @@ private slots:
     void on_resetZoomBtn_clicked();
 
     void on_drawImageBtn_clicked();
-
-    void on_imgHOffsetSlider_sliderMoved(int position);
-
-    void on_imgWSlider_sliderMoved(int position);
-
-    void on_imgHSlider_sliderMoved(int position);
-
-    void on_imgVOfsetSlider_sliderMoved(int position);
-
-    void on_imgRotationSlider_sliderMoved(int position);
 
     void on_imgHOffsetSlider_sliderReleased();
 
@@ -164,10 +147,6 @@ private slots:
 
     void on_scaleStickFigureBtn_clicked();
 
-    void on_stickFigureScaleSpinbox_valueChanged(int arg1);
-
-    void on_stickFigureRotationSpinbox_valueChanged(int arg1);
-
     void on_stickFigureScaleSpinbox_editingFinished();
 
     void on_stickFigureRotationSpinbox_editingFinished();
@@ -222,6 +201,12 @@ private slots:
     void on_removeImgBtn_clicked();
 
     void on_setImgBtn_clicked();
+
+    void on_moveStickFigureToCenterBtn_clicked();
+
+    void on_pushToTopBtn_clicked();
+
+    void on_pushToButtonBtn_clicked();
 
 private:
     Ui::Widget *ui;

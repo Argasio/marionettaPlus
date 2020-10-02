@@ -9,6 +9,8 @@ extern QListWidget* imgListWidget;
 extern bool libFlag;
 extern bool undoFlag;
 extern bool iconUpdateFlag;
+extern bool renderFlag;
+extern bool playBack;
 //lo stick si basa fondamentalmente su un QGraphicsLineObject, uno stick alloca una lineobject
 stick::stick(QLineF *line)
 {
@@ -174,7 +176,7 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
     }
     //Pen.setColor(Qt::red); //draw bounding box
-    if(!onionRender){
+    if(!onionRender && !renderFlag &&!playBack){
         if(this->master){ // il master ha entrambe le estremità disegnate
             if(this->highlight)
                 painter->setPen(QPen(Qt::green,10));
@@ -543,6 +545,7 @@ void stick::removeImgFromList(int idx){
 
 }
 void stick::populateImageListWidget(){
+
     if(type == stick::IMAGE){
         imgListWidget->clear();
         int j = 0;

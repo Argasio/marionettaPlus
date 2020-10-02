@@ -28,6 +28,7 @@ public:
     void clearFrame();
     void cloneFrame(Frame *target, Frame *source);
     StickFigure *addStickFigureToLibrary(StickFigure *S = nullptr);
+    void refresh(int mode = 0);
 };
 Q_DECLARE_METATYPE(Frame*);
 QDataStream & operator<< (QDataStream& stream, const Frame& myFrame);

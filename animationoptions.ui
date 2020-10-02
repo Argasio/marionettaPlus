@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>257</height>
+    <height>277</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -86,6 +86,19 @@
            </property>
            <property name="text">
             <string>Frames per second</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Autosave operation Interval</string>
            </property>
           </widget>
          </item>
@@ -180,6 +193,19 @@
            </property>
            <property name="value">
             <number>24</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="autoSaveSpinbox">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="value">
+            <number>50</number>
            </property>
           </widget>
          </item>

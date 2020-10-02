@@ -12,6 +12,7 @@
 #define CURRENTSTICKFIGURE myAnimation->currentFrame->currentStickFigure
 #define CURRENTFRAME myAnimation->currentFrame
 
+
 bool    isPressed = false;
 QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
@@ -56,6 +57,7 @@ extern QListWidget * myCurrentLibraryWidget;
 extern QWidgetList * imgListWidget;
 extern QSlider * depthSlider;
 extern QDoubleSpinBox* depthSpinbox;
+extern QString animationPath;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     onionRender = false;
@@ -64,6 +66,7 @@ myView::myView(QWidget *parent) : QGraphicsView(parent)
     setMouseTracking(true);
     myPen.setWidth(10);
     myBrush.setStyle(Qt::SolidPattern);
+    myBrush.setColor(Qt::gray);
     myPen.setCapStyle(Qt::RoundCap);
     stickLibraryBuffer = new Frame();
 }
@@ -74,13 +77,6 @@ void myView::setTool(int Tool)
 
     tool = Tool;
 }
-/*
-StickFigure * myView::addStickFigure(QListWidgetItem* item)
-{
-    StickFigure *S = myAnimation->currentFrame->addStickFigure(item);
-    S->scene = this->scene();
-    return S;
-}*/
 
 void myView::deleteStickFigure()
 {
@@ -109,7 +105,7 @@ void myView::deleteStickFigure()
         myAnimation->currentFrame->updateIcon();
     }
     else{
-
+        QMessageBox::about(this,"error","There must be at least one stickfigure layer in the scene");
     }
 
 }
@@ -166,7 +162,8 @@ void myView::mousePressEvent(QMouseEvent *event)
                 myAnimation->updateSelection(coord);
                 myStickFigureWidgetList->clearSelection();
                 myStickFigureWidgetList->setItemSelected(CURRENTSTICKFIGURE->linkedItem,true);
-                CS->populateImageListWidget();
+                if(CS!=nullptr && CURRENTSTICKFIGURE->stickList.count()>0)
+                    CS->populateImageListWidget();
                 break;
             }
             case DRAW:
@@ -679,8 +676,8 @@ void myView::moveToFrame(Frame* frame){
     if(myAnimation->frameList.count()>=1){
         for(StickFigure *S:myAnimation->currentFrame->stickFigures){
             for(stick * s: S->stickList){
-
-               scene()->removeItem(s);
+               if(scene()->items().contains(s))
+                    scene()->removeItem(s);
             }
         }
     }
@@ -700,7 +697,9 @@ void myView::moveToFrame(Frame* frame){
             scene()->addItem(s);
         }
         if(!playBack){
+            S->updateBoundingRects();
             S->updateIcon();
+
         }
     }
     // aggiorna il current frame, se si parte d auna situazione di inizio forza il primo stickfigure
@@ -713,9 +712,9 @@ void myView::moveToFrame(Frame* frame){
     scene()->clearSelection();
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
         if(!myAnimation->currentFrame->stickFigures[0]->stickList.isEmpty())
-            myAnimation->updateSelection(myAnimation->currentFrame->stickFigures[0]->stickList[0]);
-
-    updateOnionSkins();//aggiorna gli onion skins
+            myAnimation->updateSelection(myAnimation->currentFrame->stickFigures.last());
+    if(!playBack)
+        updateOnionSkins();//aggiorna gli onion skins
 
     scene()->update(myR);
     // se non siamo in modalità playback aggiorna le selezioni nelle widgetlists e delle iconee
@@ -730,8 +729,10 @@ void myView::moveToFrame(Frame* frame){
         if(myRect == nullptr){
             myRect = new QGraphicsRectItem(0,0,W,H);
             myRect->setPen(Qt::NoPen);
+            if(!scene()->items().contains(myRect))
+                scene()->addItem(myRect);
         }
-        scene()->addItem(myRect);
+
 
     }
 
@@ -875,10 +876,18 @@ void myView::undoRedo(int mode){
     undoFlag = false;
     //
 }
+extern int autoSaveInterval;
+extern int opCount;
 // routine per immagazzinare undo e redo popolando il buffer a seconda della mode selezionata
+// inoltre incrementiamo il contatore delle operazioni e verifichiamo se possiamo innescare l'autosave
 void myView::storeUndo(int command, int mode){
     if(myAnimation->frameList.isEmpty())
         return;
+    opCount++;
+    // se il file è stato salvato, ed esiste, e sono passati un numero sufficiente di istruzioni, procedi con láutosave
+    if(QFile::exists(animationPath) && opCount%autoSaveInterval == 0){
+        emit autoSaveTrigger();
+    }
     undoFlag = true;
     // inizializza la struttura di undo/redo
     undoInfoStruct myUndo;
@@ -933,8 +942,10 @@ void myView::clearUndo(){
 void myView::saveLibrary(QString fileName){
     libFlag = true;
     QFile file(fileName);
-    if(!file.open(QIODevice::WriteOnly))
+    if(!file.open(QIODevice::WriteOnly)){
+        libFlag = false;
         return;
+    }
     QDataStream out(&file);
     out << *stickLibraryBuffer;
     file.close();
@@ -950,8 +961,10 @@ void myView::clearCurrentLib(){
 void myView::loadLibrary(QString fileName){
     libFlag = true;
     QFile file(fileName);
-    if(!file.open(QIODevice::ReadOnly))
+    if(!file.open(QIODevice::ReadOnly)){
+        libFlag = false;
         return;
+    }
     QDataStream out(&file);
     myCurrentLibraryWidget->clear();
     delete stickLibraryBuffer;
@@ -1080,4 +1093,44 @@ void myView::sizeChange(int option){
 
     //()->addItem(myRect);
    // scene()->update(0,0,1000,1000);
+}
+void myView::preparePreview(){
+
+    playBack = true;
+    for(Frame* f :myAnimation->frameList){
+        QGraphicsScene renderScene; //scena fittizia
+        QImage *renderImg = new QImage(W,H,QImage::Format_ARGB32); //immagine temporanea
+
+
+        QPainter painter(renderImg); // painter che esegue il drawing sull immagine
+        renderScene.setSceneRect(myRect->rect());
+        // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
+        QList<stick*> tempList;
+        for(StickFigure *S:f->stickFigures)
+        {
+            for(stick* s: S->stickList){
+                stick* clone = new stick(s);
+                tempList.append(clone);
+                renderScene.addItem(clone);
+            }
+        }
+        //disegna sull' immagine e salvala
+        renderImg->fill(Qt::white);
+        painter.setBackground(QBrush(QColor(Qt::white)));
+        renderScene.render(&painter);
+        painter.end();
+        QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*(renderImg)));
+        previewList.append(item);
+        delete renderImg;
+        renderScene.clear();
+        //...add all other video frames here
+    }
+    playBack = false;
+}
+void myView::displayPreview(int idx){
+    QGraphicsPixmapItem* renderImg = previewList[idx];
+
+    //item->setOffset(onionOffset);
+    scene()->addItem(renderImg);
+    //item->setZValue(0);
 }

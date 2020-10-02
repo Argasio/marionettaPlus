@@ -5,6 +5,7 @@
 
 #define CS currentStickFigure->currentStick
 QListWidget * ListWidget;
+extern QListWidget * myStickFigureWidgetList;
 extern bool undoFlag;
 extern bool libFlag;
 extern QListWidget * myStickFigureWidgetList;
@@ -16,6 +17,7 @@ Frame::Frame()
 {
     frameIcon       = new QIcon();
     iconImg         = new QPixmap(50,50);
+    currentStickFigure = nullptr;
 }
 Frame::~Frame(){
     for(StickFigure* S: stickFigures)
@@ -29,7 +31,12 @@ Frame::~Frame(){
 StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
 {
     QString myName;
-    ListWidget = myListWidget;
+    if(libFlag){
+        myStickFigureWidgetList;
+    }
+    else
+        ListWidget = myCurrentLibraryWidget;
+
     if(!libFlag){
 
         if(name.count()== 0){
@@ -153,6 +160,11 @@ stick *Frame::selectStick(StickFigure* S)
     S->currentStick->selected = true;
     return S->stickList[stickIdx];
 }
+void Frame::refresh(int mode){
+    for(StickFigure*S:stickFigures){
+        S->refresh(mode);
+    }
+}
 stick *Frame::selectStick(QPointF point)
 {
     float distBuffer;
@@ -190,11 +202,16 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
     int max = 0;
     stream>> max;
     stream>> myFrame.frameNumber;
-    QListWidget * W;
-    libFlag? W = myCurrentLibraryWidget: W = ListWidget;
+    QListWidget * Widget;
+    if(libFlag) {
+        Widget = myCurrentLibraryWidget;
+    }
+    else{
+        Widget = myStickFigureWidgetList;
+    }
     for(int i = 0;i<max;i++){
 
-        StickFigure* S = myFrame.addStickFigure(myCurrentLibraryWidget);
+        StickFigure* S = myFrame.addStickFigure(Widget);
         stream>>*S;
         S->linkedItem->setData(Qt::DisplayRole,S->name);
         //myFrame.stickFigures.append(S);

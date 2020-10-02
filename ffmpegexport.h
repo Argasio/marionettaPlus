@@ -26,10 +26,12 @@ private slots:
 
     void on_vmwRadioBtn_clicked();
 
+    void on_gifRadioBtn_clicked();
+
 private:
     Ui::ffmpegExport *ui;
  signals:
   void  exportVideo(QStringList options);
 };
-
+void emptyDirectory(QString path);
 #endif // FFMPEGEXPORT_H

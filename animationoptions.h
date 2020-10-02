@@ -16,12 +16,12 @@ class animationOptions : public QWidget
     Q_OBJECT
 
 public:
-    explicit animationOptions(QWidget *parent = nullptr, int W =800, int H = 600, int FPS = 24);
+    explicit animationOptions(QWidget *parent = nullptr, int W =800, int H = 600, int FPS = 24, int autoSaveInput = 50);
     ~animationOptions();
     int width = 1;
     int height = 1;
     int fps = 24;
-
+    int autoSaveInterval = 50;
 private slots:
     void on_okBtn_clicked();
 

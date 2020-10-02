@@ -42,7 +42,7 @@ typedef struct undoInfoStruct
 {
     int command;
     Frame* frame;
-};
+}undoInfoStruct;
 
 class myView : public QGraphicsView
 {
@@ -72,15 +72,19 @@ public:
     void clearUndo();
     void loadLibrary(QString fileName);
     StickFigure *addStickFigureToLibrary();
+    QList<QGraphicsPixmapItem*> previewList;
     void removeFromLibrary();
     void setGraphics(bool all, int attribute);
     void splitStickFigure();
     void clearCurrentLib();
     void sizeChange(int option);
     void scaleFrame(Frame *F, float scaleAmount, QRectF R);
+    void preparePreview();
+    void displayPreview(int idx);
 public slots:
     void saveLibrary(QString fileName);
 signals:
+    void  autoSaveTrigger();
 
 
     // QWidget interface

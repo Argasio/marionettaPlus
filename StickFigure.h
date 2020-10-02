@@ -57,6 +57,7 @@ public:
     void setStepChildAsMaster(stick *toMaster);
     void invertMaster(stick *toMaster);
     void stepDownMaster(stick *toMaster);
+    void updateBoundingRects();
 private:
 
     QPointF p0;

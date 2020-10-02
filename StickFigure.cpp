@@ -67,6 +67,7 @@ StickFigure::StickFigure(QListWidgetItem* item)
     lineBuffer  =  QLineF(p0,p1);
     drawCount   =  0;
     masterStick =   nullptr;
+    currentStick = nullptr;
     linkedItem  = item;
     stickFigureIcon = new QIcon();
     iconImg         = new QPixmap(50,50);
@@ -79,6 +80,7 @@ StickFigure::StickFigure()
     lineBuffer  =  QLineF(p0,p1);
     drawCount   =  0;
     masterStick =   nullptr;
+    currentStick = nullptr;
     stickFigureIcon = new QIcon();
     iconImg         = new QPixmap(50,50);
     masterStick = nullptr;
@@ -453,6 +455,11 @@ void StickFigure::saveStickFigure(QString name)
     QDataStream out(&file);
     out << *this;
     file.close();
+}
+void StickFigure::updateBoundingRects(){
+    for(stick*s:stickList){
+        s->updateBr(0);
+    }
 }
 void cloneStickFigure(StickFigure* dest, StickFigure*src){
 

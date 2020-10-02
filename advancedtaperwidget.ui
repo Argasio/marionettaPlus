@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="toolTip">
+   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Taper the beginning and the end of your sticks, choose its aspect&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox_5">
@@ -35,7 +38,7 @@
       </size>
      </property>
      <property name="title">
-      <string>Rectangle Edit</string>
+      <string>Tapered stick Edit</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
