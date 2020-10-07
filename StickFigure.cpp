@@ -1064,6 +1064,26 @@ void StickFigure::stepDownMaster(stick* toMaster){
 
     refresh(0);
 }
+// sets new endpoint of the stick and traslates all its children
+void StickFigure::elongate(QPointF newEndPoint, stick* myStick){
+    if(!stickList.contains(myStick))
+        return;
+    float dx = newEndPoint.x()-myStick->myLine.p2().x();
+    float dy = newEndPoint.y()-myStick->myLine.p2().y();
+    myStick->myLine.setP2(newEndPoint);
+    for(stick*s: myStick->children){
+        if(!(myStick->master && s->stepchild)){
+            s->myLine.translate(dx,dy);
+
+        }
+    }
+    if(myStick->type == stick::IMAGE || myStick->type  == stick::RECT
+            || myStick->type  == stick::TRAPEZOID || myStick->type  == stick::TAPER){
+        myStick->imgAngle= -atan2(myStick->myLine.dx(),myStick->myLine.dy())*180/M_PI;
+    }
+    refresh(0);
+
+}
 // seleziona quale algoritmo usare a seconda dello stick che deve diventare master
 void StickFigure::setMaster(stick* toMaster){
     QList<stick*> figli;

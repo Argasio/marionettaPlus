@@ -208,6 +208,10 @@ private slots:
 
     void on_pushToButtonBtn_clicked();
 
+    void on_elongateBtn_clicked();
+
+    void on_elongateSpinbox_editingFinished();
+
 private:
     Ui::Widget *ui;
 };

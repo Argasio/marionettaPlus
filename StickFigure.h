@@ -58,6 +58,7 @@ public:
     void invertMaster(stick *toMaster);
     void stepDownMaster(stick *toMaster);
     void updateBoundingRects();
+    void elongate(QPointF newEndPoint, stick *myStick);
 private:
 
     QPointF p0;

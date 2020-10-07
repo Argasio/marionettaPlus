@@ -50,7 +50,6 @@ public:
     int scaleSpinBoxBuffer = 100;
     int version = 1;
     int type = stickType::LINE;
-
     float imgAngle = 0;
     float imgWScale = 1;
     float imgHScale = 1;

@@ -58,6 +58,7 @@ QSpinBox * imgHeightSpinbox;
 QSpinBox * imgRotationSpinbox;
 QSpinBox * penOpacitySpinbox;
 QSpinBox * brushOpacitySpinbox;
+QDoubleSpinBox * elongateSpinbox;
 QSlider * penOpacitySlider;
 QSlider * brushOpacitySlider;
 QSlider * depthSlider;
@@ -133,6 +134,7 @@ Widget::Widget(QWidget *parent)
     imgHeightSpinbox = ui->imgHeightSpinbox;
     imgRotationSlider = ui->imgRotationSlider;
     imgRotationSpinbox = ui->imgRotationSpinbox;
+    elongateSpinbox = ui->elongateSpinbox;
     penOpacitySlider = ui->penOpacitySlider;
     penOpacitySpinbox = ui->penOpacitySpinbox;
     brushOpacitySlider = ui->fillOpacitySlider;
@@ -180,6 +182,7 @@ Widget::Widget(QWidget *parent)
     imgVOffsetSpinbox->setRange(-myRect->rect().height(), myRect->rect().height());
     imgHOffsetSlider->setRange(-myRect->rect().width(), myRect->rect().width());
     imgHOffsetSpinbox->setRange(-myRect->rect().width(), myRect->rect().width());
+    elongateSpinbox->setRange(0,W);
     // set onion rendered image skin offset to be displayed properly on the scene
     onionOffset = QPointF(-myRect->rect().width()/10,-myRect->rect().height()/10);
     //check if default library exists
@@ -364,7 +367,10 @@ void Widget::on_drawCircleBtn_clicked()
     view->setTool(DRAWCIRCLE);
 }
 
-
+void Widget::on_elongateBtn_clicked()
+{
+    view->setTool(ELONGATE);
+}
 
 void Widget::on_undoBtn_clicked()
 {
@@ -1191,4 +1197,18 @@ void Widget::on_pushToButtonBtn_clicked()
     CS->Z = minZ;
     CS->setZValue(CS->Z);
     CURRENTFRAME->refresh();
+}
+
+
+
+void Widget::on_elongateSpinbox_editingFinished()
+{
+    if(CURRENTSTICKFIGURE!= nullptr && CS !=nullptr){
+        QLineF lineBuf = CS->myLine;
+        lineBuf.setLength(elongateSpinbox->value());
+        QPointF coord= lineBuf.p2();
+
+        CURRENTSTICKFIGURE->elongate(coord,CS);
+    }
+
 }

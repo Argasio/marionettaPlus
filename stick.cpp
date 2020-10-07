@@ -443,16 +443,21 @@ void stick::rotate(float angle){
 // this freely elongates sticks
 void stick::manipulate(QPointF *point)
 {
-    // calculate distance between original point and clicked point
-    int DX = myLine.p2().x()-point->x();
-    int DY = myLine.p2().y()-point->y();
     // set the new point
     myLine.setP2(*point);
     for(int i= 0; i<children.length();i++)
     {
         //effettua la traslazione dovuta alla manipolazione dell'estremo libero
-        children[i]->myLine.translate(-DX,-DY);
-        children[i]->refresh(1);
+        if(!(children[i]->stepchild && this->master) && children[i]->parent == this){
+            QPointF pfBuf = children[i]->myLine.p2();
+            children[i]->myLine = QLineF(*point,pfBuf);
+            if(children[i]->type == stick::IMAGE || children[i]->type == RECT
+                    || children[i]->type == TRAPEZOID || children[i]->type == TAPER){
+                children[i]->imgAngle = -atan2(children[i]->myLine.dx(),children[i]->myLine.dy())*180/M_PI;
+            }
+            children[i]->refresh(0);
+        }
+
     }
     // se stiamo con un immagine ruotala anche
     if(type == stick::IMAGE || type == RECT

@@ -11,7 +11,7 @@
 #include <animation.h>
 #define DRAW 5
 #define DRAWCIRCLE 6
-
+#define ELONGATE 19
 #define DRAWIMG 7
 #define MANIPULATE 8
 #define ROTATE 9
@@ -81,6 +81,7 @@ public:
     void scaleFrame(Frame *F, float scaleAmount, QRectF R);
     void preparePreview();
     void displayPreview(int idx);
+    void arrowSelection();
 public slots:
     void saveLibrary(QString fileName);
 signals:

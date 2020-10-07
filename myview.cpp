@@ -17,6 +17,7 @@ bool    isPressed = false;
 QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
 float   rotationBuffer; //selected item Rotation buffer
+float   lengthBuffer;
 bool clearUndoFlag = false;
 Frame* stickLibraryBuffer;
 QList<Frame*> stickLibraryList;
@@ -58,6 +59,7 @@ extern QWidgetList * imgListWidget;
 extern QSlider * depthSlider;
 extern QDoubleSpinBox* depthSpinbox;
 extern QString animationPath;
+extern QDoubleSpinBox* elongateSpinbox;
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     onionRender = false;
@@ -158,12 +160,8 @@ void myView::mousePressEvent(QMouseEvent *event)
         {
             case NOTOOL:
             {
-                storeUndo();
-                myAnimation->updateSelection(coord);
-                myStickFigureWidgetList->clearSelection();
-                myStickFigureWidgetList->setItemSelected(CURRENTSTICKFIGURE->linkedItem,true);
-                if(CS!=nullptr && CURRENTSTICKFIGURE->stickList.count()>0)
-                    CS->populateImageListWidget();
+                arrowSelection();
+
                 break;
             }
             case DRAW:
@@ -230,10 +228,7 @@ void myView::mousePressEvent(QMouseEvent *event)
 
                     joinToStickFigure = CURRENTSTICKFIGURE;
                     joinToStick = joinToStickFigure->currentStick;
-                    storeUndo();
-                    myAnimation->updateSelection(coord);
-                    myStickFigureWidgetList->clearSelection();
-                    myStickFigureWidgetList->setItemSelected(CURRENTSTICKFIGURE->linkedItem,true);
+                    arrowSelection();
 
                     if(CURRENTSTICKFIGURE!=joinToStickFigure){
                         mergeStickFigures(joinToStickFigure,joinToStick,CURRENTSTICKFIGURE);
@@ -244,6 +239,19 @@ void myView::mousePressEvent(QMouseEvent *event)
                 break;
             }
             case(SPLIT):{
+
+                break;
+            }
+            case(ELONGATE):
+            {
+                arrowSelection();
+                lengthBuffer = CS->myLine.length();
+                break;
+            }
+            case(MANIPULATE):
+            {
+                arrowSelection();
+                lengthBuffer = CS->myLine.length();
 
                 break;
             }
@@ -312,7 +320,14 @@ void myView::keyPressEvent(QKeyEvent *event)
 
     QGraphicsView::keyPressEvent(event);
 }
-
+void myView::arrowSelection(){
+    storeUndo();
+    myAnimation->updateSelection(coord);
+    myStickFigureWidgetList->clearSelection();
+    myStickFigureWidgetList->setItemSelected(CURRENTSTICKFIGURE->linkedItem,true);
+    if(CS!=nullptr && CURRENTSTICKFIGURE->stickList.count()>0)
+        CS->populateImageListWidget();
+}
 // il disegno di una linea conta 2 click
 // il primo determina lo starting point
 // il secondo l'end point
@@ -425,6 +440,10 @@ void myView::changeTool()
         {
             break;
         }
+        case(ELONGATE):
+        {
+            break;
+        }
         case(MOVESCENE):
         {
             break;
@@ -518,10 +537,11 @@ void myView::mouseMoveEvent(QMouseEvent *event)
         }
         case MANIPULATE:
         {
-            if(CURRENTSTICKFIGURE != nullptr)
+            if(CURRENTSTICKFIGURE != nullptr && CS!=nullptr)
             {
                 if(isPressed){
                     CS->manipulate(&coord);
+                    elongateSpinbox->setValue(CS->myLine.length());
                 }
             }
             break;
@@ -619,6 +639,20 @@ void myView::mouseMoveEvent(QMouseEvent *event)
 
                     }
                 }
+            }
+            break;
+        }
+        case(ELONGATE):
+        {
+            if(CURRENTSTICKFIGURE==nullptr)
+                break;
+            if(CS == nullptr)
+                break;
+            if(isPressed){
+                QLineF newEndPoint(CS->myLine.p1(),coord);
+                lengthBuffer = newEndPoint.length();
+                CURRENTSTICKFIGURE->elongate(coord,CS);
+                elongateSpinbox->setValue(lengthBuffer);
             }
             break;
         }

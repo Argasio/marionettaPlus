@@ -34,6 +34,7 @@ extern advancedCircleWidget* advancedCircleTab;
 extern advancedTaperWidget* advancedTaperTab;
 extern QCheckBox* hardTopCheck;
 extern QCheckBox* hardBottomCheck;
+extern QSpinBox* elongateSpinbox;
 bool loadingAnimationFlag = false;
 bool clearingAnimation = false;
 bool changeTypeFlag = false;
@@ -206,6 +207,8 @@ void Animation::updateSelection(StickFigure* S)
 
 void Animation::updateSliders(){
     stick *cs = CS;
+    if(CS == nullptr)
+        return;
     if(cs->type == stick::IMAGE){
         //aggiorna gli slider di modifica alla scala e all'offset
         if(cs->imgWScale>=1){
@@ -235,7 +238,7 @@ void Animation::updateSliders(){
         hardBottomCheck->setChecked(cs->hardBottom);
 
     }
-
+    elongateSpinbox->setValue(  CS->myLine.length());
 }
 Frame* Animation::setupFrame(int pos){
     QString name;
