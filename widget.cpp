@@ -78,7 +78,7 @@ QPointF onionOffset;
 QDir programFolder;
 QDir libFolder;
 QDir tempRenderFolder;
-
+QLabel *dbgLbl;
 advancedTab* advancedRectTab;
 advancedLineWidget* advancedLineTab;
 advancedCircleWidget* advancedCircleTab;
@@ -145,6 +145,7 @@ Widget::Widget(QWidget *parent)
     depthSlider = ui->depthSlider;
     imgListWidget = ui->imgListWidget;
     advancedRectTab = new advancedTab();
+    dbgLbl = ui->debugLabel;
     createPaths();
     detectLibraries();
     // aggiorna il colore del segnacolore
@@ -354,12 +355,12 @@ void Widget::on_deleteStickFigureBtn_clicked()
 
 void Widget::on_moveLayerUpBtn_clicked()
 {
-    view->moveStickFigureZ(1);
+    view->moveStickFigureZ(1, MODE_UP);
 }
 
 void Widget::on_moveLayerDownBtn_clicked()
 {
-    view->moveStickFigureZ(-1);
+    view->moveStickFigureZ(-1, MODE_DOWN);
 }
 
 void Widget::on_drawCircleBtn_clicked()
@@ -432,6 +433,7 @@ void Widget::on_copyFrame_clicked()
     buffer1.close();
     buffer2.close();
     // update list icons
+    view->updateFrameOrder(CURRENTFRAME);
 
 }
 
@@ -544,7 +546,7 @@ void Widget::on_removeImgBtn_clicked()
     if(CURRENTSTICKFIGURE== nullptr)
         return;
     if(CS != nullptr){
-        if(CS->type == stick::IMAGE && CS->stickImgList.length()>1){
+        if(CS->stickType == stick::IMAGE && CS->stickImgList.length()>1){
             int idx = imgListWidget->currentRow(); // indice immagine correntmente selezionata
             view->storeUndo();
             CS->removeImgFromList(idx);
@@ -558,7 +560,7 @@ void Widget::on_setImgBtn_clicked()
 {
     int idx = imgListWidget->currentRow(); // indice immagine correntmente selezionata
     if(CS != nullptr){
-        if(CS->type == stick::IMAGE){
+        if(CS->stickType == stick::IMAGE){
             view->storeUndo();
             CS->stickImg = CS->stickImgList[idx];
             CURRENTSTICKFIGURE->refresh(0);
@@ -693,7 +695,7 @@ void Widget::on_imgHOffsetSlider_valueChanged(int value)
     if(cs == nullptr)
         return;
     else{
-        if(cs->type == stick::IMAGE){
+        if(cs->stickType == stick::IMAGE){
             if(!sliderFlags.sliderHOffset){
                 view->storeUndo(CMD_SIMPLE);
                 sliderFlags.sliderHOffset = true;
@@ -714,7 +716,7 @@ void Widget::on_imgVOfsetSlider_valueChanged(int value)
     if(cs == nullptr)
         return;
     else{
-        if(cs->type == stick::IMAGE){
+        if(cs->stickType == stick::IMAGE){
             float val = 0;
             if(!sliderFlags.sliderVOffset){
                 view->storeUndo(CMD_SIMPLE);
@@ -734,7 +736,7 @@ void Widget::on_imgWSlider_valueChanged(int value)
     if(cs == nullptr)
         return;
     else{
-        if(cs->type == stick::IMAGE){
+        if(cs->stickType == stick::IMAGE){
             float scale = 0;
             if(!sliderFlags.sliderWScale){
                 view->storeUndo(CMD_SIMPLE);
@@ -754,7 +756,7 @@ void Widget::on_imgHSlider_valueChanged(int value)
     if(cs == nullptr)
         return;
     else{
-        if(cs->type == stick::IMAGE){
+        if(cs->stickType == stick::IMAGE){
             float scale = 0;
             if(!sliderFlags.sliderHScale){
                 view->storeUndo(CMD_SIMPLE);
@@ -774,7 +776,7 @@ void Widget::on_imgRotationSlider_valueChanged(int value)
     if(cs == nullptr)
         return;
     else{
-        if(cs->type == stick::IMAGE){
+        if(cs->stickType == stick::IMAGE){
             if(!sliderFlags.sliderRot){
                 view->storeUndo(CMD_SIMPLE);
                 sliderFlags.sliderRot = true;
@@ -1160,19 +1162,32 @@ void Widget::on_pushToTopBtn_clicked()
     if(CURRENTSTICKFIGURE->stickList.isEmpty() || CS== nullptr)
         return;
     view->storeUndo();
-    double maxZ = CS->Z;
+    float maxZ = CS->Z;
+    QList<stick*> equals;
     for(StickFigure* S:CURRENTFRAME->stickFigures){
         for(stick*s:S->stickList){
             if(s->Z>maxZ){
                 maxZ = s->Z;
+                equals.clear();
+                if(s!=CS)
+                    equals.append(s);
             }
             else if(s->Z == maxZ){
-                maxZ+= s->Z+0.001;
+                //minZ = s->Z-0.001;
+                if(s!=CS)
+                    equals.append(s);
             }
         }
     }
+    if(maxZ>MAXDEPTH)
+        maxZ = MAXDEPTH;
+
     CS->Z = maxZ;
     CS->setZValue(CS->Z);
+    if(!equals.isEmpty()){
+        view->scene()->removeItem(CS);
+        view->scene()->addItem(CS);
+    }
     CURRENTFRAME->refresh();
 }
 
@@ -1183,19 +1198,37 @@ void Widget::on_pushToButtonBtn_clicked()
     if(CURRENTSTICKFIGURE->stickList.isEmpty() || CS== nullptr)
         return;
     view->storeUndo();
-    double minZ = CS->Z;
+    float minZ = CS->Z;
+    QList<stick*> equals;
     for(StickFigure* S:CURRENTFRAME->stickFigures){
         for(stick*s:S->stickList){
             if(s->Z<minZ){
                 minZ = s->Z;
+                equals.clear();
+                if(s!=CS)
+                    equals.append(s);
             }
             else if(s->Z == minZ){
-                minZ = s->Z-0.001;
+                //minZ = s->Z-0.001;
+                if(s!=CS)
+                    equals.append(s);
             }
         }
     }
+    if(minZ<MINDEPTH)
+        minZ = MINDEPTH;
+
     CS->Z = minZ;
     CS->setZValue(CS->Z);
+    if(!equals.isEmpty()){
+        for(stick*s:equals){
+            view->scene()->removeItem(s);
+        }
+
+        for(stick*s:equals){
+            view->scene()->addItem(s);
+        }
+    }
     CURRENTFRAME->refresh();
 }
 
@@ -1211,4 +1244,16 @@ void Widget::on_elongateSpinbox_editingFinished()
         CURRENTSTICKFIGURE->elongate(coord,CS);
     }
 
+}
+
+void Widget::on_pushStickFigureToTop_clicked()
+{
+    view->storeUndo();
+    view->moveStickFigureZ(0,MODE_TOP);
+}
+
+void Widget::on_pushStickFigureToBottom_clicked()
+{
+    view->storeUndo();
+    view->moveStickFigureZ(0,MODE_BOTTOM);
 }

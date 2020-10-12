@@ -15,6 +15,7 @@ public:
     stick *selectStick(StickFigure* S);
     StickFigure* removeStickFigure(StickFigure* toRemove);
     QIcon* frameIcon;
+    int numOfItems = 0;
     QPixmap * iconImg;
     //QImage * renderImg;
     QGraphicsScene * scene;

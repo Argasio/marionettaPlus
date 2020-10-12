@@ -5,15 +5,20 @@
 #include <style.h>
 #include <QPainter>
 #include <QGraphicsScene>
-
+#include <QLabel>
 #define STEPCHILD -1
+#define STKTYPE 90000
+#define MAXDEPTH 99.9f
+#define MINDEPTH -99.9f
+
 extern bool onionRender;
+extern QLabel *dbgLbl;
 class StickFigure;
 class stick:public QGraphicsItem
 {
 
 public:
-    enum stickType{
+    enum StickType{
         LINE = 5,
         CIRCLE = 6,
         IMAGE = 7,
@@ -21,7 +26,10 @@ public:
         TAPER = 18,
         TRAPEZOID = 17
     };
+    enum { Type = STKTYPE };
 //-------- methods ----------//
+
+    int type() const override { return Type; }
     stick(QLineF *line);
     stick(stick *S);
     stick();
@@ -49,14 +57,14 @@ public:
     int rotationSpinboxBuffer = 0;
     int scaleSpinBoxBuffer = 100;
     int version = 1;
-    int type = stickType::LINE;
+    int stickType = StickType::LINE;
     float imgAngle = 0;
     float imgWScale = 1;
     float imgHScale = 1;
     float scaleBuffer = 1;
     float widthBuffer = 1;
     int imgAngleOffset = 0;
-    int idx = 0;
+    int order = 0;
     float angleBuffer = 0; //usato per disegnare lo stick nei refresh
     float angleBuffer2 = 0; //usato nella rotazione di tutto lo stickfigure
     QPointF imgOffset = QPointF(0,0);

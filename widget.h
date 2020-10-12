@@ -212,6 +212,10 @@ private slots:
 
     void on_elongateSpinbox_editingFinished();
 
+    void on_pushStickFigureToTop_clicked();
+
+    void on_pushStickFigureToBottom_clicked();
+
 private:
     Ui::Widget *ui;
 };

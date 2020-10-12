@@ -121,11 +121,11 @@ void StickFigure::previewDrawing(QPointF *point)
 {
     setLineFromPoint(point);
     stickBuffer->refresh(1);
-    if(stickBuffer->type == stick::IMAGE ||
-            stickBuffer->type == stick::RECT||
-            (stickBuffer->type == stick::RECT)||
-            (stickBuffer->type == stick::TRAPEZOID)||
-            (stickBuffer->type == stick::TAPER)){
+    if(stickBuffer->stickType == stick::IMAGE ||
+            stickBuffer->stickType == stick::RECT||
+            (stickBuffer->stickType == stick::RECT)||
+            (stickBuffer->stickType == stick::TRAPEZOID)||
+            (stickBuffer->stickType == stick::TAPER)){
         stickBuffer->imgAngle= -atan2(stickBuffer->myLine.dx(),stickBuffer->myLine.dy())*180/M_PI;
     }
 }
@@ -150,15 +150,25 @@ void StickFigure::highlight(bool setting)
     for(stick* s:this->stickList)
     {
         s->highlight = setting;
-        s->refresh(0);
+
+        if(!stickList.isEmpty() && setting == false)
+            s->selected = false;
+        //s->refresh(0);
     }
-    if(!stickList.isEmpty() && !setting)
-        currentStick->selected = false;
+
 }
-void StickFigure::updateZ(void){
+void StickFigure::updateZ(float value){
+
     for(stick* S : stickList){
-        S->Z = baseZ;
+        float newVal =  S->Z-baseZ+value;
+        if(newVal >MAXDEPTH)
+            newVal = MAXDEPTH;
+        else if(newVal<MINDEPTH)
+            newVal = MINDEPTH;
+        S->Z = newVal;
+        S->setZValue(S->Z);
     }
+    baseZ = value;
 }
 void StickFigure::endDrawing(QPointF *point)
 {
@@ -176,7 +186,7 @@ void StickFigure::endDrawing(QPointF *point)
         }
         parentBuffer = parentBuffer->parent;
     }
-    if(stickBuffer->type == stick::IMAGE){
+    if(stickBuffer->stickType == stick::IMAGE){
         stickBuffer->imgRect = calcImgRect(stickBuffer->myLine,stickBuffer->stickImg->size());
 
     }
@@ -305,15 +315,16 @@ void StickFigure::deleteStick(int idx)
 QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     //stream<<myStick.Z;
     stream<<myStick.version;
-    stream<<myStick.type;
+    stream<<myStick.stickType;
     stream<<myStick.stepchild;
     stream<<myStick.myLine;
     stream<<myStick.parentIdx;
     stream<<myStick.Pen;
     stream<<myStick.Brush;
     stream<<myStick.master;
-    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)||(myStick.type == stick::TRAPEZOID)||(myStick.type == stick::TAPER)){
-        if(myStick.type == stick::IMAGE){
+    stream<<myStick.order;
+    if((myStick.stickType == stick::IMAGE)||(myStick.stickType == stick::RECT)||(myStick.stickType == stick::TRAPEZOID)||(myStick.stickType == stick::TAPER)){
+        if(myStick.stickType == stick::IMAGE){
             QSize imgSize = myStick.stickImg->size();
             stream<<imgSize;
         }
@@ -324,7 +335,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
         stream<<myStick.hardTop;
         stream<<myStick.hardBottom;
 
-        if(myStick.type == stick::IMAGE){
+        if(myStick.stickType == stick::IMAGE){
             stream<< myStick.stickImgList.length();
             stream<< myStick.stickImgList.indexOf(myStick.stickImg);
             int j = 0;
@@ -342,16 +353,17 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
 QDataStream & operator>> (QDataStream& stream, stick& myStick){
     //stream>>myStick.Z;
     stream>>myStick.version;
-    stream>>myStick.type;
+    stream>>myStick.stickType;
     stream>>myStick.stepchild;
     stream>>myStick.myLine;
     stream>>myStick.parentIdx;
     stream>>myStick.Pen;
     stream>>myStick.Brush;
     stream>>myStick.master;
-    if((myStick.type == stick::IMAGE)||(myStick.type == stick::RECT)||(myStick.type == stick::TRAPEZOID)||(myStick.type == stick::TAPER)){
+    stream>>myStick.order;
+    if((myStick.stickType == stick::IMAGE)||(myStick.stickType == stick::RECT)||(myStick.stickType == stick::TRAPEZOID)||(myStick.stickType == stick::TAPER)){
         QSize mysize;
-        if(myStick.type == stick::IMAGE){
+        if(myStick.stickType == stick::IMAGE){
 
             stream>>mysize;
         }
@@ -362,7 +374,7 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
         stream>>myStick.hardTop;
         stream>>myStick.hardBottom;
         //stream>>bytesize;
-        if(myStick.type == stick::IMAGE){
+        if(myStick.stickType == stick::IMAGE){
             int numOfImgs;
             int stickImgIdx;
             stream>>numOfImgs;
@@ -1077,8 +1089,8 @@ void StickFigure::elongate(QPointF newEndPoint, stick* myStick){
 
         }
     }
-    if(myStick->type == stick::IMAGE || myStick->type  == stick::RECT
-            || myStick->type  == stick::TRAPEZOID || myStick->type  == stick::TAPER){
+    if(myStick->stickType == stick::IMAGE || myStick->stickType  == stick::RECT
+            || myStick->stickType  == stick::TRAPEZOID || myStick->stickType  == stick::TAPER){
         myStick->imgAngle= -atan2(myStick->myLine.dx(),myStick->myLine.dy())*180/M_PI;
     }
     refresh(0);
@@ -1142,6 +1154,22 @@ void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
         s->refresh(0);
     }
     split->deleteStick( split->stickList.indexOf(origin));
+}
+float StickFigure::minZ(){
+    float minVal = stickList[0]->Z;
+    for(stick*s:stickList){
+        if(s->Z<minVal)
+            minVal = s->Z;
+    }
+    return minVal;
+}
+float StickFigure::maxZ(){
+    float maxVal = stickList[0]->Z;
+    for(stick*s:stickList){
+        if(s->Z>maxVal)
+            maxVal = s->Z;
+    }
+    return maxVal;
 }
 void cloneStick(stick* dest, stick*src){
     // byte array stores serialized data

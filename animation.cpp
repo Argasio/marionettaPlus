@@ -101,42 +101,47 @@ void Animation::updateSelection(QPointF point)
     float minDist;
     int idxBuffer;
     int selectedIdx = -1;
+    if(currentFrame->stickFigures.isEmpty())
+        return;
     scene->clearSelection();
     StickFigure *selectedStickFigure;
-    CURRENTSTICKFIGURE->highlight(false);
+    if(CURRENTSTICKFIGURE != nullptr){
+        CURRENTSTICKFIGURE->highlight(false);
+        CURRENTSTICKFIGURE->refresh(0);
+    }
 
-    if(!CURRENTSTICKFIGURE->stickList.isEmpty())
+    for(StickFigure * S: currentFrame->stickFigures)
     {
-        for(StickFigure * S: currentFrame->stickFigures)
-        {
-            if(S->stickList.count()>=1) {
-                idxBuffer = S->selectStick( &point);
-                // aggiorna il buffer col punto 1 o 2 a seconda se stiamo selezionando lo stick master
-                if(S->selectingOrigin )
-                    distBuffer = QLineF(S->stickList[idxBuffer]->myLine.p1(),point).length();
-                else{
-                    distBuffer = QLineF(S->stickList[idxBuffer]->myLine.p2(),point).length();
-                }
-                if(selectedIdx == -1 || (distBuffer<minDist))
-                {
-                    selectedIdx = idxBuffer;
-                    minDist = distBuffer;
-                    selectedStickFigure = S;
-                }
+        if(S->stickList.count()>=1) {
+            idxBuffer = S->selectStick( &point);
+            // aggiorna il buffer col punto 1 o 2 a seconda se stiamo selezionando lo stick master
+            if(S->selectingOrigin )
+                distBuffer = QLineF(S->stickList[idxBuffer]->myLine.p1(),point).length();
+            else{
+                distBuffer = QLineF(S->stickList[idxBuffer]->myLine.p2(),point).length();
+            }
+            if(selectedIdx == -1 || (distBuffer<minDist))
+            {
+                selectedIdx = idxBuffer;
+                minDist = distBuffer;
+                selectedStickFigure = S;
             }
         }
-        if(selectedStickFigure->stickList[selectedIdx]->type != CS->type){
-            updateTab(selectedStickFigure->stickList[selectedIdx]->type );
-        }
-        CS = selectedStickFigure->stickList[selectedIdx];
-        selectedStickFigure->stickList[selectedIdx]->setSelected(true);
-        selectedStickFigure->highlight(true);
-        CS->selected = true;
-        CURRENTSTICKFIGURE = selectedStickFigure;
-
-        updateSliders();
-
     }
+    if(selectedStickFigure->stickList[selectedIdx]->stickType != CS->stickType){
+        updateTab(selectedStickFigure->stickList[selectedIdx]->stickType );
+    }
+
+    CURRENTSTICKFIGURE = selectedStickFigure;
+    CS = CURRENTSTICKFIGURE->stickList[selectedIdx];
+    CURRENTSTICKFIGURE->highlight(true);
+    CS->setSelected(true);
+    CS->selected = true;
+
+
+    updateSliders();
+
+
 
 }
 void Animation::updateTab(int t){
@@ -209,7 +214,7 @@ void Animation::updateSliders(){
     stick *cs = CS;
     if(CS == nullptr)
         return;
-    if(cs->type == stick::IMAGE){
+    if(cs->stickType == stick::IMAGE){
         //aggiorna gli slider di modifica alla scala e all'offset
         if(cs->imgWScale>=1){
             imgWidthSlider->setValue(10*(cs->imgWScale-1));
@@ -228,10 +233,10 @@ void Animation::updateSliders(){
         imgHOffsetSlider->setValue(cs->imgOffset.x());
         imgRotationSlider->setValue(cs->imgAngleOffset);
     }
-    else if(cs->type == stick::RECT){
+    else if(cs->stickType == stick::RECT){
         advancedRectSlider->setValue(cs->imgWScale);
     }
-    else if(cs->type == stick::TAPER||cs->type == stick::TRAPEZOID){
+    else if(cs->stickType == stick::TAPER||cs->stickType == stick::TRAPEZOID){
         taperWSlider->setValue(cs->imgWScale);
         taperHSlider->setValue(cs->imgHScale);
         hardTopCheck->setChecked(cs->hardTop);

@@ -33,7 +33,7 @@ public:
     void highlight(bool setting);
     QListWidgetItem* linkedItem;
     QGraphicsScene * scene;
-    void updateZ();
+    void updateZ(float value);
     QIcon*stickFigureIcon;
     QPixmap * iconImg;
     QPointF originPosBuffer;
@@ -59,6 +59,8 @@ public:
     void stepDownMaster(stick *toMaster);
     void updateBoundingRects();
     void elongate(QPointF newEndPoint, stick *myStick);
+    float maxZ();
+    float minZ();
 private:
 
     QPointF p0;

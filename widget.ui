@@ -663,6 +663,13 @@ QPushButton:pressed{
                   </layout>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QLabel" name="debugLabel">
+                  <property name="text">
+                   <string>Debug</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
@@ -3768,7 +3775,7 @@ QPushButton:pressed{
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QPushButton" name="setStickColorBtn">
+                    <widget class="QPushButton" name="setAllSticksColorBtn">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -3812,7 +3819,7 @@ QPushButton:pressed{
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="setAllSticksColorBtn">
+                    <widget class="QPushButton" name="setStickColorBtn">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -4430,6 +4437,112 @@ QPushButton:hover{
 }
 QPushButton:pressed{
     background-image: url(:/resources/pastestickfigure_00003.png);
+    background-repeat: no-repeat;
+}
+</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frame_36">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>55</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_43">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushStickFigureToBottom">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+    qproperty-icon: url(&quot; &quot;); /* empty image */
+    qproperty-iconSize: 16px 16px; /* space for the background image */
+    background-image: url(:/resources/movebottom_00001.png);
+    background-repeat: no-repeat;
+	border: 0px solid #5A5A5A;
+}
+QPushButton:hover{
+    background-image: url(:/resources/movebottom_00002.png);
+    background-repeat: no-repeat;
+	background-color: rgb(25, 25, 25)
+}
+QPushButton:pressed{
+    background-image: url(:/resources/movebottom_00003.png);
+    background-repeat: no-repeat;
+}
+</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushStickFigureToTop">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>500</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+    qproperty-icon: url(&quot; &quot;); /* empty image */
+    qproperty-iconSize: 16px 16px; /* space for the background image */
+    background-image: url(:/resources/movetop_00001.png);
+    background-repeat: no-repeat;
+	border: 0px solid #5A5A5A;
+}
+QPushButton:hover{
+    background-image: url(:/resources/movetop_00002.png);
+    background-repeat: no-repeat;
+	background-color: rgb(25, 25, 25)
+}
+QPushButton:pressed{
+    background-image: url(:/resources/movetop_00003.png);
     background-repeat: no-repeat;
 }
 </string>

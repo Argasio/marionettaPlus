@@ -42,7 +42,7 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
         if(name.count()== 0){
             int intName = 0;
             if(!stickFigures.isEmpty()){
-                intName = ListWidget->currentRow()+1;
+                intName = myStickFigureWidgetList->currentRow()+1;
             }
 
             myName.sprintf("%d",intName);
@@ -192,6 +192,20 @@ stick *Frame::selectStick(QPointF point)
 QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
     int num = myFrame.stickFigures.count();
     stream<< num ;
+
+        QList<QGraphicsItem*> itemsInScene = myFrame.scene->items(myFrame.scene->itemsBoundingRect(),Qt::IntersectsItemBoundingRect,Qt::DescendingOrder,QTransform());
+        int i = 0;
+        int numOfItems = 0;
+        for(QGraphicsItem* item:itemsInScene){
+            if(item->type()== STKTYPE ){
+                //static_cast<stick*>(item)->order=i;
+                numOfItems++;
+            }
+            i++;
+        }
+
+    stream<<myFrame.numOfItems;
+
     stream<< myFrame.frameNumber;
     for(StickFigure* S: myFrame.stickFigures){
         stream<< *S;
@@ -201,6 +215,8 @@ QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
 QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
     int max = 0;
     stream>> max;
+
+    stream>>myFrame.numOfItems;
     stream>> myFrame.frameNumber;
     QListWidget * Widget;
     if(libFlag) {

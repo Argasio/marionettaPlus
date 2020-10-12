@@ -25,7 +25,10 @@
 #define DRAWRECT 16
 #define DRAWTRAPEZOID 17
 #define DRAWTAPER 18
-
+#define MODE_DOWN 1
+#define MODE_UP 0
+#define MODE_TOP 2
+#define MODE_BOTTOM 3
 #define CMD_SIMPLE 0
 #define CMD_ADDFRAME 1
 #define CMD_DELETEFRAME 2
@@ -38,6 +41,8 @@
 #define ATTRIBUTE_PENWIDTH 1
 #define ATTRIBUTE_BRUSHCOLOR 2
 #define ATTRIBUTE_BRUSHSIZE 3
+
+
 typedef struct undoInfoStruct
 {
     int command;
@@ -54,7 +59,6 @@ public:
     StickFigure *addStickFigure(QListWidgetItem* item);
     Animation * myAnimation;
     void deleteStickFigure();
-    void moveStickFigureZ(int increment);
     QPen    myPen;
     QBrush  myBrush;
     StickFigure* copyStickFigureBuffer = nullptr;
@@ -82,6 +86,8 @@ public:
     void preparePreview();
     void displayPreview(int idx);
     void arrowSelection();
+    void moveStickFigureZ(int increment, int mode);
+    void updateFrameOrder(Frame *f);
 public slots:
     void saveLibrary(QString fileName);
 signals:
