@@ -95,6 +95,10 @@ void myView::deleteStickFigure()
         //distruggi l'oggetto della lista
         myStickFigureWidgetList->takeItem(myStickFigureWidgetList->row(current));
         delete current;
+        // delete from the total list
+        for(stick*s:cs->stickList){
+            CURRENTFRAME->totalSticks.removeAll(s);
+        }
         //rimuovilo dal frame e distruggilo
         StickFigure* ns = myAnimation->currentFrame->removeStickFigure(cs);
         // Ora controlliamo la nuova selezione non sia nulla e aggiorniamo la selezione
@@ -136,14 +140,22 @@ void myView::moveStickFigureZ(int increment, int mode)
     StickFigure* stickFigureAtNewIdx = qvariant_cast<StickFigure*>(retrievedData);
 
     if(newIdx<myStickFigureWidgetList->count() && newIdx>=0 && newIdx != currentIndex){
-        if(increment>0){
+        if(mode == MODE_TOP){
 
-            CURRENTSTICKFIGURE->updateZ(stickFigureAtNewIdx->maxZ()+0.1);
+            CURRENTFRAME->stickfigureToTop(CURRENTSTICKFIGURE);
+        }
+        else if(mode == MODE_BOTTOM){
+            CURRENTFRAME->stickfigureToBottom(CURRENTSTICKFIGURE);
+
+        }
+        else if(increment>0){
+
+            CURRENTFRAME->stickfigureAboveBelow(CURRENTSTICKFIGURE,stickFigureAtNewIdx,1);
         }
         else{
-            CURRENTSTICKFIGURE->updateZ(stickFigureAtNewIdx->minZ()-0.1);
-        }
+            CURRENTFRAME->stickfigureAboveBelow(CURRENTSTICKFIGURE,stickFigureAtNewIdx,0);
 
+        }
         //sposta nella lista grafica il layer dello stickfigure
         QListWidgetItem * item = myStickFigureWidgetList->takeItem(currentIndex);
         myStickFigureWidgetList->insertItem(newIdx,item);
@@ -151,6 +163,7 @@ void myView::moveStickFigureZ(int increment, int mode)
         myStickFigureWidgetList->setCurrentRow(newIdx);
 
         myAnimation->currentFrame->updateIcon();
+        CURRENTFRAME->refresh(0);
     }
 
 /*
@@ -274,8 +287,14 @@ void myView::mousePressEvent(QMouseEvent *event)
                     arrowSelection();
 
                     if(CURRENTSTICKFIGURE!=joinToStickFigure){
+
                         mergeStickFigures(joinToStickFigure,joinToStick,CURRENTSTICKFIGURE);
+
                         deleteStickFigure();
+                        for(stick*s:CURRENTSTICKFIGURE->stickList){
+                            if(!CURRENTFRAME->totalSticks.contains(s))
+                                CURRENTFRAME->totalSticks.append(s);
+                        }
                         qDebug("merge ok\r\n");
                     }
                 }
@@ -334,7 +353,16 @@ void myView::keyPressEvent(QKeyEvent *event)
                 //altrimenti cancella il singolo stick e aggiorna l'iconea del livello
                 else if(myStickFigureWidgetList->selectedItems().count()==1)
                 {
+                    // questa lista serve per rimuovere dalla totalStick tutti gli stick cancellati
+                    QList<stick*> oldStickList = CURRENTSTICKFIGURE->stickList;
                     CURRENTSTICKFIGURE->deleteStick( idx);
+                    QList<stick*> survivors = CURRENTSTICKFIGURE->stickList;
+                    for(stick*s:oldStickList){
+                        if(!survivors.contains(s)){
+                            CURRENTFRAME->totalSticks.removeAll(s);
+                        }
+                    }
+                    CURRENTFRAME->numOfItems = CURRENTFRAME->totalSticks.length();
                     CURRENTSTICKFIGURE->updateIcon();
                     myStickFigureWidgetList->selectedItems()[0]->setIcon(*CURRENTSTICKFIGURE->stickFigureIcon);
                 }
@@ -433,6 +461,9 @@ void myView::drawCmd(QPointF* point, int mode)
             qDebug("Draw 2 = %f, %f",point->x(),point->y());
             myAnimation->currentFrame->updateIcon();
             myAnimation->updateTab(CS->stickType);
+            // add it to the total scene list
+            myAnimation->currentFrame->totalSticks.append(CS);
+
         }
     }
     else
@@ -782,11 +813,6 @@ void myView::moveToFrame(Frame* frame){
         S->linkedItem = addedItem;
         myStickFigureWidgetList->addItem(S->linkedItem);
         // aggiungi alla scena
-        for(stick * s: S->stickList){
-            //scene()->addItem(s);
-
-            orderedStickList[s->order] = s;
-        }
         if(!playBack){
             S->updateBoundingRects();
             S->updateIcon();
@@ -794,12 +820,15 @@ void myView::moveToFrame(Frame* frame){
         }
     }
     scene()->clearSelection();
+    myAnimation->currentFrame = frame;
     for(int j = 0;j<frame->numOfItems;j++){
-        scene()->addItem(orderedStickList[frame->numOfItems-1-j]);
+        scene()->addItem(CURRENTFRAME->totalSticks[j]);
+
+        //orderedStickList[frame->numOfItems-1-j]->refresh(0);
     }
 
     // aggiorna il current frame, se si parte d auna situazione di inizio forza il primo stickfigure
-    myAnimation->currentFrame = frame;
+
     arrowSelection();
     /*
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
@@ -834,6 +863,7 @@ void myView::moveToFrame(Frame* frame){
 
 
     }
+    CURRENTFRAME->refresh(0);
 
 }
 // routine per calcolare gli onion skins, prima cancellali, ridisegnali su un immagine, e aggiungi l'immagine alla scena
@@ -1028,6 +1058,13 @@ void myView::storeUndo(int command, int mode){
 }
 void myView::updateFrameOrder(Frame* f){
     int j = 0;
+    for(stick*s:CURRENTFRAME->totalSticks){
+        s->order = j;
+        j++;
+    }
+    CURRENTFRAME->numOfItems = CURRENTFRAME->totalSticks.length();
+    /*
+    int j = 0;
     QList<QGraphicsItem*> orderedList = f->scene->items(f->scene->itemsBoundingRect(),Qt::IntersectsItemBoundingRect,Qt::DescendingOrder,QTransform());
     for(QGraphicsItem* item:orderedList){
         if(item->type() != STKTYPE){
@@ -1041,6 +1078,7 @@ void myView::updateFrameOrder(Frame* f){
         }
     }
     f->numOfItems = j;
+    */
 }
 // cancella i buffer di undo e redo, da chiamare quando si carica un nuovo file
 void myView::clearUndo(){
@@ -1162,9 +1200,20 @@ void myView::splitStickFigure(){
     storeUndo();
     splitToStickFigure = CURRENTSTICKFIGURE;
     splitToStick = splitToStickFigure->currentStick;
+    QList<stick*> oldStickList = CURRENTSTICKFIGURE->stickList;
+
     StickFigure * branch = myAnimation->currentFrame->addStickFigure(myStickFigureWidgetList, splitToStickFigure->name+"_split");
     splitStickFigures(splitToStickFigure,splitToStick,branch);
     splitToStickFigure->refresh(0);
+    // update the total list
+    QList<stick*> survivorList = splitToStickFigure->stickList;
+    for(stick*s:oldStickList){
+        if(!survivorList.contains(s)){
+            CURRENTFRAME->totalSticks.removeAll(s);
+        }
+    }
+    CURRENTFRAME->totalSticks.append(branch->stickList);
+    //
     branch->refresh(0);
     CURRENTSTICKFIGURE = branch;
     CS = branch->stickList[0];

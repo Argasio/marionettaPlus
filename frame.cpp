@@ -161,6 +161,12 @@ stick *Frame::selectStick(StickFigure* S)
     return S->stickList[stickIdx];
 }
 void Frame::refresh(int mode){
+    for(stick*s:totalSticks){
+        scene->removeItem(s);
+    }
+    for(stick*s:totalSticks){
+        scene->addItem(s);
+    }
     for(StickFigure*S:stickFigures){
         S->refresh(mode);
     }
@@ -192,18 +198,6 @@ stick *Frame::selectStick(QPointF point)
 QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
     int num = myFrame.stickFigures.count();
     stream<< num ;
-
-        QList<QGraphicsItem*> itemsInScene = myFrame.scene->items(myFrame.scene->itemsBoundingRect(),Qt::IntersectsItemBoundingRect,Qt::DescendingOrder,QTransform());
-        int i = 0;
-        int numOfItems = 0;
-        for(QGraphicsItem* item:itemsInScene){
-            if(item->type()== STKTYPE ){
-                //static_cast<stick*>(item)->order=i;
-                numOfItems++;
-            }
-            i++;
-        }
-
     stream<<myFrame.numOfItems;
 
     stream<< myFrame.frameNumber;
@@ -218,6 +212,7 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
 
     stream>>myFrame.numOfItems;
     stream>> myFrame.frameNumber;
+    myFrame.totalSticks.clear();
     QListWidget * Widget;
     if(libFlag) {
         Widget = myCurrentLibraryWidget;
@@ -230,11 +225,93 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
         StickFigure* S = myFrame.addStickFigure(Widget);
         stream>>*S;
         S->linkedItem->setData(Qt::DisplayRole,S->name);
+        myFrame.totalSticks.append(S->stickList);
         //myFrame.stickFigures.append(S);
+    }
+    for(StickFigure*S:myFrame.stickFigures){
+        for(stick*s:S->stickList){
+            myFrame.totalSticks[s->order] = s;
+        }
     }
     return stream;
 }
+float Frame::minMaxZ(int option){
+    float peak = totalSticks[0]->Z;
+    for(stick*s:totalSticks){
+        if(option){
+            if(s->Z>peak)
+                peak = s->Z;
+        }
+        else{
+            if(s->Z<peak)
+                peak = s->Z;
+        }
+    }
+    return peak;
+}
+void Frame::stickfigureToBottom(StickFigure* S){
+    S->updateZ(minMaxZ(0));
+    int min = -1;
+    for(int j = totalSticks.length()-1;j>min;j--){
+        if(S->stickList.contains(totalSticks[j])){
+            totalSticks.move(j,0);
+            min++;
+            j++;
+        }
+    }
 
+}
+void Frame::stickfigureToTop(StickFigure* S){
+    S->updateZ(minMaxZ(1));
+    int max = totalSticks.length()-1;
+    for(int j = 0; j<max;j++){
+        if(S->stickList.contains(totalSticks[j])){
+            totalSticks.move(totalSticks.indexOf(totalSticks[j]),max);
+            j--;
+            max--;
+        }
+    }
+
+}
+
+void Frame::stickfigureAboveBelow(StickFigure* toMove, StickFigure *previous, int mode){
+
+    mode == 1?toMove->updateZ(previous->maxZ()): toMove->updateZ(previous->minZ());
+    int peakIdx = 0;
+    QList<stick*> sticksToMove;
+    if(mode == 1){
+        for(int j = totalSticks.length()-1; j >-1 ;j--){
+            if(previous->stickList.contains(totalSticks[j])){
+                peakIdx = j; // il più alto che deve superare toMove
+                break;
+            }
+        }
+        for(stick*s:toMove->stickList){
+            if(totalSticks.indexOf(s)<peakIdx)
+                sticksToMove.append(s);
+        }
+        for(stick*s:sticksToMove){
+            totalSticks.move(totalSticks.indexOf(s),peakIdx);
+        }
+    }
+    else{
+        for(int j = 0; j<totalSticks.length();j++){
+            if(previous->stickList.contains(totalSticks[j])){
+                peakIdx = j; // il piu basso, sotto al quale si deve abbassare il toMove
+                break;
+            }
+        }
+        for(stick*s:toMove->stickList){
+            if(totalSticks.indexOf(s)>peakIdx)
+                sticksToMove.prepend(s);
+        }
+        for(stick*s:sticksToMove){
+            totalSticks.move(totalSticks.indexOf(s),peakIdx);
+        }
+    }
+
+
+}
 // questa funzione aggiorna l'iconea del livello
 void Frame::updateIcon()
 {
@@ -296,5 +373,11 @@ void Frame::clearFrame(){
 
     }
     stickFigures.clear();
+
+}
+
+void Frame::normalizeDepth()
+{
+
 
 }

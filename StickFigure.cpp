@@ -170,6 +170,7 @@ void StickFigure::updateZ(float value){
     }
     baseZ = value;
 }
+
 void StickFigure::endDrawing(QPointF *point)
 {
     setLineFromPoint(point);
@@ -245,29 +246,33 @@ int StickFigure::selectStick( QPointF * point)
 {
     int idx         = 0;
     float  minDist  = 0;
+    float currentDist = 0;
     int chosenIdx = stickList.indexOf(masterStick);
-    QPointF pBuf1,pBuf2,pBufOut;
+
     //inizializziamo a partire dall'origine del masterStick
-    pBufOut = masterStick->myLine.p1();
-    minDist = QLineF(pBufOut,*point).length();
+
+    minDist = QLineF(stickList[0]->myLine.p2(),*point).length();
     while(idx< stickList.length())
     {
         // i punti inizio-fine dello stick corrente
-        pBuf1 = stickList[idx]->myLine.p1();
-        pBuf2 = stickList[idx]->myLine.p2();
+        currentDist = QLineF(stickList[idx]->myLine.p2(),*point).length();
         // se la distanza è più bassa di quella minima registrata dal luogo del mouse
-        if(QLineF(pBuf2,*point).length()<= minDist)
+        if(currentDist<= minDist)
         {
-            // quello è l'origine
-            pBufOut         = pBuf2;
-            minDist         = QLineF(pBuf2,*point).length();
-            chosenIdx = idx;
+
+            minDist         = currentDist;
+            chosenIdx       = idx;
             selectingOrigin = false;
         }
-        else if(QLineF(pBuf1,*point).length()<= minDist && stickList[idx]->master)
-        {
-            selectingOrigin = true;
-            minDist = QLineF(pBuf1,*point).length();
+        if(stickList[idx]->master){
+            currentDist = QLineF(stickList[idx]->myLine.p1(),*point).length();
+            if(currentDist<= minDist)
+            {
+
+                minDist         = currentDist;
+                chosenIdx       = idx;
+                selectingOrigin = true;
+            }
         }
         idx++;
     }
@@ -313,7 +318,7 @@ void StickFigure::deleteStick(int idx)
 }
 // serializzatori e deserializzatori della classe stick
 QDataStream & operator<< (QDataStream& stream, const stick& myStick){
-    //stream<<myStick.Z;
+    stream<<myStick.Z;
     stream<<myStick.version;
     stream<<myStick.stickType;
     stream<<myStick.stepchild;
@@ -351,7 +356,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     return stream;
 }
 QDataStream & operator>> (QDataStream& stream, stick& myStick){
-    //stream>>myStick.Z;
+    stream>>myStick.Z;
     stream>>myStick.version;
     stream>>myStick.stickType;
     stream>>myStick.stepchild;
@@ -425,7 +430,7 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         myStickFigure.currentStick = new stick(); // prepara il contenitore
         myStickFigure.stickList.append(myStickFigure.currentStick);
         stream>>*myStickFigure.currentStick; // "idrata il contenitore" con i dati nel file
-        myStickFigure.currentStick->Z = myStickFigure.baseZ+i*0.01;
+        //myStickFigure.currentStick->Z = myStickFigure.baseZ+i*0.01;
     }
     // ricostruisci le gerarchie di parentela tramite gli indici
     for(stick * s:myStickFigure.stickList){

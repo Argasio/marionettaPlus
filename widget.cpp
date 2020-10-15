@@ -663,6 +663,9 @@ void Widget::on_addItemFromLibraryToSceneBtn_clicked()
     //riconverti il dato
     StickFigure* toAdd = qvariant_cast<StickFigure*>(retrievedData);
     cloneStickFigure(added,toAdd);
+    for(stick*s:added->stickList){
+        CURRENTFRAME->totalSticks.append(s);
+    }
     added->linkedItem->setData(Qt::DisplayRole,added->name);
     view->myAnimation->updateSelection(added);
     //added->refresh();
@@ -1005,6 +1008,9 @@ void Widget::on_pasteStickFigureBtn_clicked()
        StickFigure* added =addStick();
        cloneStickFigure(added,view->copyStickFigureBuffer);
        added->refresh(0);
+       for(stick*s:added->stickList){
+           CURRENTFRAME->totalSticks.append(s);
+       }
    }
    else{
        QMessageBox::about(this,"error","no stickfigure was copied in memory");
@@ -1162,20 +1168,13 @@ void Widget::on_pushToTopBtn_clicked()
     if(CURRENTSTICKFIGURE->stickList.isEmpty() || CS== nullptr)
         return;
     view->storeUndo();
+    CURRENTFRAME->totalSticks.move(CURRENTFRAME->totalSticks.indexOf(CS),CURRENTFRAME->totalSticks.length()-1);
+
     float maxZ = CS->Z;
-    QList<stick*> equals;
     for(StickFigure* S:CURRENTFRAME->stickFigures){
         for(stick*s:S->stickList){
             if(s->Z>maxZ){
                 maxZ = s->Z;
-                equals.clear();
-                if(s!=CS)
-                    equals.append(s);
-            }
-            else if(s->Z == maxZ){
-                //minZ = s->Z-0.001;
-                if(s!=CS)
-                    equals.append(s);
             }
         }
     }
@@ -1184,11 +1183,9 @@ void Widget::on_pushToTopBtn_clicked()
 
     CS->Z = maxZ;
     CS->setZValue(CS->Z);
-    if(!equals.isEmpty()){
-        view->scene()->removeItem(CS);
-        view->scene()->addItem(CS);
-    }
+
     CURRENTFRAME->refresh();
+
 }
 
 void Widget::on_pushToButtonBtn_clicked()
@@ -1198,20 +1195,13 @@ void Widget::on_pushToButtonBtn_clicked()
     if(CURRENTSTICKFIGURE->stickList.isEmpty() || CS== nullptr)
         return;
     view->storeUndo();
+    CURRENTFRAME->totalSticks.move(CURRENTFRAME->totalSticks.indexOf(CS),0);
+
     float minZ = CS->Z;
-    QList<stick*> equals;
     for(StickFigure* S:CURRENTFRAME->stickFigures){
         for(stick*s:S->stickList){
             if(s->Z<minZ){
                 minZ = s->Z;
-                equals.clear();
-                if(s!=CS)
-                    equals.append(s);
-            }
-            else if(s->Z == minZ){
-                //minZ = s->Z-0.001;
-                if(s!=CS)
-                    equals.append(s);
             }
         }
     }
@@ -1220,15 +1210,7 @@ void Widget::on_pushToButtonBtn_clicked()
 
     CS->Z = minZ;
     CS->setZValue(CS->Z);
-    if(!equals.isEmpty()){
-        for(stick*s:equals){
-            view->scene()->removeItem(s);
-        }
 
-        for(stick*s:equals){
-            view->scene()->addItem(s);
-        }
-    }
     CURRENTFRAME->refresh();
 }
 

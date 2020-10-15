@@ -57,6 +57,9 @@ void myMainWindow::on_actionload_triggered()
         QDataStream myStream;
         centralW->addStick();
         CURRENTSTICKFIGURE->loadStickFigure(fileName);
+        for(stick*s:CURRENTSTICKFIGURE->stickList){
+            CURRENTFRAME->totalSticks.append(s);
+        }
     }
 }
 

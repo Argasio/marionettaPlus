@@ -329,7 +329,7 @@ QMenu::separator {
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionsave">
    <property name="text">
-    <string>Load StickFiguire</string>
+    <string>Save StickFigure</string>
    </property>
   </action>
   <action name="actionload">

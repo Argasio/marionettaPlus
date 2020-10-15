@@ -22,14 +22,19 @@ public:
     int frameNumber = 0;
     QListWidgetItem * linkedItem;
     void updateIcon();
-
+    QList <stick*> totalSticks;
     void copyFrame(QDataStream &stream, Frame *destination);
     StickFigure *addStickFigure( QListWidget *myListWidget, QString name = "");
     void updateRender();
     void clearFrame();
+    void normalizeDepth();
     void cloneFrame(Frame *target, Frame *source);
     StickFigure *addStickFigureToLibrary(StickFigure *S = nullptr);
     void refresh(int mode = 0);
+    void stickfigureToBottom(StickFigure *S);
+    void stickfigureToTop(StickFigure *S);
+    float minMaxZ(int option);
+    void stickfigureAboveBelow(StickFigure *toMove, StickFigure *previous, int mode);
 };
 Q_DECLARE_METATYPE(Frame*);
 QDataStream & operator<< (QDataStream& stream, const Frame& myFrame);
