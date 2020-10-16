@@ -118,7 +118,7 @@ void Animation::updateSelection(QPointF point)
             if(S->selectingOrigin )
                 distBuffer = QLineF(S->stickList[idxBuffer]->myLine.p1(),point).length();
             else{
-                distBuffer = QLineF(S->stickList[idxBuffer]->myLine.p2(),point).length();
+                distBuffer = S->measureDistanceFromLine(point,S->stickList[idxBuffer]->myLine);
             }
             if(selectedIdx == -1 || (distBuffer<minDist))
             {

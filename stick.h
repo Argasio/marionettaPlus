@@ -84,6 +84,7 @@ public:
     void addImage(QImage *imgToAdd, QString name);
     void populateImageListWidget();
     void removeImgFromList(int idx);
+    float measureDistanceFromLine(QPointF p, QLineF l);
 private:
     //-------- methods----------//
 

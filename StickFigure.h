@@ -61,12 +61,13 @@ public:
     void elongate(QPointF newEndPoint, stick *myStick);
     float maxZ();
     float minZ();
+    float measureDistanceFromLine(QPointF p, QLineF l);
 private:
 
     QPointF p0;
     QPointF p1;
     stick* stickBuffer;
-    QPointF selectOrigin( QPointF * point);
+    int selectOrigin( QPointF * point);
     stick* parentBuffer = nullptr;
     QGraphicsScene * myScene ;
 

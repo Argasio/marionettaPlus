@@ -436,7 +436,10 @@ void stick::rotate(float angle){
         children[i]->refresh(1);
     }
     if(stickType == IMAGE || stickType == TRAPEZOID || stickType == TAPER || stickType == RECT){
+        if(stickType == IMAGE)
         imgAngle = angle;
+        else
+            imgAngle = -angle-90;
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }
 }

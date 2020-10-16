@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QDebug>
 #include <QFile>
+#include <QVector2D>
 // StickFigure work in the one active scene
 extern bool loadingAnimationFlag;
 extern bool undoFlag;
@@ -94,8 +95,12 @@ void StickFigure::startDrawing(QPointF *point, QPen pen, QBrush brush)
     }
     else //se ci sono altri stick in questo stickfigure i dalla estremità più vicinaz al click
     {
-        p0 = selectOrigin(point); //seleziona punto di origine
-        parentBuffer = stickList[selectStick(point)]; //seleziona genitore (potremmo già farlo al rigo precedente visto che la funzione viene chiamata)
+        //p0 = selectOrigin(point); //seleziona punto di origine
+        parentBuffer = stickList[selectOrigin(point)]; //seleziona genitore (potremmo già farlo al rigo precedente visto che la funzione viene chiamata)
+        if(selectingOrigin)
+            p0 = parentBuffer->myLine.p1();
+        else
+            p0 = parentBuffer->myLine.p2();
     }
 
     //crea e alloca l'oggetto stick associato
@@ -216,7 +221,7 @@ void StickFigure::cancelDrawing()
 }
 
 //scegli come origine lo stick più vicino al mouse fra gli stick dello stickfigure
-QPointF StickFigure::selectOrigin( QPointF * point)
+int StickFigure::selectOrigin( QPointF * point)
 {
     //seleziona lo stick più vicino
     int idx = selectStick(point);
@@ -224,23 +229,53 @@ QPointF StickFigure::selectOrigin( QPointF * point)
     if(stickList[idx] == masterStick)
     {
         //controlla quale estremità è la più vicina e aseconda di quale essa sia restituisci il punto
-        if(QLineF(stickList[idx]->myLine.p2(),*point).length() >
-               QLineF(stickList[idx]->myLine.p1(),*point).length() )
+        if(measureDistanceFromLine(*point,stickList[idx]->myLine) >
+               QLineF(stickList[idx]->myLine.p1(),*point).length()/sqrtf(stickList[idx]->myLine.length()) )
         {
             // segnala che stiamo toccando l'orgine
             selectingOrigin = true;
-            return stickList[idx]->myLine.p1();
+            return idx;
 
         }
         else{
-            return stickList[idx]->myLine.p2();
+            selectingOrigin = false;
+            return idx;
         }
     }
     // se non è il master stick ignora P1
     else{
         stickList[idx]->myLine.p2();
-        return stickList[idx]->myLine.p2();
+        return idx;
     }
+}
+float StickFigure::measureDistanceFromLine(QPointF p, QLineF l){
+    /*
+    QVector2D pv(p);
+    QPoint dirP = (l.p2()-l.p1()).toPoint();
+    QVector2D dirV(dirP);
+
+    return pv.distanceToLine(QVector2D(l.p1().toPoint()),dirV);
+    */
+    /*
+    QLineF perpendicLine(p,QPointF(p.x(),0.0));
+    perpendicLine.setAngle(90.0+l.angle());
+    QPointF result;
+    l.intersect(perpendicLine,&result);
+    return QLineF(result,p).length();
+
+    float d =fabs(-(l.p2().y()-l.p1().y())*p1.x() + (l.p2().x()-l.p1().x())*p1.y() - l.p2().x()*l.p1().y() + l.p2().y()*l.p1().x() ) /
+            sqrtf(powf(l.dy(),2)+powf(l.dx(),2));
+    qDebug("d = %f",d);
+    return d;
+ *//*
+    float S = (l.length()+QLineF(l.p1(),p).length()+QLineF(l.p2(),p).length())/2;
+    float A = sqrtf(S*(S-l.length())*(S-QLineF(l.p1(),p).length())*(S-QLineF(l.p2(),p).length()));
+    return 2*A/l.length();
+    */
+    float dist = QLineF(l.p2(),p).length();
+    float wdist = dist/sqrtf(l.length());
+    return wdist;
+
 }
 int StickFigure::selectStick( QPointF * point)
 {
@@ -248,14 +283,12 @@ int StickFigure::selectStick( QPointF * point)
     float  minDist  = 0;
     float currentDist = 0;
     int chosenIdx = stickList.indexOf(masterStick);
-
     //inizializziamo a partire dall'origine del masterStick
-
-    minDist = QLineF(stickList[0]->myLine.p2(),*point).length();
+    minDist = measureDistanceFromLine(*point,stickList[0]->myLine);
     while(idx< stickList.length())
     {
         // i punti inizio-fine dello stick corrente
-        currentDist = QLineF(stickList[idx]->myLine.p2(),*point).length();
+        currentDist = measureDistanceFromLine(*point,stickList[idx]->myLine);
         // se la distanza è più bassa di quella minima registrata dal luogo del mouse
         if(currentDist<= minDist)
         {
@@ -265,7 +298,7 @@ int StickFigure::selectStick( QPointF * point)
             selectingOrigin = false;
         }
         if(stickList[idx]->master){
-            currentDist = QLineF(stickList[idx]->myLine.p1(),*point).length();
+            currentDist = QLineF(stickList[idx]->myLine.p1(),*point).length()/sqrtf(stickList[idx]->myLine.length()) ;
             if(currentDist<= minDist)
             {
 
