@@ -50,8 +50,8 @@ public:
     void scale(QPointF *coord);
     void traslate(qreal dx, qreal dy);
 
-    void weld(stick *master);
-    void chop(stick *origin);
+    QList<stick*> weld(stick *master);
+    stick* chop(stick *origin);
     void setMaster(stick *toMaster);
     void setDirectChainAsMaster(stick *toMaster);
     void setStepChildAsMaster(stick *toMaster);

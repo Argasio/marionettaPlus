@@ -8,6 +8,7 @@ QListWidget * ListWidget;
 extern QListWidget * myStickFigureWidgetList;
 extern bool undoFlag;
 extern bool libFlag;
+extern bool switchFrameFlag;
 extern QListWidget * myStickFigureWidgetList;
 extern QListWidget * myFrameWidgetList;
 extern QListWidget * myLibraryListWidget ;
@@ -79,12 +80,12 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
         currentStickFigure->highlight(false); //de highlight old selection
         currentStickFigure->highlight(true); //highlight new one
     }
-    if(!undoFlag){
+    if(!undoFlag && !switchFrameFlag){
         // update current stick
         if(!libFlag){
             scene->clearSelection(); //clear scene selection
             if(!currentStickFigure->stickList.isEmpty())
-                selectStick(currentStickFigure); //update selected stick
+                selectStick(currentStickFigure); // puo essere ridontante in quanto ci sta la callback di sticklayerView_currentItemChanged//update selected stick
         //
         }
         int tempIndex = myListWidget->currentRow();
@@ -152,12 +153,18 @@ StickFigure* Frame::removeStickFigure(StickFigure* toRemove)
     }
     return currentStickFigure;
 }
-stick *Frame::selectStick(StickFigure* S)
+stick *Frame::selectStick(StickFigure* S, stick* s)
 {
     int stickIdx = 0;
+    if(s!=nullptr){
+        if(S->stickList.contains(s))
+            stickIdx = S->stickList.indexOf(s);
+    }
+    S->highlight(true);
     S->stickList[stickIdx]->setSelected(true);
     S->currentStick = S->stickList[stickIdx];
     S->currentStick->selected = true;
+
     return S->stickList[stickIdx];
 }
 void Frame::refresh(int mode){
@@ -199,8 +206,9 @@ QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
     int num = myFrame.stickFigures.count();
     stream<< num ;
     stream<<myFrame.numOfItems;
-
     stream<< myFrame.frameNumber;
+    stream<< myFrame.stickFigures.indexOf(myFrame.currentStickFigure);
+    stream<< myFrame.currentStickFigure->stickList.indexOf(myFrame.currentStickFigure->currentStick);
     for(StickFigure* S: myFrame.stickFigures){
         stream<< *S;
     }
@@ -208,10 +216,15 @@ QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
 }
 QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
     int max = 0;
+    int currentStickIdx = 0;
+    int currentStickFigureIdx = 0;
     stream>> max;
 
     stream>>myFrame.numOfItems;
     stream>> myFrame.frameNumber;
+    stream>>currentStickFigureIdx;
+    stream>>currentStickIdx;
+
     myFrame.totalSticks.clear();
     QListWidget * Widget;
     if(libFlag) {
@@ -231,6 +244,13 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
     for(StickFigure*S:myFrame.stickFigures){
         for(stick*s:S->stickList){
             myFrame.totalSticks[s->order] = s;
+        }
+    }
+    myFrame.currentStickFigure = nullptr;
+    if(currentStickIdx>=0 && currentStickFigureIdx>=0 && currentStickFigureIdx<myFrame.stickFigures.length()){
+        if(currentStickIdx<myFrame.stickFigures[currentStickFigureIdx]->stickList.length()){
+            myFrame.currentStickFigure = myFrame.stickFigures[currentStickFigureIdx];
+            myFrame.currentStickFigure->currentStick = myFrame.currentStickFigure->stickList[currentStickIdx];
         }
     }
     return stream;
@@ -380,4 +400,21 @@ void Frame::normalizeDepth()
 {
 
 
+}
+void Frame::cleanTotalSticks(void){
+    QList<stick*> temp;
+    for(StickFigure* S:stickFigures){
+        for(stick *s:S->stickList){
+            if(!totalSticks.contains(s)){
+                totalSticks.insert(s->order,s);
+                temp.append(s);
+
+            }
+        }
+    }
+    for(stick*s:totalSticks){
+        if(!temp.contains(s)){
+            totalSticks.removeAll(s);
+        }
+    }
 }

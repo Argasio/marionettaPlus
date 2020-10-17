@@ -12,7 +12,7 @@ public:
     StickFigure* stickFigureBuffer;
     StickFigure* currentStickFigure;
     stick *selectStick(QPointF point);
-    stick *selectStick(StickFigure* S);
+    stick *selectStick(StickFigure* S, stick* s= nullptr);
     StickFigure* removeStickFigure(StickFigure* toRemove);
     QIcon* frameIcon;
     int numOfItems = 0;
@@ -35,6 +35,7 @@ public:
     void stickfigureToTop(StickFigure *S);
     float minMaxZ(int option);
     void stickfigureAboveBelow(StickFigure *toMove, StickFigure *previous, int mode);
+    void cleanTotalSticks();
 };
 Q_DECLARE_METATYPE(Frame*);
 QDataStream & operator<< (QDataStream& stream, const Frame& myFrame);

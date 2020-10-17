@@ -98,6 +98,7 @@ struct{
 }sliderFlags;
 bool playBack = false;
 bool copyFlag = false;
+bool switchFrameFlag = false;
 float zoomLvl = 1;
 bool  firstTimeOpened = false;
 QImage * imageDrawBuffer;
@@ -392,7 +393,9 @@ void Widget::addFrame(void)
     int pos = 0;
     if(view->myAnimation->frameList.count()>=1)
         pos = CURRENTFRAME->frameNumber+1;
+    switchFrameFlag = true;
     Frame* addedFrame = setUpFrame(pos);
+    switchFrameFlag = false;
     view->moveToFrame(addedFrame);
     addStick();
     //view->myAnimation->storeUndo();
@@ -425,7 +428,9 @@ void Widget::on_copyFrame_clicked()
         pos = CURRENTFRAME->frameNumber+1;
     Frame* addedFrame = setUpFrame(pos);
     // hydrate new frame with previous frame data
+    switchFrameFlag = true;
     myStream2>>*addedFrame;
+    switchFrameFlag = false;
     // update frame name
     addedFrame->frameNumber++;
     // move to new frame
@@ -1039,7 +1044,11 @@ void Widget::on_joinStick_clicked()
     if(CURRENTSTICKFIGURE == nullptr || CS == nullptr)
         return;
     view->storeUndo();
-    CURRENTSTICKFIGURE->weld(CS);
+    QList<stick*> toWeld = CURRENTSTICKFIGURE->weld(CS);
+    for(stick*s:toWeld){
+        CURRENTFRAME->totalSticks.removeAll(s);
+    }
+    //CURRENTFRAME->cleanTotalSticks();
 }
 
 void Widget::on_splitStick_clicked()
@@ -1047,7 +1056,8 @@ void Widget::on_splitStick_clicked()
     if(CURRENTSTICKFIGURE == nullptr || CS == nullptr)
         return;
     view->storeUndo();
-    CURRENTSTICKFIGURE->chop(CS);
+    stick* added = CURRENTSTICKFIGURE->chop(CS);
+    CURRENTFRAME->totalSticks.append(added);
 }
 
 

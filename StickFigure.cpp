@@ -229,8 +229,8 @@ int StickFigure::selectOrigin( QPointF * point)
     if(stickList[idx] == masterStick)
     {
         //controlla quale estremità è la più vicina e aseconda di quale essa sia restituisci il punto
-        if(measureDistanceFromLine(*point,stickList[idx]->myLine) >
-               QLineF(stickList[idx]->myLine.p1(),*point).length()/sqrtf(stickList[idx]->myLine.length()) )
+        if(measureDistanceFromLine(*point,stickList[idx]->myLine) >QLineF(stickList[idx]->myLine.p1(),*point).length())
+               //QLineF(stickList[idx]->myLine.p1(),*point).length()/sqrtf(stickList[idx]->myLine.length()) )
         {
             // segnala che stiamo toccando l'orgine
             selectingOrigin = true;
@@ -273,8 +273,8 @@ float StickFigure::measureDistanceFromLine(QPointF p, QLineF l){
     return 2*A/l.length();
     */
     float dist = QLineF(l.p2(),p).length();
-    float wdist = dist/sqrtf(l.length());
-    return wdist;
+    //float wdist = dist/sqrtf(l.length());
+    return dist;
 
 }
 int StickFigure::selectStick( QPointF * point)
@@ -298,7 +298,7 @@ int StickFigure::selectStick( QPointF * point)
             selectingOrigin = false;
         }
         if(stickList[idx]->master){
-            currentDist = QLineF(stickList[idx]->myLine.p1(),*point).length()/sqrtf(stickList[idx]->myLine.length()) ;
+            currentDist =QLineF(stickList[idx]->myLine.p1(),*point).length(); //QLineF(stickList[idx]->myLine.p1(),*point).length()/sqrtf(stickList[idx]->myLine.length()) ;
             if(currentDist<= minDist)
             {
 
@@ -534,25 +534,32 @@ void cloneStickFigure(StickFigure* dest, StickFigure*src){
         dest->updateIcon();
 }
 //this function join parent stick with its children
-void StickFigure::weld(stick* master){
-    if(stickList.count()<= 1)
-        return;
-    //list of items to be deleted
+QList<stick*> StickFigure::weld(stick* master){
     QList<stick*> toWeld;
+    if(stickList.count()<= 1)
+        return toWeld;
+    //list of items to be deleted
+
     //populate the list with the immediate children of the selected stick
     for(stick* s:master->children){
-        if(s->parent == master && s->stepchild == false){
+        if(s->parent == master && !(s->stepchild && master->master) ){
             toWeld.append(s);
         }
     }
+    if(toWeld.isEmpty())
+        return toWeld;
     // the master stick will now extend to the old extent of the welded element
     QPointF newP2(toWeld[0]->myLine.p2());
     master->myLine.setP2(newP2);
+    if(master->stickType == stick::TAPER || master->stickType == stick::RECT || master->stickType == stick::TRAPEZOID)
+        master->imgAngle= -atan2(master->myLine.dx(),master->myLine.dy())*180/M_PI;
     for(stick*s: toWeld){
         //remove parentage of the welded sticks and put the new master in place
         for(stick* c:s->children){
             if(c->parent == s){
                 c->myLine.setP1(newP2); //also update children p1 position
+                if(c->stickType == stick::TAPER || c->stickType == stick::RECT || c->stickType == stick::TRAPEZOID)
+                    c->imgAngle= -atan2(c->myLine.dx(),c->myLine.dy())*180/M_PI;
                 c->parent = master;
             }
         }
@@ -569,9 +576,10 @@ void StickFigure::weld(stick* master){
         delete s;
     }
     refresh(0);
+    return toWeld;
 }
 // splitta uno stick in due parti, quella originale h il ruolo di genitore e quella splittata si inserisce nella catena dei figli
-void StickFigure::chop(stick* origin){
+stick*  StickFigure::chop(stick* origin){
     // l'end point era quello dell'originale e lo starting point è il centro dell'originale
     QPointF oldP2 = origin->myLine.p2();
     QPointF newP2(0.5*(origin->myLine.p2().x()+origin->myLine.p1().x()),
@@ -611,7 +619,9 @@ void StickFigure::chop(stick* origin){
     }
     scene->addItem(toAdd);
     stickList.append(toAdd);
+
     refresh(0);
+    return toAdd;
 }
 
 // attraverso il percorso file, carica un data stream su cui caricare i dati salvati
@@ -826,6 +836,8 @@ void StickFigure::setStepChildAsMaster(stick* toMaster){
             p2Buf = s->myLine.p2();
             s->myLine.setP2(s->myLine.p1());
             s->myLine.setP1(p2Buf);
+            if(s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID)
+                s->imgAngle = s->imgAngle-180;
         }
         stick* recursive = s->parent; // segna lo stick corrente come figlio di tutti i suoi genitori
         int n = 0;
@@ -935,6 +947,8 @@ void StickFigure::setDirectChainAsMaster(stick* toMaster){
         p2Buf = s->myLine.p2();
         s->myLine.setP2(s->myLine.p1());
         s->myLine.setP1(p2Buf);
+        if(s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID)
+            s->imgAngle = s->imgAngle-180;
         // pulisci i figli dello stick, la catena va ricostruita
         s->children.clear(); // attenzione il master così si perde anch gli stepchild che non vengono ricostruiti al for successivo
     }
@@ -1033,6 +1047,8 @@ void StickFigure::invertMaster(stick* toMaster){
     p2Buf = toMaster->myLine.p2();
     toMaster->myLine.setP2(toMaster->myLine.p1());
     toMaster->myLine.setP1(p2Buf);
+    if(toMaster->stickType == stick::RECT || toMaster->stickType == stick::TAPER || toMaster->stickType == stick::TRAPEZOID)
+        toMaster->imgAngle = toMaster->imgAngle-180;
     // qui si capisce quale inversione occorre compiere,
     // si parte con l'estremo di origine senza stepchild
     // o si parte con un estremo di origine da cui partono stepchild?
@@ -1101,6 +1117,8 @@ void StickFigure::stepDownMaster(stick* toMaster){
     p2Buf = toMaster->myLine.p2();
     toMaster->myLine.setP2(toMaster->myLine.p1());
     toMaster->myLine.setP1(p2Buf);
+    if(toMaster->stickType == stick::RECT || toMaster->stickType == stick::TAPER || toMaster->stickType == stick::TRAPEZOID)
+        toMaster->imgAngle = toMaster->imgAngle-180;
     // il nuovo master ha come children tutti gli stick tranne se stesso
     toMaster->children.clear();
     toMaster->children = stickList;

@@ -66,7 +66,7 @@ Frame *Animation::addFrame(QListWidgetItem* item, int pos)
 Frame *Animation::deleteFrame(Frame *frame){
     int frameNum = frameList.indexOf(frame);
     if(frameList.count()>=1){
-        frameList.removeOne(frame);
+        frameList.removeAll(frame);
         if(frame == currentFrame){
             for(StickFigure * S:frame->stickFigures){
                 delete S->linkedItem;

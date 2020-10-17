@@ -396,7 +396,8 @@ void myView::keyPressEvent(QKeyEvent *event)
 void myView::arrowSelection(){
     if(CURRENTFRAME->stickFigures.isEmpty())
         return;
-
+    if(CURRENTFRAME->totalSticks.empty())
+        return;
     myAnimation->updateSelection(coord);
     myStickFigureWidgetList->clearSelection();
     myStickFigureWidgetList->setItemSelected(CURRENTSTICKFIGURE->linkedItem,true);
@@ -822,14 +823,21 @@ void myView::moveToFrame(Frame* frame){
     scene()->clearSelection();
     myAnimation->currentFrame = frame;
     for(int j = 0;j<frame->numOfItems;j++){
-        scene()->addItem(CURRENTFRAME->totalSticks[j]);
+        scene()->addItem(frame->totalSticks[j]);
 
         //orderedStickList[frame->numOfItems-1-j]->refresh(0);
     }
 
     // aggiorna il current frame, se si parte d auna situazione di inizio forza il primo stickfigure
-
-    arrowSelection();
+    if(frame->currentStickFigure !=nullptr){
+        if(frame->currentStickFigure->currentStick!=nullptr){
+            frame->selectStick(frame->currentStickFigure,frame->currentStickFigure->currentStick);
+        }
+        else
+            arrowSelection();
+    }
+    else
+        arrowSelection();
     /*
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
         CURRENTSTICKFIGURE = myAnimation->currentFrame->stickFigures[0];
