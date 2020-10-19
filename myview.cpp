@@ -548,6 +548,37 @@ void myView::changeTool()
     }
 }
 
+void myView::wheelEvent(QWheelEvent *event)
+{
+    if(CURRENTSTICKFIGURE !=nullptr){
+        if(!CURRENTSTICKFIGURE->stickList.isEmpty() && CURRENTSTICKFIGURE->currentStick!=nullptr){
+            int idx = CURRENTFRAME->totalSticks.indexOf(CURRENTSTICKFIGURE->currentStick);
+            if(event->angleDelta().y()>0){
+                for(int j = idx+1;j<CURRENTFRAME->totalSticks.length();j++){
+                    if(CURRENTSTICKFIGURE->stickList.contains(CURRENTFRAME->totalSticks[j])){
+                        CURRENTSTICKFIGURE->highlight(false);
+
+                        CURRENTFRAME->selectStick(CURRENTSTICKFIGURE,CURRENTFRAME->totalSticks[j]);
+                        break;
+                    }
+                }
+            }
+            else{
+                for(int j = idx-1;j>-1;j--){
+                    if(CURRENTSTICKFIGURE->stickList.contains(CURRENTFRAME->totalSticks[j])){
+                        CURRENTSTICKFIGURE->highlight(false);
+                        CURRENTFRAME->selectStick(CURRENTSTICKFIGURE,CURRENTFRAME->totalSticks[j]);
+                        break;
+                    }
+                }
+            }
+            CURRENTSTICKFIGURE->refresh(0);
+        }
+    }
+}
+
+
+
 // mouse rilasciato
 void myView::mouseReleaseEvent(QMouseEvent *event)
 {

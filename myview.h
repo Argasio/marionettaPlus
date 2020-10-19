@@ -109,6 +109,10 @@ private:
     // QWidget interface
 
 
+
+    // QWidget interface
+protected:
+    virtual void wheelEvent(QWheelEvent *event) override;
 };
 
 #endif // MYVIEW_H

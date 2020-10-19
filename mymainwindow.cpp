@@ -140,14 +140,13 @@ void myMainWindow::exportImageSequence(QString path){
         renderScene.setSceneRect(myRect->rect());
         // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
         QList<stick*> tempList;
-        for(StickFigure *S:f->stickFigures)
-        {
-            for(stick* s: S->stickList){
-                stick* clone = new stick(s);
-                tempList.append(clone);
-                renderScene.addItem(clone);
-            }
+
+        for(stick* s: f->totalSticks){
+            stick* clone = new stick(s);
+            tempList.append(clone);
+            renderScene.addItem(clone);
         }
+
         //disegna sull' immagine e salvala
         renderImg->fill(Qt::white);
         painter.setBackground(QBrush(QColor(Qt::white)));

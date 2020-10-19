@@ -216,6 +216,10 @@ private slots:
 
     void on_pushStickFigureToBottom_clicked();
 
+    void on_moveStickUp_clicked();
+
+    void on_moveStickDown_clicked();
+
 private:
     Ui::Widget *ui;
 };
