@@ -1261,62 +1261,49 @@ void Widget::on_moveStickUp_clicked()
     int newIdx = CURRENTFRAME->totalSticks.indexOf(CS)+1;
     if(newIdx >= CURRENTFRAME->totalSticks.length())
         return;
-    if(CURRENTFRAME->totalSticks[newIdx]->Z>CS->Z)
-        CS->Z = CURRENTFRAME->totalSticks[newIdx]->Z;
-    bool adjustZ = (CURRENTFRAME->totalSticks[newIdx]->Z==CS->Z);
-    CURRENTFRAME->totalSticks.move(oldIdx,newIdx);
-    /*
-    QList<stick*>greaterSticks;
-
-
-    if(!adjustZ){
-        CURRENTFRAME->refresh();
+    stick* minorBuffer = nullptr;
+    //1 scansiona la lista cerca se ci sta uno sopra con Z uguale
+    for(stick*s:CURRENTFRAME->totalSticks){
+        if(s!=CS && (s->Z==CS->Z && CURRENTFRAME->totalSticks.indexOf(s)>oldIdx))
+        {
+            if(minorBuffer == nullptr){
+                minorBuffer = s;
+            }
+            else if(CURRENTFRAME->totalSticks.indexOf(s)<CURRENTFRAME->totalSticks.indexOf(minorBuffer)){
+                minorBuffer = s;
+            }
+        }
+    }
+    if(minorBuffer != nullptr){
+        CURRENTFRAME->totalSticks.move(oldIdx,CURRENTFRAME->totalSticks.indexOf(minorBuffer));
+        CURRENTFRAME->refresh(0);
         return;
     }
-
-    // scansiona tutti gli stick
-    // di quelli con Z maggiore o Z uguale ma piu in alto nella lista di rendering, mettili in una lista
-    // nell'inserzione della lista trova i primo stick con z superiore e inserisci lo stick da inserire prima di quest'ultimo
-    // lo step up, si ottiene assegnando uno Z uguale al primo elemento della lista dei maggiori ed spostando
-    // lo stick corrente nella lista totale al posto del primo nella lista dei maggiori
-    for(StickFigure* S:CURRENTFRAME->stickFigures){
-        for(stick*s:S->stickList){
-            if( (s->Z>maxZ||(s->Z==maxZ&&CURRENTFRAME->totalSticks.indexOf(s)>newIdx)) && s!=CS){
-                if(greaterSticks.isEmpty())
-                    greaterSticks.append(s);
-                else{
-                    for(stick* s1:greaterSticks){
-                        if(s1->Z>s->Z){
-                            greaterSticks.insert(greaterSticks.indexOf(s1),s);
-                            break;
-                        }
-                        if(s1->Z == s->Z){
-                            if(CURRENTFRAME->totalSticks.indexOf(s1)>CURRENTFRAME->totalSticks.indexOf(s)){
-                                greaterSticks.insert(greaterSticks.indexOf(s1),s);
-                                break;
-                            }
-                            else{
-                                greaterSticks.insert(greaterSticks.indexOf(s1),s);
-                                greaterSticks.move(greaterSticks.indexOf(s),greaterSticks.indexOf(s1));
-                                break;
-                            }
-                        }
-
-                    }
-                    if(!greaterSticks.contains(s))
-                        greaterSticks.append(s);
+    for(stick*s:CURRENTFRAME->totalSticks){
+        if(s!=CS && (s->Z>CS->Z ))
+        {
+            if(minorBuffer == nullptr){
+                minorBuffer = s;
+            }
+            else if(s->Z <= minorBuffer->Z){
+                if(s->Z == minorBuffer->Z && CURRENTFRAME->totalSticks.indexOf(s)<CURRENTFRAME->totalSticks.indexOf(minorBuffer)){
+                    minorBuffer = s;
+                }
+                else if(s->Z<minorBuffer->Z){
+                    minorBuffer = s;
                 }
             }
         }
     }
-    if(greaterSticks[0]->Z>CS->Z){
-        CS->Z = greaterSticks[0]->Z;
+    if(minorBuffer !=nullptr){
+
+        CS->Z = minorBuffer->Z;
+        if(oldIdx<CURRENTFRAME->totalSticks.indexOf(minorBuffer))
+            CURRENTFRAME->totalSticks.move(oldIdx,CURRENTFRAME->totalSticks.indexOf(minorBuffer));
+        CURRENTFRAME->refresh(0);
+        return;
+
     }
-    if(CURRENTFRAME->totalSticks.indexOf(greaterSticks[0])>newIdx){
-        CURRENTFRAME->totalSticks.move(CURRENTFRAME->totalSticks.indexOf(greaterSticks[0]),newIdx);
-    }
-*/
-    CURRENTFRAME->refresh();
 }
 
 void Widget::on_moveStickDown_clicked()
@@ -1330,62 +1317,47 @@ void Widget::on_moveStickDown_clicked()
     int newIdx = CURRENTFRAME->totalSticks.indexOf(CS)-1;
     if(newIdx < 0)
         return;
-    if(CS->Z<CURRENTFRAME->totalSticks[newIdx]->Z)
-        CS->Z = CURRENTFRAME->totalSticks[newIdx]->Z;
-    CURRENTFRAME->totalSticks.move(oldIdx,newIdx);
-
-    /*
-     *
-    bool adjustZ = (CURRENTFRAME->totalSticks[newIdx]->Z==CS->Z);
-
-    QList<stick*>lesserSticks;
-    float minZ = CS->Z;
-    if(!adjustZ){
-        CURRENTFRAME->refresh();
+    stick* minorBuffer = nullptr;
+    //1 scansiona la lista cerca se ci sta uno sotto con Z uguale
+    for(stick*s:CURRENTFRAME->totalSticks){
+        if(s!=CS && (s->Z==CS->Z && CURRENTFRAME->totalSticks.indexOf(s)<oldIdx))
+        {
+            if(minorBuffer == nullptr){
+                minorBuffer = s;
+            }
+            else if(CURRENTFRAME->totalSticks.indexOf(s)>CURRENTFRAME->totalSticks.indexOf(minorBuffer)){
+                minorBuffer = s;
+            }
+        }
+    }
+    if(minorBuffer != nullptr){
+        CURRENTFRAME->totalSticks.move(oldIdx,CURRENTFRAME->totalSticks.indexOf(minorBuffer));
+        CURRENTFRAME->refresh(0);
         return;
     }
-
-    // scansiona tutti gli stick
-    // di quelli con Z maggiore o Z uguale ma piu in alto nella lista di rendering, mettili in una lista
-    // nell'inserzione della lista trova i primo stick con z superiore e inserisci lo stick da inserire prima di quest'ultimo
-    // lo step up, si ottiene assegnando uno Z uguale al primo elemento della lista dei maggiori ed spostando
-    // lo stick corrente nella lista totale al posto del primo nella lista dei maggiori
-    for(StickFigure* S:CURRENTFRAME->stickFigures){
-        for(stick*s:S->stickList){
-            if( (s->Z<minZ||(s->Z==minZ&&CURRENTFRAME->totalSticks.indexOf(s)<newIdx)) && s!=CS){
-                if(lesserSticks.isEmpty())
-                    lesserSticks.append(s);
-                else{
-                    for(stick* s1:lesserSticks){
-                        if(s1->Z<s->Z){
-                            lesserSticks.insert(lesserSticks.indexOf(s1),s);
-                            break;
-                        }
-                        if(s1->Z == s->Z){
-                            if(CURRENTFRAME->totalSticks.indexOf(s1)<CURRENTFRAME->totalSticks.indexOf(s)){
-                                lesserSticks.insert(lesserSticks.indexOf(s1),s);
-                                break;
-                            }
-                            else{
-                                lesserSticks.insert(lesserSticks.indexOf(s1),s);
-                                lesserSticks.move(lesserSticks.indexOf(s),lesserSticks.indexOf(s1));
-                                break;
-                            }
-                        }
-
-                    }
-                    if(!lesserSticks.contains(s))
-                        lesserSticks.append(s);
+    for(stick*s:CURRENTFRAME->totalSticks){
+        if(s!=CS && (s->Z<CS->Z ))
+        {
+            if(minorBuffer == nullptr){
+                minorBuffer = s;
+            }
+            else if(s->Z >= minorBuffer->Z){
+                if(s->Z == minorBuffer->Z && CURRENTFRAME->totalSticks.indexOf(s)>CURRENTFRAME->totalSticks.indexOf(minorBuffer)){
+                    minorBuffer = s;
+                }
+                else if(s->Z>minorBuffer->Z){
+                    minorBuffer = s;
                 }
             }
         }
     }
-    if(lesserSticks[0]->Z<CS->Z){
-        CS->Z = lesserSticks[0]->Z;
-    }
-    if(CURRENTFRAME->totalSticks.indexOf(lesserSticks[0])<newIdx){
-        CURRENTFRAME->totalSticks.move(CURRENTFRAME->totalSticks.indexOf(lesserSticks[0]),newIdx);
-    }*/
+    if(minorBuffer !=nullptr){
 
-    CURRENTFRAME->refresh();
+        CS->Z = minorBuffer->Z;
+        if(oldIdx>CURRENTFRAME->totalSticks.indexOf(minorBuffer))
+            CURRENTFRAME->totalSticks.move(oldIdx,CURRENTFRAME->totalSticks.indexOf(minorBuffer));
+        CURRENTFRAME->refresh(0);
+        return;
+
+    }
 }
