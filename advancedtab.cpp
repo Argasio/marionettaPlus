@@ -1,11 +1,12 @@
 #include "advancedtab.h"
 #include "ui_advancedtab.h"
 #include "myview.h"
+#include "uiItems.h"
 extern int W;
 extern int H;
 extern myView *V;
 bool rectWSliderFlag = false;
-QSlider* advancedRectSlider;
+
 
 #define CS V->myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE V->myAnimation->currentFrame->currentStickFigure

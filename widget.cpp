@@ -30,7 +30,7 @@
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
 #include "advancedtaperwidget.h"
-
+#include "uiItems.h"
 #define CS view->myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE view->myAnimation->currentFrame->currentStickFigure
 #define CURRENTFRAME view->myAnimation->currentFrame
@@ -45,11 +45,16 @@ QGraphicsScene *scene;
 Ui::Widget *myUi;
 myView* V;
 QList <StickFigure*> layerList;
-QListWidget * myStickFigureWidgetList;
-QListWidget * myFrameWidgetList;
-QListWidget * myLibraryListWidget ;
-QListWidget * myCurrentLibraryWidget;
-QListWidget* imgListWidget;
+QTextEdit * stickFigureNameText;
+QGraphicsRectItem *myRect;
+QGraphicsRectItem *limitRect;
+QPointF onionOffset;
+QDir programFolder;
+QDir libFolder;
+QDir tempRenderFolder;
+// -----------------
+QSpinBox* fpsSpinBox;
+QSlider* imgRotationSlider;
 QSpinBox * onionSkinSB;
 QSpinBox * imgHOffsetSpinbox;
 QSpinBox * imgVOffsetSpinbox;
@@ -58,6 +63,7 @@ QSpinBox * imgHeightSpinbox;
 QSpinBox * imgRotationSpinbox;
 QSpinBox * penOpacitySpinbox;
 QSpinBox * brushOpacitySpinbox;
+QSpinBox* lineEditThicknessWidthSpinbox;
 QDoubleSpinBox * elongateSpinbox;
 QSlider * penOpacitySlider;
 QSlider * brushOpacitySlider;
@@ -65,26 +71,31 @@ QSlider * depthSlider;
 QSpinBox *stickFigureScaleSpinbox;
 QSpinBox *stickFigureRotationSpinbox;
 QDoubleSpinBox * depthSpinbox;
-QTextEdit * stickFigureNameText;
-QGraphicsRectItem *myRect;
-QGraphicsRectItem *limitRect;
-QSpinBox* fpsSpinBox;
+QListWidget * myStickFigureWidgetList;
+QListWidget * myFrameWidgetList;
+QListWidget * myLibraryListWidget ;
+QListWidget * myCurrentLibraryWidget;
+QListWidget * imgListWidget;
+QLabel * dbgLbl;
 QSlider* imgHOffsetSlider;
 QSlider* imgVOffsetSlider;
 QSlider* imgWidthSlider;
 QSlider* imgHeightSlider;
-QSlider* imgRotationSlider;
-QPointF onionOffset;
-QDir programFolder;
-QDir libFolder;
-QDir tempRenderFolder;
-QLabel *dbgLbl;
+QSlider* taperWSlider;
+QSlider* advancedRectSlider;
+QSlider* editLineThicknessSlider;
+QSlider* taperHSlider;
+QCheckBox* hardTopCheck;
+QCheckBox* hardBottomCheck;
 advancedTab* advancedRectTab;
-advancedLineWidget* advancedLineTab;
-advancedCircleWidget* advancedCircleTab;
-advancedTaperWidget* advancedTaperTab;
 QTabWidget* myTabWidget;
 QWidget * advancedImgTab;
+advancedLineWidget *advancedLineTab;
+advancedCircleWidget *advancedCircleTab;
+advancedTaperWidget * advancedTaperTab;
+QSlider*  circleSquashSlider;
+QSpinBox * circleSquashSpinbox;
+//----------------------
 int W = DEFAULTWIDTH;
 int H = DEFAULTHEIGHT;
 int FPS = DEFAULTFPS;

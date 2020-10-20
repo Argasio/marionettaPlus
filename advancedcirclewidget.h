@@ -15,6 +15,9 @@ public:
     explicit advancedCircleWidget(QWidget *parent = nullptr);
     ~advancedCircleWidget();
 
+private slots:
+    void on_circleSquashSlider_valueChanged(int value);
+
 private:
     Ui::advancedCircleWidget *ui;
 };

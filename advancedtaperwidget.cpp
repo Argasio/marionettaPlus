@@ -1,6 +1,7 @@
 #include "advancedtaperwidget.h"
 #include "ui_advancedtaperwidget.h"
 #include "myview.h"
+#include "uiItems.h"
 #include <QCheckBox>
 #define CS V->myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE V->myAnimation->currentFrame->currentStickFigure
@@ -10,10 +11,7 @@ extern int H;
 extern myView *V;
 bool taperWSliderFlag = false;
 bool taperHSliderFlag = false;
-QSlider* taperWSlider;
-QSlider* taperHSlider;
-QCheckBox* hardTopCheck;
-QCheckBox* hardBottomCheck;
+
 advancedTaperWidget::advancedTaperWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::advancedTaperWidget)

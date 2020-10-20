@@ -17,8 +17,30 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>There are no advanced options for this stick shape</string>
+      <string>Line Thickness</string>
      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QSlider" name="editLineThicknessSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="lineEditThicknessWidthSpinbox"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>

@@ -8,33 +8,15 @@
 #include "advancedcirclewidget.h"
 #include "advancedtaperwidget.h"
 #include <QCheckBox>
-extern QSlider* taperWSlider;
-extern QSlider* advancedRectSlider;
-extern QSlider* taperHSlider;
-extern advancedTab* advancedRectTab;
-extern QTabWidget* myTabWidget;
-extern QWidget * advancedImgTab;
-extern QListWidget * myStickFigureWidgetList;
-extern QListWidget * myFrameWidgetList;
+#include "uiItems.h"
+
 extern int W;
 extern int H;
 extern QPointF onionOffset;
 extern QGraphicsRectItem *myRect;
 extern QGraphicsRectItem *limitRect;
 extern QGraphicsScene* scene;
-extern QSlider* imgHOffsetSlider;
-extern QSlider* imgVOffsetSlider;
-extern QSlider* imgWidthSlider;
-extern QSlider* imgHeightSlider;
-extern QSlider* imgRotationSlider;
-extern QSpinBox *stickFigureScaleSpinbox;
-extern QSpinBox *stickFigureRotationSpinbox;
-extern advancedLineWidget* advancedLineTab;
-extern advancedCircleWidget* advancedCircleTab;
-extern advancedTaperWidget* advancedTaperTab;
-extern QCheckBox* hardTopCheck;
-extern QCheckBox* hardBottomCheck;
-extern QSpinBox* elongateSpinbox;
+
 bool loadingAnimationFlag = false;
 bool clearingAnimation = false;
 bool changeTypeFlag = false;
@@ -244,6 +226,7 @@ void Animation::updateSliders(){
         hardBottomCheck->setChecked(cs->hardBottom);
 
     }
+    editLineThicknessSlider->setValue(cs->Pen.width());
     elongateSpinbox->setValue(  CS->myLine.length());
 }
 Frame* Animation::setupFrame(int pos){

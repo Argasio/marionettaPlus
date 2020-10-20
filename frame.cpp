@@ -2,17 +2,14 @@
 #include <QListWidget>
 #include <QDebug>
 #include <QBuffer>
-
+#include "uiItems.h"
 #define CS currentStickFigure->currentStick
 QListWidget * ListWidget;
 extern QListWidget * myStickFigureWidgetList;
 extern bool undoFlag;
 extern bool libFlag;
 extern bool switchFrameFlag;
-extern QListWidget * myStickFigureWidgetList;
-extern QListWidget * myFrameWidgetList;
-extern QListWidget * myLibraryListWidget ;
-extern QListWidget * myCurrentLibraryWidget;
+
 bool iconUpdateFlag = false;
 Frame::Frame()
 {

@@ -51,6 +51,7 @@ HEADERS += \
     stick.h \
     sticklib.h \
     style.h \
+    uiItems.h \
     widget.h
 
 FORMS += \

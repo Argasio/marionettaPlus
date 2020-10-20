@@ -80,7 +80,7 @@ stick::~stick(){
 void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     //Pen.setColor(Qt::black);
-
+    QPointF p(myLine.p1().x(),myLine.p1().y());
     this->setZValue(Z);
     if(!onionRender)
         painter->setPen(Pen);
@@ -89,15 +89,23 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         onionSkinPen.setColor(Qt::gray);
         painter->setPen(onionSkinPen);
     }
+    /*
     if(stickType == StickType::CIRCLE){
+        painter->translate(p);
+        painter->rotate(imgAngle);
         painter->setBrush(Brush);
+        painter->drawEllipse()
         painter->drawEllipse(QPointF
-                             (0.5*(myLine.p1().x()+myLine.p2().x()),
-                              0.5*(myLine.p1().y()+myLine.p2().y())), // Ellipse center = line center
-                             myLine.length()*0.5, myLine.length()*0.5); //RX e RY
+                             (0.5*(myLine.dx()),
+                              0.5*(myLine.dy())), // Ellipse center = line center
+                             myLine.length()*0.5, myLine.length()*0.5*imgHScale); //RX e RY
 
+
+        painter->rotate(-imgAngle);
+        painter->translate(-p.x(),-p.y());
     }
-    else if(stickType == StickType::IMAGE){
+    */
+    if(stickType == StickType::IMAGE){
         //QRectF imgRect = calcImgRect(myLine, stickImg->size());
         // ogni immagine la facciamo partire dal punto 0,0
         // la ruotiamo
@@ -129,21 +137,28 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         painter->translate(-p.x(),-p.y());
 
     }
-    else if(stickType == StickType::RECT){
-        QPointF p(myLine.p1().x(),myLine.p1().y());
-        QPointF c(-imgWScale/2,0);
+    else if(stickType == StickType::RECT || stickType == StickType::CIRCLE){
+
+
 
         painter->setBrush(Brush);
         painter->translate(p);
         painter->rotate(imgAngle);
-        painter->drawRect(c.x(),c.y(),imgWScale,myLine.length());
+         if(stickType == StickType::RECT){
+             QPointF c(-imgWScale/2,0);
+            painter->drawRect(c.x(),c.y(),imgWScale,myLine.length());
+         }
+         else{
+             QPointF c(-imgWScale*myLine.length()/2,0);
+             painter->drawEllipse(c.x(),c.y(),myLine.length()*imgWScale,myLine.length());
+         }
         painter->rotate(-imgAngle);
         painter->translate(-p.x(),-p.y());
 
     }
     else if(stickType == StickType::TRAPEZOID || stickType == StickType::TAPER){
         QPointF points[] = { QPointF(-imgWScale/2,0),QPointF(imgWScale/2,0),QPointF(imgHScale/2,myLine.length()), QPointF(-imgHScale/2,myLine.length())};
-        QPointF p(myLine.p1().x(),myLine.p1().y());
+
 
         QVector <QPointF>pVect = {points[0],points[1],points[2],points[3]};
         QPolygonF poly(pVect);
@@ -278,7 +293,7 @@ QRectF stick::updateBr(int mode)
                    QPointF(0.5*(myLine.p1().x()+myLine.p2().x())+myLine.length()*0.5, // bottom right corner =
                                        0.5*(myLine.p1().y()+myLine.p2().y())+myLine.length()*0.5));     // line center shifted by adding half line length (pushing bottom right)
 
-    if((stickType == IMAGE || stickType ==RECT || stickType == TRAPEZOID || stickType == TAPER ) && myLine.length()>0){
+    if((stickType == IMAGE || stickType == CIRCLE||stickType ==RECT || stickType == TRAPEZOID || stickType == TAPER ) && myLine.length()>0){
         float d = 0;
 
         if(stickType == IMAGE ){
@@ -405,7 +420,7 @@ void stick::rotate(QPointF *point)
         }
         children[i]->refresh(1);
     }
-    if((stickType == IMAGE || stickType == RECT || stickType == TAPER || stickType == TRAPEZOID) && !traslationOnly){
+    if((stickType == IMAGE ||stickType == CIRCLE|| stickType == RECT || stickType == TAPER || stickType == TRAPEZOID) && !traslationOnly){
         imgAngle = angle;
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
     }
@@ -435,7 +450,7 @@ void stick::rotate(float angle){
         }
         children[i]->refresh(1);
     }
-    if(stickType == IMAGE || stickType == TRAPEZOID || stickType == TAPER || stickType == RECT){
+    if(stickType == IMAGE ||stickType == CIRCLE|| stickType == TRAPEZOID || stickType == TAPER || stickType == RECT){
         if(stickType == IMAGE)
         imgAngle = angle;
         else
@@ -464,7 +479,7 @@ void stick::manipulate(QPointF *point)
     }
     // se stiamo con un immagine ruotala anche
     if(stickType == stick::IMAGE || stickType == RECT
-            || stickType == TRAPEZOID || stickType == TAPER){
+            || stickType == TRAPEZOID || stickType == TAPER|| stickType == CIRCLE){
         imgAngle= -atan2(myLine.dx(),myLine.dy())*180/M_PI;
     }
     refresh(0);

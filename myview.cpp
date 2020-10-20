@@ -8,6 +8,7 @@
 #include <QBuffer>
 #include <QCheckBox>
 #include <animationoptions.h>
+#include "uiItems.h"
 #define CS myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE myAnimation->currentFrame->currentStickFigure
 #define CURRENTFRAME myAnimation->currentFrame
@@ -22,8 +23,6 @@ float   lengthBuffer;
 bool clearUndoFlag = false;
 Frame* stickLibraryBuffer;
 QList<Frame*> stickLibraryList;
-extern QListWidget * myStickFigureWidgetList;
-extern QListWidget * myFrameWidgetList;
 bool undoFlag = false;
 bool libFlag = false;
 extern QSpinBox * onionSkinSB;
@@ -43,24 +42,10 @@ extern QGraphicsRectItem* myRect;
 extern QGraphicsRectItem* limitRect;
 extern bool playBack ;
 extern bool loadFile;
-extern QCheckBox* hardTopCheck;
-extern QCheckBox* hardBottomCheck;
 extern QPointF onionOffset;
 extern QImage * imageDrawBuffer ;
-extern QSlider* imgHOffsetSlider;
-extern QSlider* imgVOffsetSlider;
-extern QSlider* imgWidthSlider;
-extern QSlider* imgHeightSlider;
-extern QSlider* taperWSlider;
-extern QSlider* advancedRectSlider;
-extern QSlider* taperHSlider;
-extern QListWidget * myLibraryListWidget ;
-extern QListWidget * myCurrentLibraryWidget;
-extern QWidgetList * imgListWidget;
-extern QSlider * depthSlider;
-extern QDoubleSpinBox* depthSpinbox;
 extern QString animationPath;
-extern QDoubleSpinBox* elongateSpinbox;
+
 myView::myView(QWidget *parent) : QGraphicsView(parent)
 {
     onionRender = false;
@@ -464,6 +449,7 @@ void myView::drawCmd(QPointF* point, int mode)
             myAnimation->updateTab(CS->stickType);
             // add it to the total scene list
             myAnimation->currentFrame->totalSticks.append(CS);
+            myAnimation->updateSelection(CS);
 
         }
     }

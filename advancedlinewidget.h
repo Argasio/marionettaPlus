@@ -15,6 +15,11 @@ public:
     explicit advancedLineWidget(QWidget *parent = nullptr);
     ~advancedLineWidget();
 
+private slots:
+    void on_editLineThicknessSlider_valueChanged(int value);
+
+    void on_lineEditThicknessWidthSpinbox_editingFinished();
+
 private:
     Ui::advancedLineWidget *ui;
 };
