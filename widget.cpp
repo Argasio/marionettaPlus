@@ -1372,3 +1372,25 @@ void Widget::on_moveStickDown_clicked()
 
     }
 }
+
+void Widget::on_deleteLibrary_clicked()
+{
+    QString fileName = "";
+    int idx = myLibraryListWidget->currentRow();
+    if(idx>=0 && idx<myLibraryListWidget->count()){
+        QVariant buffer;
+        buffer = myLibraryListWidget->item(idx)->data(Qt::UserRole);
+        fileName = qvariant_cast<QString>(buffer);
+        if(QFile::exists(fileName)){
+            // check if user wants to delete a file
+            view->loadLibrary(fileName);
+        }else{
+            idx = 0;
+            myLibraryListWidget->clearSelection();
+            QListWidgetItem *item = myLibraryListWidget->takeItem(idx);
+            delete  item;
+
+        }
+
+    }
+}

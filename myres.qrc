@@ -221,5 +221,24 @@
         <file>resources/singlebottomstick_00001.png</file>
         <file>resources/singlebottomstick_00002.png</file>
         <file>resources/singlebottomstick_00003.png</file>
+        <file>resources/savecurrentlib_00002.png</file>
+        <file>resources/savecurrentlib_00003.png</file>
+        <file>resources/savecurrentlib_00001.png</file>
+        <file>resources/openlib_00001.png</file>
+        <file>resources/openlib_00002.png</file>
+        <file>resources/openlib_00003.png</file>
+        <file>resources/savenewlib_00003.png</file>
+        <file>resources/savenewlib_00001.png</file>
+        <file>resources/savenewlib_00002.png</file>
+        <file>resources/removelib_00002.png</file>
+        <file>resources/removelib_00003.png</file>
+        <file>resources/removeLibrary_00003.png</file>
+        <file>resources/addlibrary_00003.png</file>
+        <file>resources/addlibrary_00001.png</file>
+        <file>resources/addlibrary_00002.png</file>
+        <file>resources/refreshlibs_00001.png</file>
+        <file>resources/refreshlibs_00002.png</file>
+        <file>resources/refreshlibs_00003.png</file>
+        <file>resources/removelib_00001.png</file>
     </qresource>
 </RCC>

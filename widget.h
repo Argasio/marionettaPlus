@@ -220,6 +220,8 @@ private slots:
 
     void on_moveStickDown_clicked();
 
+    void on_deleteLibrary_clicked();
+
 private:
     Ui::Widget *ui;
 };
