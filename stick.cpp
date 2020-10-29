@@ -43,7 +43,7 @@ stick::stick(stick* S)
     this->order = S->order;
     hardTop = S->hardTop;
     hardBottom = S->hardBottom;
-    if(S->stickType == IMAGE|| S->stickType == RECT || S->stickType == TRAPEZOID|| S->stickType== TAPER){
+    if(S->stickType == IMAGE|| S->stickType == RECT || S->stickType == TRAPEZOID|| S->stickType== CIRCLE || S->stickType== TAPER){
         if(S->stickType == IMAGE){
             for(QImage*i:S->stickImgList){
                 stickImgList.append(new QImage(*i));
@@ -171,13 +171,27 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
             QPainterPath totalPath;
             totalPath.setFillRule(Qt::WindingFill);
             QRectF pie1(QPointF(-imgWScale/2,-imgWScale/2),QSize(imgWScale,imgWScale));
-            if(!hardBottom)
-                totalPath.addEllipse(pie1);
+            if(!hardBottom){
+                QPainterPath piePath;
+                piePath.moveTo(points[0]);
+                piePath.arcTo(pie1,0,180);
+                piePath.closeSubpath();
+                totalPath.addPath(piePath);
+                //totalPath.addEllipse(pie1);
+            }
             totalPath.addPolygon(poly);
             QRectF pie2(QPointF(-imgHScale/2,myLine.length()-imgHScale/2),QSize(imgHScale,imgHScale));
-            if(!hardTop)
-                totalPath.addEllipse(pie2);
+            if(!hardTop){
+                QPainterPath piePath;
+                piePath.moveTo(points[2]);
+                piePath.arcTo(pie2,0,-180);
+                piePath.closeSubpath();
+                totalPath.addPath(piePath);
+                //totalPath.addEllipse(pie2);
+
+            }
             painter->drawPath(totalPath.simplified());
+            //painter->drawPolygon(pVect);
             //painter->drawPie(pie2,0,-180*16);
             //painter->drawEllipse(pie2);
         }
@@ -300,8 +314,11 @@ QRectF stick::updateBr(int mode)
             QImage scaled = calcImg();
             d = sqrt(pow(scaled.width(),2)+pow(scaled.height(),2));
         }
-        else{
+        else if(stickType !=CIRCLE){
             d = sqrt(pow(imgWScale,2)+pow(myLine.length()+2*imgHScale,2));
+        }
+        else{
+            d = sqrt(pow(2*myLine.length()*imgWScale,2)+pow(myLine.length()*imgHScale,2));
         }
         newBr = QRectF(QPointF                                                      // Upper left corner of rect =
                        (myLine.p1().x()-d, //           line center X shifted by minus half line length
@@ -452,7 +469,7 @@ void stick::rotate(float angle){
     }
     if(stickType == IMAGE ||stickType == CIRCLE|| stickType == TRAPEZOID || stickType == TAPER || stickType == RECT){
         if(stickType == IMAGE)
-        imgAngle = angle;
+            imgAngle = -angle-90;
         else
             imgAngle = -angle-90;
         //*stickImg = stickImg->transformed(QTransform().rotate(90-angle));
