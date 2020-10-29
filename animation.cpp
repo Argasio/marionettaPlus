@@ -143,9 +143,13 @@ void Animation::updateTab(int t){
     }
     else if(t == stick::TAPER){
         myTabWidget->insertTab(1,advancedTaperTab,"Taper Editing");
+        hardTopCheck->show();
+        hardBottomCheck->show();
     }
     else if(t == stick::TRAPEZOID){
         myTabWidget->insertTab(1,advancedTaperTab,"Trapezoid Editing");
+        hardTopCheck->hide();
+        hardBottomCheck->hide();
     }
     myTabWidget->setCurrentIndex(idx);
 }
@@ -218,6 +222,14 @@ void Animation::updateSliders(){
     }
     else if(cs->stickType == stick::RECT){
         advancedRectSlider->setValue(cs->imgWScale);
+    }
+    else if(cs->stickType == stick::CIRCLE){
+        if(cs->imgWScale<1){
+            circleSquashSlider->setValue(-(1-cs->imgWScale)*100);
+        }
+        else{
+            circleSquashSlider->setValue((cs->imgWScale-1)*20);
+        }
     }
     else if(cs->stickType == stick::TAPER||cs->stickType == stick::TRAPEZOID){
         taperWSlider->setValue(cs->imgWScale);

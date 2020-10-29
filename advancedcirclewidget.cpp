@@ -26,7 +26,13 @@ void advancedCircleWidget::on_circleSquashSlider_valueChanged(int value)
     if(CURRENTSTICKFIGURE!=nullptr){
         if(CS!=nullptr){
             if(CS->stickType== stick::CIRCLE){
-                CS->imgWScale = (float)value/100;
+                if(value<0){
+
+                    CS->imgWScale = (1-(-(float)value)/100);
+                }
+                else{
+                    CS->imgWScale = (float)(1+(float)value/20);
+                }
                 CS->refresh(0);
             }
         }

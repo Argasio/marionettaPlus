@@ -14,12 +14,15 @@
 #define CURRENTFRAME myAnimation->currentFrame
 
 
-
+bool    isRightPressed = false;
+bool    isMiddlePressed = false;
 bool    isPressed = false;
+extern float zoomLvl;
 QPointF startingCoord; //mouse click coordinateBuffer
 QPointF coord; //current mouse pos
 float   rotationBuffer; //selected item Rotation buffer
 float   lengthBuffer;
+float zoomLvlBuf;
 bool clearUndoFlag = false;
 Frame* stickLibraryBuffer;
 QList<Frame*> stickLibraryList;
@@ -76,7 +79,7 @@ void myView::deleteStickFigure()
         QVariant  retrievedData = (current->data(Qt::UserRole));
         //riconverti il dato
         StickFigure* cs = qvariant_cast<StickFigure*>(retrievedData);
-        
+
         //distruggi l'oggetto della lista
         myStickFigureWidgetList->takeItem(myStickFigureWidgetList->row(current));
         delete current;
@@ -187,16 +190,22 @@ void myView::mapMyCoords(QPointF& myCoord, QPointF startingPoint){
 }
 void myView::mousePressEvent(QMouseEvent *event)
 {
-    isPressed       = true; //segnala che è premuto
+    if(event->button()==Qt::LeftButton){
+        isPressed = true;
+    }
+    else if(event->button()==Qt::RightButton){
+        isRightPressed = true;
+    }else if(event->button()==Qt::MiddleButton){
+        isMiddlePressed = true;
+    }
     // converti le coordinate del mouse in coordinate di scena
     mapMyCoords(coord,event->pos());
 
 
     startingCoord   = coord; //buffer per il dragghing del mouse premuto
+    if(!isRightPressed && !isMiddlePressed){
     switch(tool)
     {
-        if(!myAnimation->currentFrame->stickFigures.isEmpty())
-        {
             case NOTOOL:
             {
                 storeUndo();
@@ -305,10 +314,11 @@ void myView::mousePressEvent(QMouseEvent *event)
                 break;
             }
 
-        }
-        QGraphicsView::mousePressEvent(event);
-    }
 
+
+    }
+    }
+    //QGraphicsView::mousePressEvent(event);
 }
 
 void myView::keyPressEvent(QKeyEvent *event)
@@ -568,19 +578,29 @@ void myView::wheelEvent(QWheelEvent *event)
 // mouse rilasciato
 void myView::mouseReleaseEvent(QMouseEvent *event)
 {
-    isPressed = false;
-    if(myAnimation->currentFrame->stickFigures.count()>0)
-    {
-        if(CURRENTSTICKFIGURE->stickList.count()>0
-                 && myStickFigureWidgetList->selectedItems().count() == 1)
+    if(event->button()==Qt::LeftButton){
+        isPressed = false;
+        if(myAnimation->currentFrame->stickFigures.count()>0)
         {
-            //termina una rotazione di stick al rilascio
-            CS->endRotation();
-            CURRENTSTICKFIGURE->updateIcon();
-            myStickFigureWidgetList->selectedItems()[0]->setIcon(*CURRENTSTICKFIGURE->stickFigureIcon);
-            myAnimation->currentFrame->updateIcon();
+            if(CURRENTSTICKFIGURE->stickList.count()>0
+                     && myStickFigureWidgetList->selectedItems().count() == 1)
+            {
+                //termina una rotazione di stick al rilascio
+                CS->endRotation();
+                CURRENTSTICKFIGURE->updateIcon();
+                myStickFigureWidgetList->selectedItems()[0]->setIcon(*CURRENTSTICKFIGURE->stickFigureIcon);
+                myAnimation->currentFrame->updateIcon();
+            }
         }
+    }else if(event->button()==Qt::RightButton){
+        isRightPressed = false;
+        setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+    }else if(event->button()==Qt::MiddleButton){
+        isMiddlePressed = false;
+        //zoomLvl = zoomLvlBuf/zoomLvl;
+        setTransformationAnchor(QGraphicsView::AnchorViewCenter);
     }
+
     QGraphicsView::mouseReleaseEvent(event);
 }
 
@@ -589,7 +609,7 @@ void myView::mouseReleaseEvent(QMouseEvent *event)
 // per ruotarla seguendo il mouse
 void myView::mouseMoveEvent(QMouseEvent *event)
 {
-
+    static QPointF prevCoord(0,0);
     mapMyCoords(coord, event->pos());
     switch(tool)
     {
@@ -754,7 +774,24 @@ void myView::mouseMoveEvent(QMouseEvent *event)
             }
             break;
         }
+
     }
+    if(isRightPressed){
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        QLineF travel(prevCoord,coord);
+        translate(travel.dx(),travel.dy());
+    }else if(isMiddlePressed){
+
+        //calcola lo scostamento dal centro all'inizio della pressione e quella attuale
+        float distFromCenter0 = QLineF(prevCoord,QPointF(W/2,H/2)).length();
+        float distFromCenter1 = QLineF(coord,QPointF(W/2,H/2)).length();
+
+        zoomLvlBuf = zoomLvl+(distFromCenter1-distFromCenter0)/(0.5*sqrtf(W*W+H*H)); // zoombuf è incrementato dal valore precedente di un valore sempre minore di 1
+
+        scale(zoomLvlBuf/zoomLvl,zoomLvlBuf/zoomLvl); // la divisione serve a riportare allo zoom 0, lo zoom applicato è zombuf
+        zoomLvl = zoomLvlBuf;
+    }
+    prevCoord = coord;
     QGraphicsView::mouseMoveEvent(event);
 }
 //funzione usata per riscalare interamente il frame quando si riscala l'animazione intera
@@ -875,7 +912,7 @@ void myView::moveToFrame(Frame* frame){
         myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
         myFrameWidgetList->setCurrentItem(myAnimation->currentFrame->linkedItem);
         if(!myAnimation->frameList.isEmpty() && !myAnimation->currentFrame->stickFigures.isEmpty()){
-            CURRENTSTICKFIGURE->updateIcon();
+            //CURRENTSTICKFIGURE->updateIcon();
             myFrameWidgetList->selectedItems()[0]->setIcon(*myAnimation->currentFrame->frameIcon);
             myAnimation->currentFrame->updateIcon();
         }

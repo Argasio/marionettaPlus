@@ -47,6 +47,8 @@ private slots:
 
     void on_actionExport_as_image_sequence_triggered();
 
+    void on_actionAbout_triggered();
+
 private:
     Ui::myMainWindow *ui;
 

@@ -400,7 +400,7 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.Brush;
     stream>>myStick.master;
     stream>>myStick.order;
-    if((myStick.stickType == stick::IMAGE)||(myStick.stickType == stick::RECT)||(myStick.stickType == stick::TRAPEZOID)||(myStick.stickType == stick::TAPER)){
+    if((myStick.stickType == stick::IMAGE)||(myStick.stickType == stick::CIRCLE)||(myStick.stickType == stick::RECT)||(myStick.stickType == stick::TRAPEZOID)||(myStick.stickType == stick::TAPER)){
         QSize mysize;
         if(myStick.stickType == stick::IMAGE){
 
@@ -837,7 +837,12 @@ void StickFigure::setStepChildAsMaster(stick* toMaster){
             p2Buf = s->myLine.p2();
             s->myLine.setP2(s->myLine.p1());
             s->myLine.setP1(p2Buf);
-            if(toMaster->stickType == stick::CIRCLE||s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID)
+            if(s->stickType == stick::CIRCLE||s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID)
+                if(s->stickType != stick::CIRCLE && s->stickType != stick::IMAGE ){
+                    float buf = s->imgHScale;
+                    s->imgHScale = s->imgWScale;
+                    s->imgWScale= buf;
+                }
                 s->imgAngle = s->imgAngle-180;
         }
         stick* recursive = s->parent; // segna lo stick corrente come figlio di tutti i suoi genitori
@@ -948,8 +953,15 @@ void StickFigure::setDirectChainAsMaster(stick* toMaster){
         p2Buf = s->myLine.p2();
         s->myLine.setP2(s->myLine.p1());
         s->myLine.setP1(p2Buf);
-        if( toMaster->stickType == stick::CIRCLE||s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID)
+        if( s->stickType == stick::CIRCLE||s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID){
             s->imgAngle = s->imgAngle-180;
+            if(s->stickType != stick::CIRCLE && s->stickType != stick::IMAGE ){
+                float buf = s->imgHScale;
+                s->imgHScale = s->imgWScale;
+                s->imgWScale= buf;
+            }
+
+        }
         // pulisci i figli dello stick, la catena va ricostruita
         s->children.clear(); // attenzione il master così si perde anch gli stepchild che non vengono ricostruiti al for successivo
     }
@@ -1048,8 +1060,15 @@ void StickFigure::invertMaster(stick* toMaster){
     p2Buf = toMaster->myLine.p2();
     toMaster->myLine.setP2(toMaster->myLine.p1());
     toMaster->myLine.setP1(p2Buf);
-    if(toMaster->stickType == stick::RECT || toMaster->stickType == stick::CIRCLE|| toMaster->stickType == stick::TAPER || toMaster->stickType == stick::TRAPEZOID)
-        toMaster->imgAngle = toMaster->imgAngle-180;
+    if(toMaster->stickType == stick::RECT ||toMaster->stickType == stick::CIRCLE|| toMaster->stickType == stick::TAPER || toMaster->stickType == stick::TRAPEZOID)
+      {  toMaster->imgAngle = toMaster->imgAngle-180;
+         if(toMaster->stickType != stick::CIRCLE && toMaster->stickType != stick::IMAGE ){
+             float buf = toMaster->imgHScale;
+             toMaster->imgHScale = toMaster->imgWScale;
+             toMaster->imgWScale= buf;
+         }
+
+    }
     // qui si capisce quale inversione occorre compiere,
     // si parte con l'estremo di origine senza stepchild
     // o si parte con un estremo di origine da cui partono stepchild?
@@ -1118,8 +1137,12 @@ void StickFigure::stepDownMaster(stick* toMaster){
     p2Buf = toMaster->myLine.p2();
     toMaster->myLine.setP2(toMaster->myLine.p1());
     toMaster->myLine.setP1(p2Buf);
-    if(toMaster->stickType == stick::RECT ||toMaster->stickType == stick::CIRCLE|| toMaster->stickType == stick::TAPER || toMaster->stickType == stick::TRAPEZOID)
-        toMaster->imgAngle = toMaster->imgAngle-180;
+    if(toMaster->stickType == stick::RECT ||toMaster->stickType == stick::CIRCLE||toMaster->stickType == stick::TAPER || toMaster->stickType == stick::TRAPEZOID)
+        if(toMaster->stickType != stick::CIRCLE && toMaster->stickType != stick::IMAGE ){
+            float buf = toMaster->imgHScale;
+            toMaster->imgHScale = toMaster->imgWScale;
+            toMaster->imgWScale= buf;
+        }
     // il nuovo master ha come children tutti gli stick tranne se stesso
     toMaster->children.clear();
     toMaster->children = stickList;
@@ -1146,7 +1169,7 @@ void StickFigure::elongate(QPointF newEndPoint, stick* myStick){
 
         }
     }
-    if(myStick->stickType == stick::IMAGE || myStick->stickType  == stick::RECT
+    if(myStick->stickType == stick::IMAGE || myStick->stickType  == stick::RECT/* || myStick->stickType  == stick::CIRCLE*/
             || myStick->stickType  == stick::TRAPEZOID || myStick->stickType  == stick::TAPER){
         myStick->imgAngle= -atan2(myStick->myLine.dx(),myStick->myLine.dy())*180/M_PI;
     }

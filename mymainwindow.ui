@@ -303,12 +303,12 @@ QMenu::separator {
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menufile">
     <property name="title">
-     <string>file</string>
+     <string>File</string>
     </property>
     <addaction name="actionNew_Blank_Animation"/>
     <addaction name="actionsave_animation_current"/>
@@ -324,7 +324,14 @@ QMenu::separator {
     <addaction name="separator"/>
     <addaction name="actionAnimation_Options"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menufile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionsave">
@@ -375,6 +382,11 @@ QMenu::separator {
   <action name="actionExport_video_using_FFMPEG">
    <property name="text">
     <string>Export video using FFMPEG</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>
