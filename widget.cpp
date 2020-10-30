@@ -1383,12 +1383,29 @@ void Widget::on_deleteLibrary_clicked()
         fileName = qvariant_cast<QString>(buffer);
         if(QFile::exists(fileName)){
             // check if user wants to delete a file
-            view->loadLibrary(fileName);
+            int ret  = QMessageBox::warning(this, tr("delete File"),
+                                            tr("This will delete the file associated to the library .\n"
+                                               "Do you want to proceed?"),
+                                            QMessageBox::Yes | QMessageBox::No
+                                            );
+            if(ret == QMessageBox::Yes){
+                QFile file (fileName);
+                file.remove();
+                file.close();
+                goto removeLibraryGoto;
+            }
+
         }else{
-            idx = 0;
+            removeLibraryGoto:
+
             myLibraryListWidget->clearSelection();
             QListWidgetItem *item = myLibraryListWidget->takeItem(idx);
             delete  item;
+            if(myLibraryListWidget->count()>0){
+                myLibraryListWidget->setCurrentRow(0);
+            }else{
+                myCurrentLibraryWidget->clear();
+            }
 
         }
 

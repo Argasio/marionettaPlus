@@ -3684,7 +3684,7 @@ QPushButton:pressed{
 </string>
                          </property>
                          <property name="text">
-                          <string>add item to scene</string>
+                          <string/>
                          </property>
                         </widget>
                        </item>
@@ -3706,17 +3706,17 @@ QPushButton:pressed{
                           <string notr="true">QPushButton {
     qproperty-icon: url(&quot; &quot;); /* empty image */
     qproperty-iconSize: 16px 16px; /* space for the background image */
-    background-image: url(:/resources/libtoscene_00001.png);
+    background-image: url(:/resources/removestickfromlib_00001.png);
     background-repeat: no-repeat;
 	border: 0px solid #5A5A5A;
 }
 QPushButton:hover{
-    background-image: url(:/resources/libtoscene_00002.png);
+    background-image: url(:/resources/removestickfromlib_00002.png);
     background-repeat: no-repeat;
 	background-color: rgb(25, 25, 25)
 }
 QPushButton:pressed{
-    background-image: url(:/resources/libtoscene_00003.png);
+    background-image: url(:/resources/removestickfromlib_00003.png);
     background-repeat: no-repeat;
 }
 </string>

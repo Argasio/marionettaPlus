@@ -240,5 +240,14 @@
         <file>resources/refreshlibs_00002.png</file>
         <file>resources/refreshlibs_00003.png</file>
         <file>resources/removelib_00001.png</file>
+        <file>resources/scenetolib_00001.png</file>
+        <file>resources/scenetolib_00002.png</file>
+        <file>resources/scenetolib_00003.png</file>
+        <file>resources/libtoscene_00001.png</file>
+        <file>resources/libtoscene_00002.png</file>
+        <file>resources/libtoscene_00003.png</file>
+        <file>resources/removestickfromlib_00001.png</file>
+        <file>resources/removestickfromlib_00002.png</file>
+        <file>resources/removestickfromlib_00003.png</file>
     </qresource>
 </RCC>
