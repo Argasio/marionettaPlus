@@ -5,6 +5,7 @@
 #include "myview.h"
 #include "widget.h"
 #include <QObject>
+#include <checkupdate.h>
 namespace Ui {
 class myMainWindow;
 }
@@ -26,6 +27,7 @@ public slots:
     void getAnimationParams(int optionVal);
     void startffmpegRender(QStringList options);
     void autoSave();
+    void updatePresent(QString ver);
 private slots:
     void on_actionsave_triggered();
 

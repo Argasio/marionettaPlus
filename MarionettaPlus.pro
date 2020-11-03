@@ -23,6 +23,7 @@ SOURCES += \
     advancedtaperwidget.cpp \
     animation.cpp \
     animationoptions.cpp \
+    checkupdate.cpp \
     ffmpegexport.cpp \
     frame.cpp \
     main.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
     advancedtaperwidget.h \
     animation.h \
     animationoptions.h \
+    checkupdate.h \
     ffmpegexport.h \
     frame.h \
     mymainwindow.h \
