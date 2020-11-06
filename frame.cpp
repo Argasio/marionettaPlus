@@ -55,9 +55,10 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
 
     //StickFigure* addedStickFigure = view->addStickFigure( addedItem);
 
-
-    if(!stickFigures.isEmpty())
-        currentStickFigure->highlight(false); //de highlight old selection
+    if(currentStickFigure!=nullptr){
+        if(!stickFigures.isEmpty() && !currentStickFigure->stickList.isEmpty())
+            currentStickFigure->highlight(false); //de highlight old selection
+    }
     stickFigureBuffer = new StickFigure(addedItem);
     stickFigures.append(stickFigureBuffer);
     //seleziona l'ordine z in base all'ordine di creazione

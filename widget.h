@@ -222,6 +222,10 @@ private slots:
 
     void on_deleteLibrary_clicked();
 
+    void on_cpyFrame_clicked();
+
+    void on_pasteFrame_clicked();
+
 private:
     Ui::Widget *ui;
 };

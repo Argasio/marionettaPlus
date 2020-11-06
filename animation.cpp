@@ -187,7 +187,9 @@ void Animation::updateSelection(StickFigure* S)
         return;
     // update current stickfigure
     CURRENTSTICKFIGURE->highlight(false); //de highlight old selection
+
     CURRENTSTICKFIGURE = S; //update currentStickFigure buffer
+
     S->highlight(true); //highlight new one
 
     // update current stick
@@ -195,6 +197,8 @@ void Animation::updateSelection(StickFigure* S)
     if(!S->stickList.isEmpty()){
         currentFrame->selectStick(S); //update selected stick
     }
+
+
 }
 
 void Animation::updateSliders(){

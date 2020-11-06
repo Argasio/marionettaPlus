@@ -95,6 +95,7 @@ advancedCircleWidget *advancedCircleTab;
 advancedTaperWidget * advancedTaperTab;
 QSlider*  circleSquashSlider;
 QSpinBox * circleSquashSpinbox;
+Frame * frameCopyBuffer = nullptr;
 //----------------------
 int W = DEFAULTWIDTH;
 int H = DEFAULTHEIGHT;
@@ -180,6 +181,7 @@ Widget::Widget(QWidget *parent)
     view->setScene(scene);
     view->myAnimation->scene = scene;
     addFrame();
+    CURRENTSTICKFIGURE = CURRENTFRAME->stickFigures[0];
     //inserisci il pannello nella finestra
     ui->viewLayout->addWidget(view);
     //crea la cornice
@@ -215,6 +217,7 @@ Widget::Widget(QWidget *parent)
     myLibraryListWidget->clear();
     detectLibraries();
     myLibraryListWidget->setCurrentRow(0);
+    frameCopyBuffer = new Frame();
 }
 void Widget::readJson(QString path ){
     QFile file(path);
@@ -684,6 +687,8 @@ void Widget::on_addItemFromLibraryToSceneBtn_clicked()
     }
     added->linkedItem->setData(Qt::DisplayRole,added->name);
     view->myAnimation->updateSelection(added);
+    myStickFigureWidgetList->setCurrentRow(myStickFigureWidgetList->row(added->linkedItem));
+    added->refresh();
     //added->refresh();
     //scene->update();
     //CURRENTSTICKFIGURE->loadStickFigure(fileName)
@@ -1408,6 +1413,59 @@ void Widget::on_deleteLibrary_clicked()
             }
 
         }
-
     }
+}
+extern bool libFlag;
+void Widget::on_cpyFrame_clicked()
+{
+
+    switchFrameFlag = true;
+    libFlag = true;
+    // byte array stores serialized data
+    QByteArray byteArray;
+    // buffer temporarily holds serialized data
+    QBuffer buffer1(&byteArray);
+    // use this buffer to store data from the object
+    buffer1.open(QIODevice::WriteOnly);
+    QDataStream myStream(&buffer1);
+    myStream<<*(CURRENTFRAME);
+    // now create a seconds buffer from which to read data of the bytearray
+    QBuffer buffer2(&byteArray);
+    buffer2.open(QIODevice::ReadOnly);
+    // a new data stream to deserialize
+    QDataStream myStream2(&buffer2);
+
+    if(frameCopyBuffer!=nullptr){
+        delete frameCopyBuffer;
+        frameCopyBuffer = new Frame;
+    }
+    myStream2>>*frameCopyBuffer;
+    buffer1.close();
+    buffer2.close();
+    switchFrameFlag = false;
+    libFlag = false;
+}
+
+void Widget::on_pasteFrame_clicked()
+{
+
+    view->storeUndo();
+    // add a new stickfigure per every stickfigure in the copy buffer
+    for(StickFigure*S:frameCopyBuffer->stickFigures){
+        StickFigure *added = addStick();
+        cloneStickFigure(added,S);
+        for(stick*s:added->stickList){
+            CURRENTFRAME->totalSticks.append(s);
+        }
+        added->linkedItem->setData(Qt::DisplayRole,added->name);
+        if(frameCopyBuffer->stickFigures.last() == S){
+            view->myAnimation->updateSelection(added);
+            myStickFigureWidgetList->setCurrentRow(myStickFigureWidgetList->row(added->linkedItem));
+        }
+    }
+    // move to new frame
+    CURRENTFRAME->refresh();
+
+    // update list icons
+    view->updateFrameOrder(CURRENTFRAME);
 }

@@ -7,14 +7,14 @@ class checkUpdate : public QThread
 {
     Q_OBJECT
 public:
-    checkUpdate();
-    void run() override {
-        QString result;
-        /* ... here is the expensive or blocking operation ... */
-        emit resultReady(result);
-    }
+    explicit checkUpdate();
+
 signals:
-    void resultReady(const QString &s);
+    void updatePresent(const QString &s);
+
+    // QThread interface
+protected:
+    virtual void run() override;
 };
 #endif // CHECKUPDATE_H
 

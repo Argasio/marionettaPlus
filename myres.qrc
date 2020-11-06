@@ -249,5 +249,28 @@
         <file>resources/removestickfromlib_00001.png</file>
         <file>resources/removestickfromlib_00002.png</file>
         <file>resources/removestickfromlib_00003.png</file>
+        <file>version.exe</file>
+        <file>image2Avi.exe</file>
+        <file>resources/switchimg_00002.png</file>
+        <file>resources/switchimg_00003.png</file>
+        <file>resources/switchimg_00001.png</file>
+        <file>resources/removeimg_00001.png</file>
+        <file>resources/removeimg_00002.png</file>
+        <file>resources/removeimg_00003.png</file>
+        <file>resources/openimg_00001.png</file>
+        <file>resources/openimg_00002.png</file>
+        <file>resources/openimg_00003.png</file>
+        <file>resources/cpyframe_00002.png</file>
+        <file>resources/cpyframe_00003.png</file>
+        <file>resources/cpyframe_00001.png</file>
+        <file>resources/saveframe_00001.png</file>
+        <file>resources/saveframe_00002.png</file>
+        <file>resources/saveframe_00003.png</file>
+        <file>resources/loadframe_00001.png</file>
+        <file>resources/loadframe_00002.png</file>
+        <file>resources/loadframe_00003.png</file>
+        <file>resources/pasteFrame_00003.png</file>
+        <file>resources/pasteFrame_00001.png</file>
+        <file>resources/pasteFrame_00002.png</file>
     </qresource>
 </RCC>

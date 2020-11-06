@@ -107,9 +107,11 @@ void myView::deleteStickFigure()
 //cambia l'ordine di profondità dello stickfigure selezionato
 void myView::moveStickFigureZ(int increment, int mode)
 {
-    if(myStickFigureWidgetList->count() == 0)
+    if(myStickFigureWidgetList->count() <= 1 )
         return;
     int currentIndex = myStickFigureWidgetList->currentRow();
+    if((currentIndex == 0 && increment<0)||(currentIndex == myStickFigureWidgetList->count()-1 && currentIndex>0))
+        return;
     if(mode == MODE_TOP){
         increment = myStickFigureWidgetList->count()-1-currentIndex;
         if(increment == 0 )
@@ -887,11 +889,16 @@ void myView::moveToFrame(Frame* frame){
         if(frame->currentStickFigure->currentStick!=nullptr){
             frame->selectStick(frame->currentStickFigure,frame->currentStickFigure->currentStick);
         }
-        else
+        else{
             arrowSelection();
+        }
     }
-    else
+    else if(frame->stickFigures.count() == 1 && frame->stickFigures[0]->stickList.isEmpty()){
+        CURRENTSTICKFIGURE = frame->stickFigures[0];
+        myAnimation->updateSelection(CURRENTSTICKFIGURE);
+    }else{
         arrowSelection();
+    }
     /*
     if(!myAnimation->currentFrame->stickFigures.isEmpty())
         CURRENTSTICKFIGURE = myAnimation->currentFrame->stickFigures[0];

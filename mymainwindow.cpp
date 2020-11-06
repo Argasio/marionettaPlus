@@ -31,7 +31,11 @@ myMainWindow::myMainWindow(QWidget *parent) :
     ui(new Ui::myMainWindow)
 {
     ui->setupUi(this);
+    checkUpdate* Check = new checkUpdate();
+    QObject::connect(Check, &checkUpdate::updatePresent,this, &myMainWindow::updatePresent);
+    Check->start();
 }
+
 
 myMainWindow::~myMainWindow()
 {
@@ -123,7 +127,12 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
                     <<QString::number(W)
                     <<QString::number(H)
                     <<QString::number(view->myAnimation->frameList.count());
-    p->start("C:/Users/Argasio/Documents/GitHub/MarionettaPlus/marionettaPlus/image2Avi.exe");
+    // la path in cui si trova l'é'eseguibile di marionetta
+    QString exePath = QCoreApplication::applicationDirPath();
+    // estrai il file exporter di avi
+    QFile::copy(":/image2avi.exe",exePath+"/image2avi.exe");
+    // eseguilo
+    p->start(exePath+"/image2Avi.exe");
     if (!p->waitForStarted())
         qDebug("starting render problem");
     for(QString s: paramList){
@@ -239,6 +248,11 @@ void myMainWindow::startffmpegRender(QStringList options){
 void myMainWindow::autoSave()
 {
     on_actionsave_animation_current_triggered();
+}
+
+void myMainWindow::updatePresent(QString ver)
+{
+    QMessageBox::about(this,"Old version Alert", "A newer version of this Software is available at Marionetta's website for download!");
 }
 
 void myMainWindow::on_actionExport_as_image_sequence_triggered()
