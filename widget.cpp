@@ -189,6 +189,7 @@ Widget::Widget(QWidget *parent)
     myRect->setBrush(QBrush(QColor(Qt::white)));
     limitRect = new QGraphicsRectItem(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
     limitRect->setBrush(QBrush(QColor(Qt::white)));
+    myRect->setZValue(-100);
     myRect->setPen(Qt::NoPen);
     scene->addItem(myRect);
     scene->setSceneRect(limitRect->rect());
@@ -350,6 +351,7 @@ StickFigure* Widget::addStick(){
 void Widget::on_thicknessSpinBox_valueChanged(int arg1)
 {
     view->myPen.setWidth(arg1);
+    ui->lineThicknessSlider->setValue(arg1);
 }
 
 void Widget::on_stickLayerView_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
@@ -360,7 +362,9 @@ void Widget::on_stickLayerView_currentItemChanged(QListWidgetItem *current, QLis
         QVariant  retrievedData = (current->data(Qt::UserRole));
         StickFigure* cs = qvariant_cast<StickFigure*>(retrievedData);
         view->myAnimation->updateSelection(cs);
+
     }
+
 }
 
 void Widget::on_deleteStickFigureBtn_clicked()
@@ -660,7 +664,7 @@ void Widget::on_libraryList_currentRowChanged(int currentRow)
         buffer = myLibraryListWidget->item(idx)->data(Qt::UserRole);
         fileName = qvariant_cast<QString>(buffer);
         if(QFile::exists(fileName)){
-            view->loadLibrary(fileName);
+            view->loadLibrary(fileName,0);
         }
     }
 
@@ -1420,7 +1424,7 @@ void Widget::on_cpyFrame_clicked()
 {
 
     switchFrameFlag = true;
-    libFlag = true;
+    copyFlag = true;
     // byte array stores serialized data
     QByteArray byteArray;
     // buffer temporarily holds serialized data
@@ -1443,7 +1447,7 @@ void Widget::on_cpyFrame_clicked()
     buffer1.close();
     buffer2.close();
     switchFrameFlag = false;
-    libFlag = false;
+    copyFlag = false;
 }
 
 void Widget::on_pasteFrame_clicked()
@@ -1468,4 +1472,10 @@ void Widget::on_pasteFrame_clicked()
 
     // update list icons
     view->updateFrameOrder(CURRENTFRAME);
+}
+
+
+void Widget::on_lineThicknessSlider_sliderMoved(int position)
+{
+    ui->thicknessSpinBox->setValue(position);
 }

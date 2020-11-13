@@ -37,6 +37,7 @@ stick::stick(stick* S)
     setLine(&S->myLine);
     stepchild = false;
     this->Z = S->Z;
+    this->setZValue(S->Z);
     this->br = S->boundingRect();
     this->stickType = S->stickType;
     this->master = S->master;

@@ -1347,7 +1347,7 @@ QPushButton:pressed{
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="drawingTab">
                    <property name="toolTip">
@@ -4493,7 +4493,7 @@ border: 1px solid #5A5A5A;
                     <number>0</number>
                    </property>
                    <item row="2" column="0">
-                    <widget class="QSlider" name="horizontalSlider">
+                    <widget class="QSlider" name="lineThicknessSlider">
                      <property name="value">
                       <number>10</number>
                      </property>

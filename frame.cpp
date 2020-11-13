@@ -29,8 +29,8 @@ Frame::~Frame(){
 StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
 {
     QString myName;
-    if(libFlag){
-        myStickFigureWidgetList;
+    if(!libFlag){
+        ListWidget = myStickFigureWidgetList;
     }
     else
         ListWidget = myCurrentLibraryWidget;
@@ -66,7 +66,7 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
     //aggiorna lo stickfigure corrente
     currentStickFigure = stickFigureBuffer;
     currentStickFigure->name = myName;
-    if(!undoFlag){
+    if(!undoFlag && !libFlag){
         QVariant newData(QVariant::fromValue(currentStickFigure));
         addedItem->setData(Qt::UserRole,newData);
         addedItem->setData(Qt::DisplayRole,myName);
@@ -97,7 +97,7 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
 }
 StickFigure* Frame::addStickFigureToLibrary(StickFigure*S){
     if(S != nullptr){
-        QListWidgetItem * addedItem = new QListWidgetItem(myCurrentLibraryWidget);
+        QListWidgetItem * addedItem = new QListWidgetItem();
         //stickFigureBuffer = addStickFigure(myCurrentLibraryWidget, S->name);
         StickFigure *newStickFigure =new StickFigure();
         newStickFigure->linkedItem = addedItem;
@@ -233,6 +233,7 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
     else{
         Widget = myStickFigureWidgetList;
     }
+
     for(int i = 0;i<max;i++){
 
         StickFigure* S = myFrame.addStickFigure(Widget);
@@ -241,6 +242,7 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
         myFrame.totalSticks.append(S->stickList);
         //myFrame.stickFigures.append(S);
     }
+
     for(StickFigure*S:myFrame.stickFigures){
         for(stick*s:S->stickList){
             myFrame.totalSticks[s->order] = s;

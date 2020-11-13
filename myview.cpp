@@ -1,4 +1,4 @@
-#include "myview.h"
+﻿#include "myview.h"
 #include <math.h>
 #include <QDebug>
 #include <QGraphicsRotation>
@@ -110,7 +110,7 @@ void myView::moveStickFigureZ(int increment, int mode)
     if(myStickFigureWidgetList->count() <= 1 )
         return;
     int currentIndex = myStickFigureWidgetList->currentRow();
-    if((currentIndex == 0 && increment<0)||(currentIndex == myStickFigureWidgetList->count()-1 && currentIndex>0))
+    if((currentIndex == 0 && increment<0)||(currentIndex == myStickFigureWidgetList->count()-1 && increment>0))
         return;
     if(mode == MODE_TOP){
         increment = myStickFigureWidgetList->count()-1-currentIndex;
@@ -926,6 +926,7 @@ void myView::moveToFrame(Frame* frame){
         if(myRect == nullptr){
             myRect = new QGraphicsRectItem(0,0,W,H);
             myRect->setPen(Qt::NoPen);
+            myRect->setZValue(-100);
             if(!scene()->items().contains(myRect))
                 scene()->addItem(myRect);
         }
@@ -962,13 +963,11 @@ void myView::updateOnionSkins(){
     // disegna sulla scena fittizia gli stickfigures dei frame da onionskinnare che partono dal frame corrente- numero di skin calcolabili
     for(int i = myAnimation->currentFrame->frameNumber-skinNum; i<myAnimation->currentFrame->frameNumber; i++){
 
-        for(StickFigure *S:myAnimation->frameList[i]->stickFigures)
+        for(stick *s:myAnimation->frameList[i]->totalSticks)
         {
-            for(stick* s: S->stickList){
-                stick* clone = new stick(s);
-                tempList.append(clone);
-                renderScene.addItem(clone);
-            }
+            stick* clone = new stick(s);
+            tempList.append(clone);
+            renderScene.addItem(clone);
         }
         QPainter painter(renderImg);
         renderImg->fill(Qt::transparent);
@@ -1181,7 +1180,7 @@ void myView::clearCurrentLib(){
     stickLibraryBuffer = new Frame();
     libFlag = false;
 }
-void myView::loadLibrary(QString fileName){
+void myView::loadLibrary(QString fileName, int mode){
     libFlag = true;
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly)){
@@ -1194,16 +1193,17 @@ void myView::loadLibrary(QString fileName){
     stickLibraryBuffer = new Frame();
     out >> *stickLibraryBuffer;
     // aggiungi tutta gli stickfigure del nuovo frame alla lista del widget
-    /*
+
     for(StickFigure *S:stickLibraryBuffer->stickFigures){
-        QListWidgetItem * addedItem = new QListWidgetItem(myCurrentLibraryWidget);
+        QListWidgetItem * addedItem = new QListWidgetItem();
         QVariant newData(QVariant::fromValue(S));
         addedItem->setData(Qt::UserRole,newData);
         addedItem->setData(Qt::DisplayRole,S->name);
         addedItem->setIcon(*S->stickFigureIcon);
         S->linkedItem = addedItem;
-        myCurrentLibraryWidget->addItem(S->linkedItem);
-    }*/
+        if(!mode)
+            myCurrentLibraryWidget->addItem(S->linkedItem); // questa operazione avviene con lóp >> il widget viene assegnato a seconda della libflag;
+    }
 
 
     file.close();

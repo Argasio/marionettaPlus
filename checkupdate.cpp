@@ -23,9 +23,13 @@ void checkUpdate::run(){
     }else{
         p->waitForFinished();
         output = (p->readAllStandardOutput());
+
         output.remove("(",Qt::CaseSensitivity::CaseSensitive);
         output.remove(")",Qt::CaseSensitivity::CaseSensitive);
         output.remove("\r\n",Qt::CaseSensitivity::CaseSensitive);
+        if(output.length()<3){
+            return;
+        }
         QStringList release = output.split(QLatin1Char(','), QString::SkipEmptyParts);
         int V = release[0].toInt();
         int SubV = release[1].toInt();

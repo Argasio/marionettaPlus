@@ -226,6 +226,9 @@ private slots:
 
     void on_pasteFrame_clicked();
 
+
+    void on_lineThicknessSlider_sliderMoved(int position);
+
 private:
     Ui::Widget *ui;
 };

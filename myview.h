@@ -74,7 +74,7 @@ public:
     void storeRedo(int command = CMD_SIMPLE);
     void mapMyCoords(QPointF &myCoord, QPointF startingPoint);
     void clearUndo();
-    void loadLibrary(QString fileName);
+    void loadLibrary(QString fileName, int mode = 0);
     StickFigure *addStickFigureToLibrary();
     QList<QGraphicsPixmapItem*> previewList;
     void removeFromLibrary();
