@@ -510,24 +510,29 @@ void Widget::on_stickLayerView_itemDoubleClicked(QListWidgetItem *item)
     StickFigure* S = qvariant_cast<StickFigure*>(retrievedData);
     S->name = text;
 }
-
+bool busyPlay = false;
+mySleeper *play;
 void Widget::on_PlayButton_clicked()
 {
-    //parti dal frame 0, scegli il framerate
-    view->moveToFrame(view->myAnimation->frameList[0]);
-    int fps = fpsSpinBox->value();
-    int onions = onionSkinSB->value();
-    // non voglio onionskins in questa modalità
-    onionSkinSB->setValue(0);
-    view->moveToFrame(view->myAnimation->frameList[0]);
+    if(busyPlay == false){
+        //parti dal frame 0, scegli il framerate
+        view->moveToFrame(view->myAnimation->frameList[0]);
+        int fps = fpsSpinBox->value();
+        int onions = onionSkinSB->value();
+        // non voglio onionskins in questa modalità
+        onionSkinSB->setValue(0);
+        view->moveToFrame(view->myAnimation->frameList[0]);
 
-    // calcola il delay da usare nel timer di passaggio da un frame al segunte
-    int delay = 1000/fps;
-    if(delay>5)
-        delay = delay/2;
-    mySleeper *play = new mySleeper(view,delay);
-    onionSkinSB->setValue(onions);
-
+        // calcola il delay da usare nel timer di passaggio da un frame al segunte
+        int delay = 1000/fps;
+        if(delay>5)
+            delay = delay/2;
+        busyPlay = true;
+        play = new mySleeper(view,delay);
+        onionSkinSB->setValue(onions);
+    }else{
+        play->stop();
+    }
     //view->moveToFrame(view->myAnimation->frameList[0]);
 
 }
@@ -900,7 +905,7 @@ void Widget::on_selectBrushColorBtn_clicked()
        QString qss = QString("background-color: %1").arg(color.name());
        ui->currentBrushColorBtn->setStyleSheet(qss);
     }
-    view->setGraphics(true,ATTRIBUTE_PENCOLOR);
+    //view->setGraphics(true,ATTRIBUTE_PENCOLOR);
 }
 
 void Widget::on_setAllBrushColorBtn_clicked()

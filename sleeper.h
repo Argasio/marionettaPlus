@@ -12,6 +12,6 @@ class mySleeper:public QObject
 public:
     mySleeper(myView * V, int time);
     Q_SLOT void connected();
-
+    void stop();
 };
 #endif // SLEEPER_H

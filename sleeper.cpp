@@ -1,6 +1,9 @@
 #include "sleeper.h"
+#include "sleeper.h"
 extern bool playBack;
 extern void sceneRemover(QGraphicsScene *sceneToClear);
+extern  bool busyPlay;
+bool pausePressed;
 mySleeper::mySleeper(myView * V, int time)
 {
     v = V;
@@ -15,10 +18,13 @@ mySleeper::mySleeper(myView * V, int time)
     v->preparePreview();
 
 }
+void mySleeper::stop(){
+    pausePressed = true;
+}
 Q_SLOT void mySleeper::connected()
 {
 
-   if (v->myAnimation->frameList.count()>counter){
+   if (v->myAnimation->frameList.count()>counter && pausePressed == false){
        //v->moveToFrame(v->myAnimation->frameList[counter]);
        v->displayPreview(counter);
        timer.start();
@@ -28,13 +34,17 @@ Q_SLOT void mySleeper::connected()
        playBack = false;
        timer.stop();
        //v->scene()->clear();
+       int i = 0;
        for(QGraphicsPixmapItem * item:v->previewList){
-           v->scene()->removeItem(item);
-            delete item;
+           if(i<=counter)
+                v->scene()->removeItem(item);
+           delete item;
        }
        v->previewList.clear();
-       v->moveToFrame(v->myAnimation->frameList[0]);
+       v->moveToFrame(v->myAnimation->frameList[counter-1]);
+       busyPlay = false;
        delete this;
+       pausePressed = false;
    }
 
 
