@@ -19,6 +19,10 @@ extern int autoSaveInterval;
 extern QGraphicsRectItem *myRect;
 extern Widget *myWidget;
 extern QString FFMPEGPath;
+extern QDir tempRenderFolder;
+extern QDir myAnimationsFolder;
+extern QDir myStickFiguresFolder;
+extern QDir myVideoExportFolder;
 int opCount = 0;
 bool renderFlag = false;
 QDir renderFolder;
@@ -45,7 +49,7 @@ myMainWindow::~myMainWindow()
 void myMainWindow::on_actionsave_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,tr("Save StickFigure"),
-                       "C:/", "Stickfigure (*.stck)");
+                       myStickFiguresFolder.path(), "Stickfigure (*.stck)");
     if(fileName.length()>1){
         QDataStream myStream;
         CURRENTSTICKFIGURE->saveStickFigure(fileName);
@@ -56,7 +60,7 @@ void myMainWindow::on_actionload_triggered()
 {
 
     QString fileName = QFileDialog::getOpenFileName(this,tr("Load StickFigure"),
-                       "C:/", "Stickfigure (*.stck)");
+                       myStickFiguresFolder.path(), "Stickfigure (*.stck)");
     if(QFile::exists(fileName)){
         QDataStream myStream;
         centralW->addStick();
@@ -70,7 +74,7 @@ void myMainWindow::on_actionload_triggered()
 void myMainWindow::on_actionsave_animation_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,tr("Save Animation"),
-                       "C:/", "Marionetta Animation (*.mAnim)");
+                       myAnimationsFolder.path(), "Marionetta Animation (*.mAnim)");
     animationPath = fileName;
     if(fileName.length()>1){
         view->myAnimation->saveAnimation(fileName);
@@ -81,7 +85,7 @@ void myMainWindow::on_actionsave_animation_triggered()
 void myMainWindow::on_actionload_animation_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,tr("Load Animation"),
-                       "C:/", "Marionetta Animation (*.mAnim)");
+                       myAnimationsFolder.path(), "Marionetta Animation (*.mAnim)");
      view->clearUndo();
      animationPath = fileName;
     if(QFile::exists(fileName)){
@@ -102,7 +106,7 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
 */
     // generate folder for renderings
     QString fileName = QFileDialog::getSaveFileName(this,tr("Export animation as an avi file"),
-                       "C:/", "avi video file (*.avi)");
+                       myVideoExportFolder.path(), "avi video file (*.avi)");
     QString path = programFolder.path()+"/render";
     renderFolder = QDir(path);
     if(renderFolder.exists()){
@@ -213,7 +217,7 @@ void myMainWindow::on_actionExport_video_using_FFMPEG_triggered()
     else{
         QMessageBox::about(this,"FFMPEG Location","Please locate where ffmpeg executable is located on your system");
         QString fileName = QFileDialog::getOpenFileName(this,tr("find FFMPEG executable file"),
-                           "C:/", "ffmpeg(*.exe)");
+                           myVideoExportFolder.path(), "ffmpeg(*.exe)");
         if(QFile::exists(fileName)){
                 if(QFileInfo(QFile(fileName)).fileName()=="ffmpeg.exe"){
                     FFMPEGPath = fileName;

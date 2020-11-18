@@ -8,6 +8,7 @@
 #include <QBuffer>
 #include <QCheckBox>
 #include <animationoptions.h>
+#include <QMessageBox>
 #include "uiItems.h"
 #define CS myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE myAnimation->currentFrame->currentStickFigure
@@ -315,9 +316,6 @@ void myView::mousePressEvent(QMouseEvent *event)
 
                 break;
             }
-
-
-
     }
     }
     //QGraphicsView::mousePressEvent(event);
@@ -1266,6 +1264,10 @@ void myView::setGraphics(bool all, int attribute){
 void myView::splitStickFigure(){
     if(CURRENTSTICKFIGURE== nullptr || CS == nullptr)
         return;
+    if(CS->master){
+        QMessageBox::about(this,"error","cannot split a stickfigure from his master node");
+        return;
+    }
     storeUndo();
     splitToStickFigure = CURRENTSTICKFIGURE;
     splitToStick = splitToStickFigure->currentStick;

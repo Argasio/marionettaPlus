@@ -10,7 +10,7 @@
 #include "advancedlinewidget.h"
 #include "advancedtab.h"
 #include "advancedtaperwidget.h"
-
+#include <QDir>
 extern QSpinBox* fpsSpinBox;
 extern QSlider* imgRotationSlider;
 extern QSpinBox * onionSkinSB;
@@ -54,4 +54,8 @@ extern QSpinBox * lineEditThicknessWidthSpinbox;
 extern QSpinBox* lineEditThicknessWidthSpinbox;
 extern QSlider*  circleSquashSlider;
 extern QSpinBox * circleSquashSpinbox;
+
+extern QDir tempRenderFolder;
+extern QDir myAnimationsFolder;
+extern QDir myStickFiguresFolder;
 #endif // UIITEMS_H

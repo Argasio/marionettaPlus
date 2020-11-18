@@ -26,6 +26,7 @@
 #include <QJsonDocument>
 #include <QFile>
 #include <QMessageBox>
+#include <QMessageBox>
 #include "advancedtab.h"
 #include "advancedlinewidget.h"
 #include "advancedcirclewidget.h"
@@ -52,6 +53,9 @@ QPointF onionOffset;
 QDir programFolder;
 QDir libFolder;
 QDir tempRenderFolder;
+QDir myAnimationsFolder;
+QDir myStickFiguresFolder;
+QDir myVideoExportFolder;
 // -----------------
 QSpinBox* fpsSpinBox;
 QSlider* imgRotationSlider;
@@ -294,15 +298,29 @@ void Widget::createPaths(){
     libFolder = QDir(path+"/MarionettaPlus/Libraries");
     if(!libFolder.exists()){
         qDebug("library folder created");
-        programFolder.mkpath(path+"/MarionettaPlus/Libraries");
+        libFolder.mkpath(path+"/MarionettaPlus/Libraries");
     }
     tempRenderFolder = QDir(path+"/MarionettaPlus/temporaryRender");
     if(!tempRenderFolder.exists()){
         qDebug("temporary render folder created");
-        programFolder.mkpath(path+"/MarionettaPlus/temporaryRender");
+        tempRenderFolder.mkpath(path+"/MarionettaPlus/temporaryRender");
+    }
+    myAnimationsFolder = QDir(path+"/MarionettaPlus/myAnimations");
+    if(!myAnimationsFolder.exists()){
+        qDebug("myAnimation folder created");
+        myAnimationsFolder.mkpath(path+"/MarionettaPlus/myAnimations");
+    }
+    myStickFiguresFolder = QDir(path+"/MarionettaPlus/myStickFigures");
+    if(!myStickFiguresFolder.exists()){
+        qDebug("Stickfigure folder created");
+        myStickFiguresFolder.mkpath(path+"/MarionettaPlus/myStickFigures");
     }
 
-
+    myVideoExportFolder = QDir(path+"/MarionettaPlus/myExportedVideos");
+    if(!myVideoExportFolder.exists()){
+        qDebug("Stickfigure folder created");
+        myVideoExportFolder.mkpath(path+"/MarionettaPlus/myExportedVideos");
+    }
 }
 void Widget::detectLibraries(){
     QDirIterator dirIt(libFolder.path(),QDir::AllEntries);
@@ -1056,6 +1074,7 @@ void Widget::on_joinBtn_clicked()
 
 void Widget::on_splitBtn_clicked()
 {
+
     view->splitStickFigure();
 }
 

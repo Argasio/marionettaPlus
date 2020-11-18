@@ -1209,15 +1209,17 @@ void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
    // clonare tutti gli stick figli dello stick selezionato
     matchingIndex.append(origin);
     stick* toAdd = new stick(origin);
-    branch->stickList.append(toAdd);
-    for(stick* s: origin->children){
+    branch->stickList.append(toAdd);        
 
-        if(s->parent != origin->parent){
-            matchingIndex.append(s);
-            toAdd = new stick(s);
-            branch->stickList.append(toAdd);
+        for(stick* s: origin->children){
+
+            if(s->parent != origin->parent){
+                matchingIndex.append(s);
+                toAdd = new stick(s);
+                branch->stickList.append(toAdd);
+            }
         }
-    }
+
     branch->stickList[matchingIndex.indexOf(origin)]->master = true;
     branch->masterStick = branch->stickList[matchingIndex.indexOf(origin)];
 
@@ -1233,6 +1235,7 @@ void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
         split->scene->addItem(s);
         s->refresh(0);
     }
+
     split->deleteStick( split->stickList.indexOf(origin));
 }
 float StickFigure::minZ(){
