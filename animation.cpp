@@ -186,7 +186,8 @@ void Animation::updateSelection(StickFigure* S)
     if(S==CURRENTSTICKFIGURE)
         return;
     // update current stickfigure
-    CURRENTSTICKFIGURE->highlight(false); //de highlight old selection
+    if(CURRENTSTICKFIGURE !=nullptr)
+        CURRENTSTICKFIGURE->highlight(false); //de highlight old selection
 
     CURRENTSTICKFIGURE = S; //update currentStickFigure buffer
 
