@@ -625,8 +625,8 @@ QPushButton:pressed{
            <widget class="QFrame" name="viewPortEditFrame">
             <property name="minimumSize">
              <size>
-              <width>150</width>
-              <height>150</height>
+              <width>0</width>
+              <height>0</height>
              </size>
             </property>
             <property name="frameShape">
@@ -637,7 +637,7 @@ QPushButton:pressed{
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <property name="spacing">
-              <number>6</number>
+              <number>0</number>
              </property>
              <property name="leftMargin">
               <number>0</number>
@@ -653,6 +653,12 @@ QPushButton:pressed{
              </property>
              <item>
               <widget class="QFrame" name="frame_7">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>55</height>
+                </size>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::StyledPanel</enum>
                </property>
@@ -661,16 +667,16 @@ QPushButton:pressed{
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_31">
                 <property name="leftMargin">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <property name="topMargin">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <property name="rightMargin">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <property name="bottomMargin">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <item>
                  <widget class="QPushButton" name="zoomInBtn">
@@ -799,20 +805,48 @@ QPushButton:pressed{
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_44">
-               <property name="topMargin">
-                <number>0</number>
+              <widget class="QFrame" name="frame_46">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>55</height>
+                </size>
                </property>
-               <item>
-                <widget class="QPushButton" name="deleteFrameBtn">
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">QPushButton {
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>55</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_51">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="deleteFrameBtn">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
     qproperty-icon: url(&quot; &quot;); /* empty image */
     qproperty-iconSize: 16px 16px; /* space for the background image */
     background-image: url(:/resources/removeframe_00001.png);
@@ -829,22 +863,22 @@ QPushButton:pressed{
     background-repeat: no-repeat;
 }
 </string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="addFrameBtn">
-                 <property name="minimumSize">
-                  <size>
-                   <width>55</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">QPushButton {
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="addFrameBtn">
+                  <property name="minimumSize">
+                   <size>
+                    <width>55</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
     qproperty-icon: url(&quot; &quot;); /* empty image */
     qproperty-iconSize: 16px 16px; /* space for the background image */
     background-image: url(:/resources/blank_00001.png);
@@ -861,22 +895,22 @@ QPushButton:pressed{
     background-repeat: no-repeat;
 }
 </string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="copyFrame">
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">QPushButton {
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="copyFrame">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
     qproperty-icon: url(&quot; &quot;); /* empty image */
     qproperty-iconSize: 16px 16px; /* space for the background image */
     background-image: url(:/resources/duplicate_00001.png);
@@ -893,19 +927,13 @@ QPushButton:pressed{
     background-repeat: no-repeat;
 }
 </string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QLabel" name="debugLabel">
-               <property name="text">
-                <string>Debug</string>
-               </property>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
             </layout>
@@ -1380,6 +1408,12 @@ QPushButton:pressed{
                        </property>
                        <item>
                         <widget class="QFrame" name="frame_31">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>60</height>
+                          </size>
+                         </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -1545,9 +1579,15 @@ QPushButton:pressed{
                        </item>
                        <item>
                         <widget class="QFrame" name="frame_30">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>60</height>
+                          </size>
+                         </property>
                          <property name="maximumSize">
                           <size>
-                           <width>16777215</width>
+                           <width>200</width>
                            <height>60</height>
                           </size>
                          </property>
@@ -1719,10 +1759,16 @@ QPushButton:pressed{
                           </property>
                           <item>
                            <widget class="QGroupBox" name="groupBox_11">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>55</height>
+                             </size>
+                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>16777215</width>
-                              <height>50</height>
+                              <height>55</height>
                              </size>
                             </property>
                             <property name="title">
@@ -1786,8 +1832,8 @@ QPushButton:pressed{
                               <widget class="QPushButton" name="joinBtn">
                                <property name="minimumSize">
                                 <size>
-                                 <width>25</width>
-                                 <height>25</height>
+                                 <width>50</width>
+                                 <height>50</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
@@ -1981,6 +2027,12 @@ QPushButton:pressed{
                           </item>
                           <item>
                            <widget class="QGroupBox" name="groupBox_12">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>55</height>
+                             </size>
+                            </property>
                             <property name="maximumSize">
                              <size>
                               <width>16777215</width>
@@ -2007,8 +2059,8 @@ QPushButton:pressed{
                               <widget class="QPushButton" name="joinStick">
                                <property name="minimumSize">
                                 <size>
-                                 <width>25</width>
-                                 <height>25</height>
+                                 <width>50</width>
+                                 <height>50</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
@@ -2048,8 +2100,8 @@ QPushButton:pressed{
                               <widget class="QPushButton" name="splitStick">
                                <property name="minimumSize">
                                 <size>
-                                 <width>25</width>
-                                 <height>25</height>
+                                 <width>50</width>
+                                 <height>50</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
@@ -2092,8 +2144,8 @@ QPushButton:pressed{
                            <widget class="QFrame" name="frame_33">
                             <property name="minimumSize">
                              <size>
-                              <width>0</width>
-                              <height>50</height>
+                              <width>50</width>
+                              <height>55</height>
                              </size>
                             </property>
                             <property name="maximumSize">
@@ -2128,8 +2180,8 @@ QPushButton:pressed{
                               <widget class="QPushButton" name="manipulateBtn">
                                <property name="minimumSize">
                                 <size>
-                                 <width>25</width>
-                                 <height>25</height>
+                                 <width>50</width>
+                                 <height>50</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
@@ -2169,8 +2221,8 @@ QPushButton:pressed{
                               <widget class="QPushButton" name="setMasterNodeBtn">
                                <property name="minimumSize">
                                 <size>
-                                 <width>25</width>
-                                 <height>25</height>
+                                 <width>50</width>
+                                 <height>50</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
@@ -2186,17 +2238,17 @@ QPushButton:pressed{
                                 <string notr="true">QPushButton {
     qproperty-icon: url(&quot; &quot;); /* empty image */
     qproperty-iconSize: 16px 16px; /* space for the background image */
-    background-image: url(:/resources/master_00001.png);
+    background-image: url(:/resources/tomaster_00001.png);
     background-repeat: no-repeat;
 	border: 0px solid #5A5A5A;
 }
 QPushButton:hover{
-    background-image: url(:/resources/master_00002.png);
+    background-image: url(:/resources/tomaster_00002.png);
     background-repeat: no-repeat;
 	background-color: rgb(25, 25, 25)
 }
 QPushButton:pressed{
-    background-image: url(:/resources/master_00003.png);
+    background-image: url(:/resources/tomaster_00003.png);
     background-repeat: no-repeat;
 }
 </string>
@@ -2249,8 +2301,8 @@ QPushButton:pressed{
                               <widget class="QPushButton" name="elongateBtn">
                                <property name="minimumSize">
                                 <size>
-                                 <width>25</width>
-                                 <height>25</height>
+                                 <width>50</width>
+                                 <height>50</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
@@ -4532,13 +4584,13 @@ border: 1px solid #5A5A5A;
                      <property name="minimumSize">
                       <size>
                        <width>50</width>
-                       <height>50</height>
+                       <height>55</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>50</width>
-                       <height>50</height>
+                       <height>55</height>
                       </size>
                      </property>
                      <property name="styleSheet">
@@ -4576,13 +4628,13 @@ QPushButton:pressed{
                      <property name="minimumSize">
                       <size>
                        <width>50</width>
-                       <height>50</height>
+                       <height>55</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>50</width>
-                       <height>50</height>
+                       <height>60</height>
                       </size>
                      </property>
                      <property name="styleSheet">

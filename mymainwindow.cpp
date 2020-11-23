@@ -92,6 +92,11 @@ void myMainWindow::on_actionload_animation_triggered()
         loadFile = true;
         QDataStream myStream;
         view->myAnimation->loadAnimation(fileName);
+        if(view->myAnimation->width != W || view->myAnimation->height != H){
+            W = view->myAnimation->width;
+            H = view->myAnimation->height;
+            view->sizeChange(NOREPO);
+        }
         view->moveToFrame(view->myAnimation->frameList[0]);
         loadFile = false;
         opCount = 0;
@@ -188,9 +193,18 @@ void myMainWindow::on_actionsave_animation_current_triggered()
 
 void myMainWindow::on_actionNew_Blank_Animation_triggered()
 {
-    view->myAnimation->clearAnimation();
-    myWidget->addFrame();
-    opCount = 0;
+
+    int ret  = QMessageBox::warning(this, tr("Warning"),
+                                    tr("This will delete all frames int eh current workspace, this action cannot be undone.\n"
+                                       "Do you want to proceed?"),
+                                    QMessageBox::Yes | QMessageBox::No
+                                    );
+    if(ret == QMessageBox::Yes)
+    {
+        view->myAnimation->clearAnimation();
+        myWidget->addFrame();
+        opCount = 0;
+    }
 }
 void myMainWindow::getAnimationParams(int optionVal){
     FPS = myOptions->fps;

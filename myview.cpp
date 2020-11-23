@@ -399,7 +399,7 @@ void myView::arrowSelection(){
     myStickFigureWidgetList->setCurrentRow(myStickFigureWidgetList->row(CURRENTSTICKFIGURE->linkedItem));
     if(CS!=nullptr && CURRENTSTICKFIGURE->stickList.count()>0)
         CS->populateImageListWidget();
-    dbgLbl->setText(QString::number(CS->order));
+    //dbgLbl->setText(QString::number(CS->order));
 }
 // il disegno di una linea conta 2 click
 // il primo determina lo starting point
@@ -1299,6 +1299,7 @@ void myView::sizeChange(int option){
     myRect->setBrush(QBrush(QColor(Qt::white)));
     scene()->setBackgroundBrush(QBrush(QColor(Qt::white)));
     myRect->setRect(0,0,W,H);
+    onionOffset = QPointF(-myRect->rect().width()/10,-myRect->rect().height()/10);
     QPointF newCenter = myRect->rect().center();
     limitRect->setRect(-myRect->rect().width()/10, -myRect->rect().height()/10, myRect->rect().width()*1.1, myRect->rect().height()*1.1);
     scene()->setSceneRect(limitRect->rect());

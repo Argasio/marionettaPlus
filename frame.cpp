@@ -26,6 +26,7 @@ Frame::~Frame(){
     delete frameIcon;
     //delete renderImg;
 }
+extern bool copyFlag;
 StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
 {
     QString myName;
@@ -35,7 +36,7 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
     else
         ListWidget = myCurrentLibraryWidget;
 
-    if(!libFlag){
+    if(!libFlag && !copyFlag){
 
         if(name.count()== 0){
             int intName = 0;
@@ -66,7 +67,7 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
     //aggiorna lo stickfigure corrente
     currentStickFigure = stickFigureBuffer;
     currentStickFigure->name = myName;
-    if(!undoFlag && !libFlag){
+    if(!undoFlag && !libFlag &&!copyFlag){
         QVariant newData(QVariant::fromValue(currentStickFigure));
         addedItem->setData(Qt::UserRole,newData);
         addedItem->setData(Qt::DisplayRole,myName);
@@ -74,11 +75,11 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
         myListWidget->insertItem(myListWidget->currentRow()+1,addedItem);
     }
     // update current stickfigure
-    if(!libFlag){
+    if(!libFlag && !copyFlag){
         currentStickFigure->highlight(false); //de highlight old selection
         currentStickFigure->highlight(true); //highlight new one
     }
-    if(!undoFlag && !switchFrameFlag){
+    if(!undoFlag && !switchFrameFlag && !copyFlag){
         // update current stick
         if(!libFlag){
             scene->clearSelection(); //clear scene selection

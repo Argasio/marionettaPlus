@@ -179,9 +179,6 @@
         <file>resources/toptop_00001.png</file>
         <file>resources/toptop_00002.png</file>
         <file>resources/toptop_00003.png</file>
-        <file>resources/master_00003.png</file>
-        <file>resources/master_00001.png</file>
-        <file>resources/master_00002.png</file>
         <file>resources/manipulator_00002.png</file>
         <file>resources/manipulator_00003.png</file>
         <file>resources/manipulator_00001.png</file>
@@ -272,5 +269,8 @@
         <file>resources/pasteFrame_00003.png</file>
         <file>resources/pasteFrame_00001.png</file>
         <file>resources/pasteFrame_00002.png</file>
+        <file>resources/tomaster_00002.png</file>
+        <file>resources/tomaster_00003.png</file>
+        <file>resources/tomaster_00001.png</file>
     </qresource>
 </RCC>

@@ -162,7 +162,7 @@ Widget::Widget(QWidget *parent)
     depthSlider = ui->depthSlider;
     imgListWidget = ui->imgListWidget;
     advancedRectTab = new advancedTab();
-    dbgLbl = ui->debugLabel;
+   // dbgLbl = ui->debugLabel;
     createPaths();
     detectLibraries();
     // aggiorna il colore del segnacolore
@@ -188,6 +188,20 @@ Widget::Widget(QWidget *parent)
     CURRENTSTICKFIGURE = CURRENTFRAME->stickFigures[0];
     //inserisci il pannello nella finestra
     ui->viewLayout->addWidget(view);
+    //json read
+    if(!QFile::exists(libFolder.path()+"/defaultLib.marlib")){
+        view->saveLibrary(libFolder.path()+"/defaultLib.marlib");
+    }
+    else{
+        view->loadLibrary(libFolder.path()+"/defaultLib.marlib");
+    }
+    QString jsonConfigPath = programFolder.path()+"/config.json";
+    if(!QFile::exists(jsonConfigPath)){
+        createJson(jsonConfigPath);
+    }
+    else{
+        readJson(jsonConfigPath);
+    }
     //crea la cornice
     myRect = new QGraphicsRectItem(0, 0, W, H);
     myRect->setBrush(QBrush(QColor(Qt::white)));
@@ -206,19 +220,7 @@ Widget::Widget(QWidget *parent)
     // set onion rendered image skin offset to be displayed properly on the scene
     onionOffset = QPointF(-myRect->rect().width()/10,-myRect->rect().height()/10);
     //check if default library exists
-    if(!QFile::exists(libFolder.path()+"/defaultLib.marlib")){
-        view->saveLibrary(libFolder.path()+"/defaultLib.marlib");
-    }
-    else{
-        view->loadLibrary(libFolder.path()+"/defaultLib.marlib");
-    }
-    QString jsonConfigPath = programFolder.path()+"/config.json";
-    if(!QFile::exists(jsonConfigPath)){
-        createJson(jsonConfigPath);
-    }
-    else{
-        readJson(jsonConfigPath);
-    }
+
     myLibraryListWidget->clear();
     detectLibraries();
     myLibraryListWidget->setCurrentRow(0);
@@ -703,6 +705,8 @@ void Widget::on_addItemFromLibraryToSceneBtn_clicked()
     StickFigure * added = addStick();
     // get selected item
     int idx = myCurrentLibraryWidget->currentRow();
+    if(!myCurrentLibraryWidget->isItemSelected(myCurrentLibraryWidget->item(idx)))
+        return;
     QListWidgetItem *itemToAdd = myCurrentLibraryWidget->item(idx);
     // estrai il dato utente salvato in esso, puntatore ad uno stickfigure
     QVariant  retrievedData = (itemToAdd->data(Qt::UserRole));

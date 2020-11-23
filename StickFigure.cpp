@@ -14,7 +14,7 @@ extern bool iconUpdateFlag;
 extern QGraphicsRectItem* myRect;
 StickFigure::~StickFigure()
 {
-    if(!undoFlag && !libFlag && !clearUndoFlag){
+    if(!undoFlag && !libFlag && !clearUndoFlag && !copyFlag){
         for(stick* s: stickList)
         {
             //if(!clearUndoFlag)

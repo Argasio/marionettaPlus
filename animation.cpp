@@ -308,8 +308,8 @@ QDataStream &operator>>(QDataStream& stream,Animation& myAnimation){
     int frameNum = 0;
     stream>>myAnimation.version;
     stream>>frameNum;
-    stream>>W;
-    stream>>H;
+    stream>>myAnimation.width;
+    stream>>myAnimation.height;
     //delete myRect;
     //scene->clear();
     //myRect = new QGraphicsRectItem(0, 0, W, H); // renew the rect
@@ -351,10 +351,13 @@ void Animation::loadAnimation(QString name)
 }
 void Animation::clearAnimation(){
     clearingAnimation = true;
-    for(Frame* f: frameList){
-        myFrameWidgetList->takeItem(myFrameWidgetList->row(f->linkedItem));
+    QList <Frame*> clonedList = frameList;
+    for(Frame* f: clonedList){
+
         deleteFrame(f);
     }
+    myFrameWidgetList->clear();
+    //myFrameWidgetList->takeItem(myFrameWidgetList->row(f->linkedItem));
     sceneRemover(scene);
     //scene->clear();
     clearingAnimation = false;
