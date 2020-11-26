@@ -77,3 +77,4 @@ RESOURCES += \
 
 DISTFILES += \
     version.exe
+RC_ICONS = marionettaIcon_00001.ico
