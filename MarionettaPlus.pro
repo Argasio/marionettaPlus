@@ -26,6 +26,7 @@ SOURCES += \
     checkupdate.cpp \
     ffmpegexport.cpp \
     frame.cpp \
+    imageexport.cpp \
     main.cpp \
     mymainwindow.cpp \
     myrect.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     checkupdate.h \
     ffmpegexport.h \
     frame.h \
+    imageexport.h \
     mymainwindow.h \
     myrect.h \
     myview.h \

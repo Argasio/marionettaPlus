@@ -2,6 +2,7 @@
 #include "ui_mymainwindow.h"
 #include "animation.h"
 #include "QFileDialog"
+#include "imageexport.h"
 #include  <QDir>
 #include <QProcess>
 #include <QFileInfo>
@@ -29,7 +30,9 @@ QDir renderFolder;
 QString animationPath = "";
 animationOptions* myOptions;
 bool loadFile = false;
-
+imageExport *exporter;
+QString aviExportFolder;
+QStringList ffmpegOptions;
 myMainWindow::myMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::myMainWindow)
@@ -110,10 +113,12 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
 
 */
     // generate folder for renderings
-    QString fileName = QFileDialog::getSaveFileName(this,tr("Export animation as an avi file"),
+    aviExportFolder = QFileDialog::getSaveFileName(this,tr("Export animation as an avi file"),
                        myVideoExportFolder.path(), "avi video file (*.avi)");
     QString path = programFolder.path()+"/render";
     renderFolder = QDir(path);
+    if(aviExportFolder.length() == 0)
+        return;
     if(renderFolder.exists()){
         qDebug("folder located");
     }
@@ -125,7 +130,13 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
     // per ogni frame crea una scena temporanea, popolala con cloni degli sticks del progetto,
     // renderizza la scena su una QImage tramite un painter e salva l'immagine nella cartella
     emptyDirectory( path);
-    exportImageSequence(path);
+    exportImageSequence(path, AVI);
+
+}
+void myMainWindow::exportAvi(){
+    // generate folder for renderings
+    QString fileName = aviExportFolder;
+    QString imgPath = programFolder.path()+"/render";
     // apri il programma avi2Image, passagli i parametri per iniziale la conversione da immagini a file video
     // 1 in folder, 2 outfolder, 3 fps, 4 larghezza, 5 altezza, n immagini
     QProcess *p = new QProcess(this);
@@ -149,37 +160,14 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
         p->write("\n");
     }
 }
-void myMainWindow::exportImageSequence(QString path){
-    renderFlag = true;
-    for(Frame* f :view->myAnimation->frameList){
-        QGraphicsScene renderScene; //scena fittizia
-        QImage *renderImg = new QImage(W,H,QImage::Format_ARGB32); //immagine temporanea
-        QPainter painter(renderImg); // painter che esegue il drawing sull immagine
-        painter.setRenderHints(QPainter::Antialiasing|QPainter::SmoothPixmapTransform);
-        renderScene.setSceneRect(myRect->rect());
-        // ora clona tutti gli stick nello stickfigure in una tempList, aggiungili alla scena fittizia
-        QList<stick*> tempList;
+void myMainWindow::exportImageSequence(QString path, int option){
 
-        for(stick* s: f->totalSticks){
-            stick* clone = new stick(s);
-            tempList.append(clone);
-            renderScene.addItem(clone);
-        }
+    exporter = new imageExport(this,path,option);
+    QObject::connect(exporter,&imageExport::imageExportFinished,this,&myMainWindow::imageRenderOver);
+    exporter->start();
 
-        //disegna sull' immagine e salvala
-        renderImg->fill(Qt::white);
-        painter.setBackground(QBrush(QColor(Qt::white)));
-        renderScene.render(&painter);
-        QString itemPath = path;
-        itemPath.insert(path.lastIndexOf("."),"_"+QString::number(f->frameNumber));
-        renderImg->save(itemPath);
-        painter.end();
-        delete renderImg;
-        renderScene.clear();
-        //...add all other video frames here
-    }
-    renderFlag = false;
 }
+
 void myMainWindow::on_actionsave_animation_current_triggered()
 {
     if(QFile::exists(animationPath)){
@@ -252,15 +240,14 @@ void myMainWindow::exportUsingFFMPEG(){
 void myMainWindow::startffmpegRender(QStringList options){
     // per ogni frame crea una scena temporanea, popolala con cloni degli sticks del progetto,
     // renderizza la scena su una QImage tramite un painter e salva l'immagine nella cartella
+    ffmpegOptions = options;
     emptyDirectory( renderFolder.path());
-    exportImageSequence(renderFolder.path()+"/img.png");
+    exportImageSequence(renderFolder.path()+"/img.png", FFMPEG);
     //
 
     //QString imagePath = programFolder.path()+"/render";
 
-    QProcess *p = new QProcess(this);
 
-    p->start(FFMPEGPath,options);
 }
 
 void myMainWindow::autoSave()
@@ -272,6 +259,25 @@ void myMainWindow::updatePresent(QString ver)
 {
     QMessageBox::about(this,"Old version Alert", "A newer version of this Software is available at Marionetta's website for download!");
 }
+// se questa funzione è stata chiamata per l'auto render avi, chiama una funzione che apra il processo
+// stessa cosa se originariamente l'esportazione delle immagini dovrà invece essere usata da ffmpeg
+void myMainWindow::imageRenderOver(int option){
+    delete exporter;
+    switch(option){
+    case NONE:
+
+        break;
+    case AVI:
+        exportAvi();
+        break;
+    case FFMPEG:
+        QProcess *p = new QProcess(this);
+
+        p->start(FFMPEGPath,ffmpegOptions);
+        break;
+    }
+}
+
 
 void myMainWindow::on_actionExport_as_image_sequence_triggered()
 {
@@ -279,7 +285,7 @@ void myMainWindow::on_actionExport_as_image_sequence_triggered()
     QString fileName = QFileDialog::getSaveFileName(this,tr("Save animation as a sequence of images"),
                        "C:/", "PNG Image (*.png)");
     if(fileName.length()>0)
-        exportImageSequence(fileName);
+        exportImageSequence(fileName,NONE);
 }
 void myMainWindow::doConnections(){
         QObject::connect(view, &myView::autoSaveTrigger,this, &myMainWindow::autoSave);
@@ -312,5 +318,5 @@ void myMainWindow::closeEvent(QCloseEvent *event)
 
 void myMainWindow::on_actionAbout_triggered()
 {
-
+    delete exporter;
 }

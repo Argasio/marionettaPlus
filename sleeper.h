@@ -9,9 +9,13 @@ class mySleeper:public QObject
     QTimer timer;
     myView* v;
     int counter = 0;
+
 public:
     mySleeper(myView * V, int time);
-    Q_SLOT void connected();
     void stop();
+public slots:
+    void startPlaying();
+    Q_SLOT void connected();
+
 };
 #endif // SLEEPER_H

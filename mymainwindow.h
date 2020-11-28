@@ -21,13 +21,15 @@ public:
     Widget *centralW;
 
     void doConnections();
-    void exportImageSequence(QString path);
+    void exportImageSequence(QString path, int option);
     void exportUsingFFMPEG();
+    void exportAvi();
 public slots:
     void getAnimationParams(int optionVal);
     void startffmpegRender(QStringList options);
     void autoSave();
     void updatePresent(QString ver);
+    void imageRenderOver(int option);
 private slots:
     void on_actionsave_triggered();
 

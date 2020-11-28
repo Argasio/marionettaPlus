@@ -32,6 +32,7 @@
 #include "advancedcirclewidget.h"
 #include "advancedtaperwidget.h"
 #include "uiItems.h"
+#include "imageexport.h"
 #define CS view->myAnimation->currentFrame->currentStickFigure->currentStick
 #define CURRENTSTICKFIGURE view->myAnimation->currentFrame->currentStickFigure
 #define CURRENTFRAME view->myAnimation->currentFrame
@@ -100,6 +101,7 @@ advancedTaperWidget * advancedTaperTab;
 QSlider*  circleSquashSlider;
 QSpinBox * circleSquashSpinbox;
 Frame * frameCopyBuffer = nullptr;
+
 //----------------------
 int W = DEFAULTWIDTH;
 int H = DEFAULTHEIGHT;
