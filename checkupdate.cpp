@@ -53,5 +53,7 @@ void checkUpdate::run(){
             emit updatePresent(output);
 
     }
-
+    delete p;
+    quit();
+    deleteLater();
 }

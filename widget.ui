@@ -2486,7 +2486,7 @@ QPushButton:hover{
 	background-color: rgb(25, 25, 25)
 }
 QPushButton:pressed{
-    background-image: url(:/resources/rotate_00003.png);
+    background-image: url(:/resources/stickrotate_00003.png);
     background-repeat: no-repeat;
 }
 </string>

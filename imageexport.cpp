@@ -45,7 +45,8 @@ void imageExport::render(int option)
     }
 
 
-    emit imageExportFinished(renderOption);
+    //emit imageExportFinished(renderOption);
+
 }
 
 void imageExport::run()
@@ -59,4 +60,6 @@ void imageExport::run()
 
     }
     emit imageExportFinished(renderOption);
+    quit();
+    deleteLater();
 }

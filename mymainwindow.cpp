@@ -130,7 +130,8 @@ void myMainWindow::on_actionexport_as_AVI_file_triggered()
     // per ogni frame crea una scena temporanea, popolala con cloni degli sticks del progetto,
     // renderizza la scena su una QImage tramite un painter e salva l'immagine nella cartella
     emptyDirectory( path);
-    exportImageSequence(path, AVI);
+    QString fullpath  = path+"/render.png";
+    exportImageSequence(fullpath, AVI);
 
 }
 void myMainWindow::exportAvi(){
@@ -150,7 +151,7 @@ void myMainWindow::exportAvi(){
     // la path in cui si trova l'é'eseguibile di marionetta
     QString exePath = QCoreApplication::applicationDirPath();
     // estrai il file exporter di avi
-    QFile::copy(":/image2avi.exe",exePath+"/image2avi.exe");
+    QFile::copy(":/image2Avi.exe",exePath+"/image2Avi.exe");
     // eseguilo
     p->start(exePath+"/image2Avi.exe");
     if (!p->waitForStarted())
@@ -159,6 +160,10 @@ void myMainWindow::exportAvi(){
         p->write(s.toUtf8(),s.length());
         p->write("\n");
     }
+    p->waitForFinished();
+    QString output = (p->readAllStandardOutput());
+    delete p;
+
 }
 void myMainWindow::exportImageSequence(QString path, int option){
 
@@ -262,7 +267,7 @@ void myMainWindow::updatePresent(QString ver)
 // se questa funzione è stata chiamata per l'auto render avi, chiama una funzione che apra il processo
 // stessa cosa se originariamente l'esportazione delle immagini dovrà invece essere usata da ffmpeg
 void myMainWindow::imageRenderOver(int option){
-    delete exporter;
+
     switch(option){
     case NONE:
 
@@ -274,6 +279,7 @@ void myMainWindow::imageRenderOver(int option){
         QProcess *p = new QProcess(this);
 
         p->start(FFMPEGPath,ffmpegOptions);
+        p->deleteLater();
         break;
     }
 }
