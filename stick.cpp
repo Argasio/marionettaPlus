@@ -11,6 +11,7 @@ extern bool undoFlag;
 extern bool iconUpdateFlag;
 extern bool renderFlag;
 extern bool playBack;
+extern int HANDLESIZE;
 //lo stick si basa fondamentalmente su un QGraphicsLineObject, uno stick alloca una lineobject
 stick::stick(QLineF *line)
 {
@@ -210,37 +211,37 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     if(!onionRender && !renderFlag &&!playBack){
         if(this->master){ // il master ha entrambe le estremità disegnate
             if(this->highlight)
-                painter->setPen(QPen(Qt::green,10));
+                painter->setPen(QPen(Qt::green,HANDLESIZE));
             else
-                painter->setPen(QPen(Qt::darkGreen,10));
-            painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
+                painter->setPen(QPen(Qt::darkGreen,HANDLESIZE));
+            painter->drawEllipse(myLine.p1().x()-HANDLESIZE/2,myLine.p1().y()-HANDLESIZE/2,HANDLESIZE,HANDLESIZE);
         }
         if(this->parent != nullptr){
             if(this->highlight){
-                painter->setPen(QPen(Qt::red,10));
+                painter->setPen(QPen(Qt::red,HANDLESIZE));
                 if(this->stepchild && this->parent->master)
-                    painter->setPen(QPen(Qt::green,10));
+                    painter->setPen(QPen(Qt::green,HANDLESIZE));
             }
             else{
-                painter->setPen(QPen(Qt::blue,10));
+                painter->setPen(QPen(Qt::blue,HANDLESIZE));
                 if(this->stepchild && this->parent->master)
-                    painter->setPen(QPen(Qt::darkGreen,10));
+                    painter->setPen(QPen(Qt::darkGreen,HANDLESIZE));
             }
             //if(this->parent->master == false)
-                painter->drawEllipse(myLine.p1().x()-5,myLine.p1().y()-5,10,10);
+                painter->drawEllipse(myLine.p1().x()-HANDLESIZE/2,myLine.p1().y()-HANDLESIZE/2,HANDLESIZE,HANDLESIZE);
         }
         if(this->highlight)
-            painter->setPen(QPen(Qt::red,10));
+            painter->setPen(QPen(Qt::red,HANDLESIZE));
         else
-            painter->setPen(QPen(Qt::blue,10));
-        painter->drawEllipse(myLine.p2().x()-5,myLine.p2().y()-5,10,10);
+            painter->setPen(QPen(Qt::blue,HANDLESIZE));
+        painter->drawEllipse(myLine.p2().x()-HANDLESIZE/2,myLine.p2().y()-HANDLESIZE/2,HANDLESIZE,HANDLESIZE);
         if(this->selected){
             QColor c(Qt::yellow);
             c.setAlphaF(0.75);
             painter->setPen(QPen(c,8));
 
-            painter->drawEllipse(myLine.p2().x()-4,myLine.p2().y()-4,8,8);
-            painter->drawEllipse(myLine.p1().x()-4,myLine.p1().y()-4,8,8);
+            painter->drawEllipse(myLine.p2().x()-HANDLESIZE*0.4,myLine.p2().y()-HANDLESIZE*0.4,HANDLESIZE*0.8,HANDLESIZE*0.8);
+            painter->drawEllipse(myLine.p1().x()-HANDLESIZE*0.4,myLine.p1().y()-HANDLESIZE*0.4,HANDLESIZE*0.8,HANDLESIZE*0.8);
             painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
 
         }
@@ -340,9 +341,9 @@ QRectF stick::updateBr(int mode)
                             QPointF(myLine.p2().x(),myLine.p1().y()));
         else
             newBr = QRectF(myLine.p2(),myLine.p1());*/
-        newBr.setX(newBr.x()-Pen.width()-10);newBr.setY(newBr.y()-Pen.width()-10); // TODO padding proporzionale alla dimensione della Penna
-        newBr.setWidth(newBr.width()+Pen.width()+10);
-        newBr.setHeight(newBr.height()+Pen.width()+10);
+        newBr.setX(newBr.x()-Pen.width()-HANDLESIZE);newBr.setY(newBr.y()-Pen.width()-HANDLESIZE); // TODO padding proporzionale alla dimensione della Penna
+        newBr.setWidth(newBr.width()+Pen.width()+HANDLESIZE);
+        newBr.setHeight(newBr.height()+Pen.width()+HANDLESIZE);
         this->br.getCoords(&oldP1x,&oldP1y,&oldP2x,&oldP2y);
         // Se stiamo muovendo l'oggetto, teniamo conto anche del precedente bounding rect, e li fondiamo
         // per creare un bounding rect che contenga sia quello nuovo che quello vecchio così da non generare ghosting

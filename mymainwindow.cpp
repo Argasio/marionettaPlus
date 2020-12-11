@@ -24,6 +24,7 @@ extern QDir tempRenderFolder;
 extern QDir myAnimationsFolder;
 extern QDir myStickFiguresFolder;
 extern QDir myVideoExportFolder;
+extern int HANDLESIZE;
 int opCount = 0;
 bool renderFlag = false;
 QDir renderFolder;
@@ -203,6 +204,7 @@ void myMainWindow::getAnimationParams(int optionVal){
     FPS = myOptions->fps;
     W   = myOptions->width;
     H   = myOptions->height;
+    HANDLESIZE = myOptions->handleSize;
     view->sizeChange(optionVal);
     myWidget->writeJson();
     autoSaveInterval = myOptions->autoSaveInterval;
@@ -210,7 +212,7 @@ void myMainWindow::getAnimationParams(int optionVal){
 }
 void myMainWindow::on_actionAnimation_Options_triggered()
 {
-    myOptions = new animationOptions(nullptr,W,H,FPS,autoSaveInterval);
+    myOptions = new animationOptions(nullptr,W,H,FPS,HANDLESIZE,autoSaveInterval);
 
     myOptions->show();
     QObject::connect(myOptions, &animationOptions::dialogOut,this, &myMainWindow::getAnimationParams);

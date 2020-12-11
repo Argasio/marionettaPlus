@@ -16,12 +16,13 @@ class animationOptions : public QWidget
     Q_OBJECT
 
 public:
-    explicit animationOptions(QWidget *parent = nullptr, int W =800, int H = 600, int FPS = 24, int autoSaveInput = 50);
+    explicit animationOptions(QWidget *parent = nullptr, int W =800, int H = 600, int FPS = 24,int handles = 10, int autoSaveInput = 50);
     ~animationOptions();
     int width = 1;
     int height = 1;
     int fps = 24;
     int autoSaveInterval = 50;
+    int handleSize = 10;
 private slots:
     void on_okBtn_clicked();
 
@@ -32,6 +33,8 @@ private slots:
     void on_widthSpinbox_editingFinished();
 
     void on_heightSpinbox_editingFinished();
+
+    void on_handlesSizeSpinBox_valueChanged(int arg1);
 
 private:
     Ui::animationOptions *ui;

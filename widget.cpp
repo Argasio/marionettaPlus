@@ -39,7 +39,8 @@
 #define DEFAULTWIDTH 720
 #define DEFAULTHEIGHT 480
 #define DEFAULTFPS 24
-#define DEFAULTAUTOSAVE 50;
+#define DEFAULTAUTOSAVE 50
+#define DEFAULTHANDLES 10
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
 QString imageNameBuffer;
@@ -103,22 +104,23 @@ QSpinBox * circleSquashSpinbox;
 Frame * frameCopyBuffer = nullptr;
 
 //----------------------
-int W = DEFAULTWIDTH;
-int H = DEFAULTHEIGHT;
-int FPS = DEFAULTFPS;
-int autoSaveInterval = DEFAULTAUTOSAVE;
+int W                   = DEFAULTWIDTH;
+int H                   = DEFAULTHEIGHT;
+int FPS                 = DEFAULTFPS;
+int HANDLESIZE          = DEFAULTHANDLES;
+int autoSaveInterval    = DEFAULTAUTOSAVE;
 struct{
-    bool sliderHOffset = false;
-    bool sliderVOffset = false;
-    bool sliderWScale = false;
-    bool sliderHScale = false;
-    bool sliderRot = false;
+    bool sliderHOffset  = false;
+    bool sliderVOffset  = false;
+    bool sliderWScale   = false;
+    bool sliderHScale   = false;
+    bool sliderRot      = false;
 }sliderFlags;
-bool playBack = false;
-bool copyFlag = false;
-bool switchFrameFlag = false;
-float zoomLvl = 1;
-bool  firstTimeOpened = false;
+bool playBack               = false;
+bool copyFlag               = false;
+bool switchFrameFlag        = false;
+float zoomLvl               = 1;
+bool  firstTimeOpened       = false;
 QImage * imageDrawBuffer;
 QString FFMPEGPath = "";
 Widget::Widget(QWidget *parent)
@@ -252,7 +254,8 @@ void Widget::readJson(QString path ){
         recordObject.value(QString("Fps")) == QJsonValue::Undefined||
         recordObject.value(QString("First time opened")) == QJsonValue::Undefined||
         recordObject.value(QString("FFMPEG path")) == QJsonValue::Undefined||
-        recordObject.value(QString("Autosave operation interval")) == QJsonValue::Undefined
+        recordObject.value(QString("Autosave operation interval")) == QJsonValue::Undefined||
+        recordObject.value(QString("Handles size")) == QJsonValue::Undefined
        )
     {
         file.remove();
@@ -265,6 +268,7 @@ void Widget::readJson(QString path ){
     firstTimeOpened = recordObject.value(QString("First time opened")).toInt();
     FFMPEGPath = recordObject.value("FFMPEG path").toString();
     autoSaveInterval = recordObject.value(QString("Autosave operation interval")).toInt();
+    HANDLESIZE = recordObject.value(QString("Handles size")).toInt();
     file.close();
 
 }
@@ -282,6 +286,7 @@ void Widget::createJson(QString path ){
     recordObject.insert("FFMPEG Located", QJsonValue::fromVariant(false));
     recordObject.insert("FFMPEG path", QJsonValue::fromVariant(FFMPEGPath));
     recordObject.insert("Autosave operation interval", QJsonValue::fromVariant(autoSaveInterval));
+    recordObject.insert("Handles size", QJsonValue::fromVariant(HANDLESIZE));
     QJsonDocument doc(recordObject);
     QFile file(path);
     if(!file.open(QIODevice::WriteOnly))
