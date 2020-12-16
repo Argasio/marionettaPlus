@@ -46,7 +46,7 @@ public:
     void refresh(int mode = 0);
     void cloneStickFigure(StickFigure *target, StickFigure *source);
 
-    void rotateStickFigure(QPointF *coord);
+    void rotateStickFigure(QPointF *coord, QList<stick*>sticks, bool completeRotation);
     void scale(QPointF *coord);
     void traslate(qreal dx, qreal dy);
 

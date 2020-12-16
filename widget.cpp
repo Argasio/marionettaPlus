@@ -230,45 +230,35 @@ Widget::Widget(QWidget *parent)
     myLibraryListWidget->setCurrentRow(0);
     frameCopyBuffer = new Frame();
 }
-void Widget::readJson(QString path ){
-    QFile file(path);
-    /*if(!file.open(QIODevice::ReadOnly))
-        return;
 
-    QDataStream myStream(&file);
-    QJsonDocument doc;
-    QByteArray raw;
-    myStream>>raw;
-    doc.fromBinaryData(raw);
-    QJsonObject recordObject = doc.object();
-    W = recordObject.value(QString("Width")).toInt();
-    H = recordObject.value(QString("Height")).toInt();
-    FPS = recordObject.value(QString("Fps")).toInt();
-    firstTimeOpened = recordObject.value(QString("First time opened")).toInt();*/
+//leggi il file json, se tutti i campi sono validi,leggilo, senno creane uno nuovo
+void Widget::readJson(QString path ){
+
+    QFile file(path);
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
     QJsonObject recordObject = doc.object();
-    if( recordObject.value(QString("Width")) == QJsonValue::Undefined||
-        recordObject.value(QString("Height")) == QJsonValue::Undefined||
-        recordObject.value(QString("Fps")) == QJsonValue::Undefined||
-        recordObject.value(QString("First time opened")) == QJsonValue::Undefined||
-        recordObject.value(QString("FFMPEG path")) == QJsonValue::Undefined||
-        recordObject.value(QString("Autosave operation interval")) == QJsonValue::Undefined||
-        recordObject.value(QString("Handles size")) == QJsonValue::Undefined
+    if( recordObject.value(QString("Width"))                == QJsonValue::Undefined||
+        recordObject.value(QString("Height"))               == QJsonValue::Undefined||
+        recordObject.value(QString("Fps"))                  == QJsonValue::Undefined||
+        recordObject.value(QString("First time opened"))    == QJsonValue::Undefined||
+        recordObject.value(QString("FFMPEG path"))          == QJsonValue::Undefined||
+        recordObject.value(QString("Autosave operation interval"))  == QJsonValue::Undefined||
+        recordObject.value(QString("Handles size"))                 == QJsonValue::Undefined
        )
     {
         file.remove();
         createJson(path);
     }
 
-    W = recordObject.value(QString("Width")).toInt();
-    H = recordObject.value(QString("Height")).toInt();
-    FPS = recordObject.value(QString("Fps")).toInt();
-    firstTimeOpened = recordObject.value(QString("First time opened")).toInt();
-    FFMPEGPath = recordObject.value("FFMPEG path").toString();
-    autoSaveInterval = recordObject.value(QString("Autosave operation interval")).toInt();
-    HANDLESIZE = recordObject.value(QString("Handles size")).toInt();
+    W           = recordObject.value(QString("Width")).toInt();
+    H           = recordObject.value(QString("Height")).toInt();
+    FPS         = recordObject.value(QString("Fps")).toInt();
+    firstTimeOpened     = recordObject.value(QString("First time opened")).toInt();
+    FFMPEGPath          = recordObject.value("FFMPEG path").toString();
+    autoSaveInterval    = recordObject.value(QString("Autosave operation interval")).toInt();
+    HANDLESIZE          = recordObject.value(QString("Handles size")).toInt();
     file.close();
 
 }

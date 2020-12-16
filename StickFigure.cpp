@@ -642,11 +642,21 @@ void StickFigure::loadStickFigure(QString name)
 }
 // rotates the whole stickfigure
 extern bool startStickFigureRotation;
-void StickFigure::rotateStickFigure(QPointF *coord){
+void StickFigure::rotateStickFigure(QPointF *coord, QList<stick*> sticks, bool completeRotation){
+    // traslation-only
+    if(currentStick == masterStick
+            &&QLineF(*coord,masterStick->myLine.p1()).length()<QLineF(*coord,masterStick->myLine.p2()).length()){
+       traslate(-masterStick->myLine.p1().x()+coord->x(),-masterStick->myLine.p1().y()+coord->y());
+       return;
+    }
     // this records the angle between the mouse when it is first pressed and the master node of the stickfigure
     static float startingAngle = 0;
     //step 1 calcola l'angolo fra la posizione del mouse e il master node dello stickfigure
-    QLineF connect(masterStick->myLine.p1(),*coord); //crea la linea connettendo i punti
+    QLineF connect;
+    if(completeRotation)
+        connect = QLineF(masterStick->myLine.p1(),*coord); //crea la linea connettendo i punti
+    else
+        connect = QLineF(currentStick->myLine.p1(),*coord); //crea la linea connettendo i punti
     float angle = connect.angle(); //dicci l'angolo
     // se la rotazione è appena iniziata sbbass ail flag e registra lo starting angle in modo che il primo valore inviato sia 0
     if(startStickFigureRotation){
@@ -655,7 +665,7 @@ void StickFigure::rotateStickFigure(QPointF *coord){
     }
     // sottrai l'angolo di inizio, la prima iterazione da sempre 0 ovviamente
     angle -= startingAngle;
-    for(stick *s:stickList){
+    for(stick *s:sticks){
 
         s->rotate(angle);
     }

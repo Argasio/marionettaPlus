@@ -213,7 +213,10 @@ void myView::mousePressEvent(QMouseEvent *event)
             {
                 storeUndo();
                 arrowSelection();
-
+                startStickFigureRotation = true;
+                for(stick*s:CURRENTSTICKFIGURE->stickList){
+                    s->angleBuffer2 = s->myLine.angle();
+                }
                 break;
             }
             case DRAW:
@@ -625,9 +628,22 @@ void myView::mouseMoveEvent(QMouseEvent *event)
 
                     //qDebug("selected item %d", idx);
                     // Ora ruota lo stick
-                    if(CURRENTSTICKFIGURE->stickList.count()>0)
+                    if(CURRENTSTICKFIGURE->stickList.count()>0){
 
-                        CS->rotate(&coord);
+                        QList<stick*> toRotate;
+                        if(CS->master){
+                            for(stick*s:CURRENTSTICKFIGURE->stickList){
+                                if(!s->stepchild){
+                                    toRotate.append(s);
+                                }
+                            }
+                        }else{
+                            toRotate = CS->children;
+                        }
+                        toRotate.append(CS);
+                        CURRENTSTICKFIGURE->rotateStickFigure(&coord,toRotate,false);
+                            //s->rotate(&coord);
+                    }
                 }
             }
             break;
@@ -669,19 +685,16 @@ void myView::mouseMoveEvent(QMouseEvent *event)
             if(CURRENTSTICKFIGURE != nullptr)
             {
                 if(isPressed){
-                    CURRENTSTICKFIGURE->rotateStickFigure(&coord);
+                    CURRENTSTICKFIGURE->rotateStickFigure(&coord,CURRENTSTICKFIGURE->stickList,true);
                 }
             }
             break;
         }
         case(SCALE):
         {
-            if(CURRENTSTICKFIGURE != nullptr && isPressed)
-            {
-                CURRENTSTICKFIGURE->scale(&coord);
+            if(CURRENTSTICKFIGURE != nullptr && isPressed){
+               CURRENTSTICKFIGURE->scale(&coord);
             }
-
-
             break;
         }
         case(MOVESCENE):
@@ -693,8 +706,8 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                 for(StickFigure*S:myAnimation->currentFrame->stickFigures){
                     S->traslate(dx,dy);
                 }
-                break;
             }
+            break;
         }
         case(ROTATESCENE):
         {
