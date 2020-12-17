@@ -17,6 +17,7 @@
 #define ROTATE 9
 #define SCALE 10
 #define NOTOOL 4
+#define CLAMP 20
 #define MOVESCENE 11
 #define ROTATESCENE 12
 #define SCALESCENE 13

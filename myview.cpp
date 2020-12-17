@@ -209,6 +209,7 @@ void myView::mousePressEvent(QMouseEvent *event)
     if(!isRightPressed && !isMiddlePressed){
     switch(tool)
     {
+            case CLAMP:
             case NOTOOL:
             {
                 storeUndo();
@@ -616,6 +617,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
     mapMyCoords(coord, event->pos());
     switch(tool)
     {
+        case CLAMP:
         case NOTOOL:
         {
             if(isPressed)
@@ -629,20 +631,24 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                     //qDebug("selected item %d", idx);
                     // Ora ruota lo stick
                     if(CURRENTSTICKFIGURE->stickList.count()>0){
-
-                        QList<stick*> toRotate;
-                        if(CS->master){
-                            for(stick*s:CURRENTSTICKFIGURE->stickList){
-                                if(!s->stepchild){
-                                    toRotate.append(s);
-                                }
-                            }
-                        }else{
-                            toRotate = CS->children;
+                        if(tool == CLAMP){
+                            CS->rotate(&coord);
                         }
-                        toRotate.append(CS);
-                        CURRENTSTICKFIGURE->rotateStickFigure(&coord,toRotate,false);
-                            //s->rotate(&coord);
+                        else{
+                            QList<stick*> toRotate;
+                            if(CS->master){
+                                for(stick*s:CURRENTSTICKFIGURE->stickList){
+                                    if(!s->stepchild){
+                                        toRotate.append(s);
+                                    }
+                                }
+                            }else{
+                                toRotate = CS->children;
+                            }
+                            toRotate.append(CS);
+                            CURRENTSTICKFIGURE->rotateStickFigure(&coord,toRotate,false);
+                        }
+                            //
                     }
                 }
             }

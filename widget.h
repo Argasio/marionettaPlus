@@ -229,6 +229,8 @@ private slots:
 
     void on_lineThicknessSlider_sliderMoved(int position);
 
+    void on_clampToolBtn_clicked();
+
 private:
     Ui::Widget *ui;
 };

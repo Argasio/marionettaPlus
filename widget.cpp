@@ -1504,3 +1504,8 @@ void Widget::on_lineThicknessSlider_sliderMoved(int position)
 {
     ui->thicknessSpinBox->setValue(position);
 }
+
+void Widget::on_clampToolBtn_clicked()
+{
+    view->setTool(CLAMP);
+}
