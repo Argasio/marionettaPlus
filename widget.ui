@@ -498,7 +498,7 @@ QMenu::separator {
                     <number>0</number>
                    </property>
                    <property name="bottomMargin">
-                    <number>30</number>
+                    <number>15</number>
                    </property>
                    <item>
                     <widget class="QPushButton" name="undoBtn">
@@ -746,13 +746,13 @@ QPushButton:pressed{
                      <property name="minimumSize">
                       <size>
                        <width>20</width>
-                       <height>0</height>
+                       <height>20</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>50</width>
-                       <height>50</height>
+                       <height>20</height>
                       </size>
                      </property>
                     </widget>
@@ -985,7 +985,7 @@ QPushButton:pressed{
                     <widget class="QPushButton" name="addFrameBtn">
                      <property name="minimumSize">
                       <size>
-                       <width>55</width>
+                       <width>50</width>
                        <height>50</height>
                       </size>
                      </property>
@@ -1103,13 +1103,13 @@ QPushButton:pressed{
                      <property name="minimumSize">
                       <size>
                        <width>20</width>
-                       <height>0</height>
+                       <height>20</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>50</width>
-                       <height>50</height>
+                       <height>20</height>
                       </size>
                      </property>
                      <property name="minimum">
@@ -4294,6 +4294,18 @@ border: 1px solid #5A5A5A;
                 </property>
                 <item>
                  <widget class="QFrame" name="frame_22">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>60</height>
+                   </size>
+                  </property>
                   <property name="frameShape">
                    <enum>QFrame::StyledPanel</enum>
                   </property>
@@ -4308,13 +4320,13 @@ border: 1px solid #5A5A5A;
                     <number>0</number>
                    </property>
                    <property name="topMargin">
-                    <number>0</number>
+                    <number>5</number>
                    </property>
                    <property name="rightMargin">
                     <number>0</number>
                    </property>
                    <property name="bottomMargin">
-                    <number>0</number>
+                    <number>10</number>
                    </property>
                    <item>
                     <widget class="QPushButton" name="currentBrushColorBtn">
@@ -4393,6 +4405,12 @@ QPushButton:pressed{
                 </item>
                 <item>
                  <widget class="QGroupBox" name="groupBox_6">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>30</height>
+                   </size>
+                  </property>
                   <property name="title">
                    <string>Fill Opacity</string>
                   </property>
@@ -4998,10 +5016,16 @@ QPushButton:pressed{
              </item>
              <item>
               <widget class="QGroupBox" name="groupBox_13">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>150</height>
+                 <height>250</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -5170,7 +5194,7 @@ QPushButton:pressed{
                     <number>0</number>
                    </property>
                    <property name="bottomMargin">
-                    <number>0</number>
+                    <number>12</number>
                    </property>
                    <item>
                     <widget class="QPushButton" name="moveStickUp">
@@ -5258,7 +5282,7 @@ QPushButton:pressed{
                     <number>0</number>
                    </property>
                    <property name="bottomMargin">
-                    <number>0</number>
+                    <number>12</number>
                    </property>
                    <item>
                     <widget class="QPushButton" name="pushToTopBtn">
