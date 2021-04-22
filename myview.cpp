@@ -39,6 +39,7 @@ StickFigure* joinToStickFigure;
 StickFigure* splitToStickFigure;;
 stick* joinToStick;
 stick* splitToStick;
+QList<QGraphicsEllipseItem*> handles;
 extern QString imageNameBuffer;
 extern int W;
 extern int H;
@@ -72,6 +73,7 @@ void myView::setTool(int Tool)
 
 void myView::deleteStickFigure()
 {
+    bool updateCurrentStickFigure =  false;
     if(myStickFigureWidgetList->selectedItems().count() == 1 && myAnimation->currentFrame->stickFigures.count()>1)
     {
         //scegli lo stickfigure selzionato dalla lista grafica
@@ -80,6 +82,7 @@ void myView::deleteStickFigure()
         QVariant  retrievedData = (current->data(Qt::UserRole));
         //riconverti il dato
         StickFigure* cs = qvariant_cast<StickFigure*>(retrievedData);
+        updateCurrentStickFigure = (cs == CURRENTSTICKFIGURE);
 
         //distruggi l'oggetto della lista
         myStickFigureWidgetList->takeItem(myStickFigureWidgetList->row(current));
@@ -99,6 +102,9 @@ void myView::deleteStickFigure()
             myStickFigureWidgetList->setItemSelected(ns->linkedItem,true);
         }
         myAnimation->currentFrame->updateIcon();
+        if(updateCurrentStickFigure){
+             arrowSelection();
+        }
     }
     else{
         QMessageBox::about(this,"error","There must be at least one stickfigure layer in the scene");
@@ -288,9 +294,9 @@ void myView::mousePressEvent(QMouseEvent *event)
                     arrowSelection();
 
                     if(CURRENTSTICKFIGURE!=joinToStickFigure){
-
+                        removeHandles(joinToStickFigure);
                         mergeStickFigures(joinToStickFigure,joinToStick,CURRENTSTICKFIGURE);
-
+                        addHandles(joinToStickFigure);
                         deleteStickFigure();
                         for(stick*s:CURRENTSTICKFIGURE->stickList){
                             if(!CURRENTFRAME->totalSticks.contains(s))
@@ -352,6 +358,7 @@ void myView::keyPressEvent(QKeyEvent *event)
                 //altrimenti cancella il singolo stick e aggiorna l'iconea del livello
                 else if(myStickFigureWidgetList->selectedItems().count()==1)
                 {
+                    stick* nextCurrentStick = CS->parent;
                     // questa lista serve per rimuovere dalla totalStick tutti gli stick cancellati
                     QList<stick*> oldStickList = CURRENTSTICKFIGURE->stickList;
                     CURRENTSTICKFIGURE->deleteStick( idx);
@@ -364,6 +371,7 @@ void myView::keyPressEvent(QKeyEvent *event)
                     CURRENTFRAME->numOfItems = CURRENTFRAME->totalSticks.length();
                     CURRENTSTICKFIGURE->updateIcon();
                     myStickFigureWidgetList->selectedItems()[0]->setIcon(*CURRENTSTICKFIGURE->stickFigureIcon);
+                    CS = nextCurrentStick;
                 }
                 myAnimation->currentFrame->updateIcon();
                 // distruggi l'oggetto
@@ -410,15 +418,17 @@ void myView::arrowSelection(){
 // il secondo l'end point
 void myView::drawCmd(QPointF* point, int mode)
 {
-    if(!myAnimation->currentFrame->stickFigures.isEmpty())
+    if(!myAnimation->currentFrame->stickFigures.isEmpty() && CURRENTSTICKFIGURE != nullptr)
     {
+
         if(CURRENTSTICKFIGURE->drawCount == 0){
             storeUndo();
+
+            CURRENTSTICKFIGURE->startDrawing(point, myPen, myBrush);
             if(!CURRENTSTICKFIGURE->stickList.isEmpty()){
                CS->selected = false;
                CS->refresh(0);
             }
-            CURRENTSTICKFIGURE->startDrawing(point, myPen, myBrush);
             CS->selected = true;
             CS->hardTop = hardTopCheck->isChecked();
             CS->hardBottom = hardBottomCheck->isChecked();
@@ -458,12 +468,15 @@ void myView::drawCmd(QPointF* point, int mode)
         else if(CURRENTSTICKFIGURE->drawCount >0)
         {
             CURRENTSTICKFIGURE->endDrawing(point);
+            scene()->addItem(CS->stickHandle[0]);
+            scene()->addItem(CS->stickHandle[1]);
             qDebug("Draw 2 = %f, %f",point->x(),point->y());
             myAnimation->currentFrame->updateIcon();
             myAnimation->updateTab(CS->stickType);
             // add it to the total scene list
             myAnimation->currentFrame->totalSticks.append(CS);
             myAnimation->updateSelection(CS);
+            handles.append((QGraphicsEllipseItem*)CS->stickHandle);
 
         }
     }
@@ -865,6 +878,7 @@ void myView::moveToFrame(Frame* frame){
     // rimuovi tutti gli stick dalla scena
     if(myAnimation->frameList.count()>=1){
         for(StickFigure *S:myAnimation->currentFrame->stickFigures){
+            removeHandles(S);
             for(stick * s: S->stickList){
                if(scene()->items().contains(s)){
                     scene()->removeItem(s);
@@ -890,7 +904,7 @@ void myView::moveToFrame(Frame* frame){
         if(!playBack){
             S->updateBoundingRects();
             S->updateIcon();
-
+            addHandles(S);
         }
     }
     scene()->clearSelection();
@@ -1165,6 +1179,29 @@ void myView::updateFrameOrder(Frame* f){
     f->numOfItems = j;
     */
 }
+
+void myView::addHandles(StickFigure *S)
+{
+    for(stick*s:S->stickList){
+        scene()->addItem(s->stickHandle[0]);
+        scene()->addItem(s->stickHandle[1]);
+        handles.append((QGraphicsEllipseItem*)s->stickHandle);
+        if(s->master){
+            s->stickHandle[0]->setBrush(QBrush(Qt::green));
+            s->stickHandle[0]->setZValue(101);
+        }
+    }
+}
+
+void myView::removeHandles(StickFigure *S)
+{
+
+    for(stick*s:S->stickList){
+        scene()->removeItem(s->stickHandle[0]);
+        scene()->removeItem(s->stickHandle[1]);
+        handles.removeAll((QGraphicsEllipseItem*)s->stickHandle);
+    }
+}
 // cancella i buffer di undo e redo, da chiamare quando si carica un nuovo file
 void myView::clearUndo(){
     clearUndoFlag = true;
@@ -1289,6 +1326,7 @@ void myView::splitStickFigure(){
     }
     storeUndo();
     splitToStickFigure = CURRENTSTICKFIGURE;
+    removeHandles(splitToStickFigure);
     splitToStick = splitToStickFigure->currentStick;
     QList<stick*> oldStickList = CURRENTSTICKFIGURE->stickList;
 
@@ -1303,11 +1341,14 @@ void myView::splitStickFigure(){
         }
     }
     CURRENTFRAME->totalSticks.append(branch->stickList);
+    addHandles(splitToStickFigure);
+    addHandles(branch);
     //
     branch->refresh(0);
     CURRENTSTICKFIGURE = branch;
     CS = branch->stickList[0];
     CURRENTSTICKFIGURE->updateIcon();
+
 }
 void myView::sizeChange(int option){
 

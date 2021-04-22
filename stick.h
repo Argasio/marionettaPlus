@@ -76,6 +76,7 @@ public:
     QBrush Brush;
     qreal Z;
     QImage* stickImg;
+    QGraphicsEllipseItem* stickHandle[2];
     QList<QImage*>stickImgList;
     StickFigure* myStickFigure = nullptr;
     QRectF updateBr(int mode);

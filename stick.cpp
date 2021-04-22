@@ -12,6 +12,7 @@ extern bool iconUpdateFlag;
 extern bool renderFlag;
 extern bool playBack;
 extern int HANDLESIZE;
+extern QList<QGraphicsEllipseItem*> handles;
 //lo stick si basa fondamentalmente su un QGraphicsLineObject, uno stick alloca una lineobject
 stick::stick(QLineF *line)
 {
@@ -22,11 +23,22 @@ stick::stick(QLineF *line)
     highlight = true;
     setLine(line);
     stepchild = false;
+    stickHandle[0] = new QGraphicsEllipseItem();
+    stickHandle[1] = new QGraphicsEllipseItem();
+    stickHandle[0]->setZValue(100);stickHandle[1]->setZValue(100);
+    stickHandle[0]->setBrush(QBrush(Qt::red));
+    stickHandle[1]->setBrush(QBrush(Qt::red));
+    handles.append((QGraphicsEllipseItem*)stickHandle);
 
 }
 stick::stick()
 {
     this->setFlag(QGraphicsItem::ItemIsSelectable,true);
+    stickHandle[0] = new QGraphicsEllipseItem();
+    stickHandle[1] = new QGraphicsEllipseItem();
+    stickHandle[0]->setZValue(100);stickHandle[1]->setZValue(100);
+    stickHandle[0]->setBrush(QBrush(Qt::red));
+    stickHandle[1]->setBrush(QBrush(Qt::red));
     //Pen = QPen();
 }
 stick::stick(stick* S)
@@ -59,7 +71,14 @@ stick::stick(stick* S)
         imgHScale = S->imgHScale;
         imgAngleOffset = S->imgAngleOffset;
         imgOffset = S->imgOffset;
+
     }
+    stickHandle[0] = new QGraphicsEllipseItem();
+    stickHandle[1] = new QGraphicsEllipseItem();
+    stickHandle[0]->setZValue(100);stickHandle[1]->setZValue(100);
+    stickHandle[0]->setBrush(QBrush(Qt::red));
+    stickHandle[1]->setBrush(QBrush(Qt::red));
+
 }
 stick::~stick(){
     if(stickType == IMAGE){
@@ -78,6 +97,8 @@ stick::~stick(){
         stickImg = nullptr;
 
     }
+    delete stickHandle[0] ;
+    delete stickHandle[1] ;
 }
 void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
@@ -207,7 +228,21 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     else if(stickType == StickType::LINE){
         painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
     }
+
+    stickHandle[0]->setRect(myLine.p1().x()-HANDLESIZE/2,myLine.p1().y()-HANDLESIZE/2,HANDLESIZE,HANDLESIZE);
+    stickHandle[1]->setRect(myLine.p2().x()-HANDLESIZE/2,myLine.p2().y()-HANDLESIZE/2,HANDLESIZE,HANDLESIZE);
+    if(this->selected){
+        QColor c(Qt::yellow);
+        c.setAlphaF(0.75);
+        painter->setPen(QPen(c,8));
+
+        painter->drawEllipse(myLine.p2().x()-HANDLESIZE*0.4,myLine.p2().y()-HANDLESIZE*0.4,HANDLESIZE*0.8,HANDLESIZE*0.8);
+        painter->drawEllipse(myLine.p1().x()-HANDLESIZE*0.4,myLine.p1().y()-HANDLESIZE*0.4,HANDLESIZE*0.8,HANDLESIZE*0.8);
+        painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
+
+    }
     //Pen.setColor(Qt::red); //draw bounding box
+    /*
     if(!onionRender && !renderFlag &&!playBack){
         if(this->master){ // il master ha entrambe le estremità disegnate
             if(this->highlight)
@@ -235,18 +270,9 @@ void stick::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
         else
             painter->setPen(QPen(Qt::blue,HANDLESIZE));
         painter->drawEllipse(myLine.p2().x()-HANDLESIZE/2,myLine.p2().y()-HANDLESIZE/2,HANDLESIZE,HANDLESIZE);
-        if(this->selected){
-            QColor c(Qt::yellow);
-            c.setAlphaF(0.75);
-            painter->setPen(QPen(c,8));
 
-            painter->drawEllipse(myLine.p2().x()-HANDLESIZE*0.4,myLine.p2().y()-HANDLESIZE*0.4,HANDLESIZE*0.8,HANDLESIZE*0.8);
-            painter->drawEllipse(myLine.p1().x()-HANDLESIZE*0.4,myLine.p1().y()-HANDLESIZE*0.4,HANDLESIZE*0.8,HANDLESIZE*0.8);
-            painter->drawLine(myLine.x1(),myLine.y1(),myLine.x2(),myLine.y2());
-
-        }
         //painter->drawRect(br);
-    }
+    }*/
 }
 // bounding rectangle deve essere sempre "positivo"
 QRectF stick::boundingRect() const

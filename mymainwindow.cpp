@@ -72,6 +72,7 @@ void myMainWindow::on_actionload_triggered()
         for(stick*s:CURRENTSTICKFIGURE->stickList){
             CURRENTFRAME->totalSticks.append(s);
         }
+        view->addHandles(CURRENTSTICKFIGURE);
     }
 }
 

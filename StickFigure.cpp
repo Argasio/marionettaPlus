@@ -113,6 +113,8 @@ void StickFigure::startDrawing(QPointF *point, QPen pen, QBrush brush)
     // seè il primo stick ad essere disegnato
     if(masterStick == nullptr){
         masterStick = currentStick;
+        masterStick->stickHandle[0]->setBrush(QBrush(Qt::green));
+        masterStick->stickHandle[0]->setZValue(101);
         masterStick->master = true;
         masterStick->parent = nullptr;
     }
@@ -484,8 +486,10 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         else{ // se stiamo considerando lo stickmaster
             s->parent = nullptr;
         }
-        if(s->master)
+        if(s->master){
             myStickFigure.masterStick = s;
+            s->stickHandle[0]->setBrush(QBrush(Qt::green));
+        }
         if(!undoFlag && !loadingAnimationFlag && !libFlag && !copyFlag)
             myStickFigure.scene->addItem(s);
         //s->refresh(0); // commentato per bug che non ho capito era necessario?
@@ -702,6 +706,19 @@ void StickFigure::traslate(qreal dx, qreal dy){
 }
 void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigure* toJoin){
     QList<stick*> matchIndexes;
+    // first add an invisible branch that links the two
+    QLineF myLine(mainStick->myLine.p2(),toJoin->masterStick->myLine.p1());
+    stick* linker = new stick(&myLine);
+
+    mainStickFigure->stickList.append(linker);
+    linker->parent = mainStick;
+
+    linker->stickType = stick::LINE;
+    linker->Pen= Qt::NoPen;
+    mainStickFigure->scene->addItem(linker);
+    //linker->setVisible(false);
+    if(mainStick->stepchild)
+        linker->stepchild = true;
 
     for(stick* s: toJoin->stickList){
         stick* toAdd = new stick(s);
@@ -710,6 +727,7 @@ void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigur
         toAdd->stepchild = false;
         matchIndexes.append(toAdd);
         mainStickFigure->scene->addItem(toAdd);
+
         toAdd->refresh(0);
     }
     int i = 0;
@@ -720,13 +738,13 @@ void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigur
             toAdd->stepchild = true;
         if(s->master){
             toAdd->master = false;
-            toAdd->parent = mainStick;
+            toAdd->parent = linker;
 
         }
         else if(s->stepchild && s->parent->master)
         {
 
-            toAdd->parent = mainStick;
+            toAdd->parent = linker;
         }
         else{
             toAdd->parent = matchIndexes[toJoin->stickList.indexOf(s->parent)];
@@ -737,17 +755,17 @@ void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigur
         }
         i++;
     }
-    mainStick->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]->children);
-    mainStick->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]);
+    linker->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]->children);
+    linker->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]);
 
     stick * recursive;
-    recursive = mainStick->parent;
+    recursive = mainStick;
     while(1){
         if(recursive == nullptr)
             break;
         recursive->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]->children);
         recursive->children.append(matchIndexes[toJoin->stickList.indexOf(toJoin->masterStick)]);
-
+        recursive->children.append(linker);
         recursive = recursive->parent;
     }
     QList<stick*> stepChildToRemove;
@@ -1190,6 +1208,8 @@ void StickFigure::elongate(QPointF newEndPoint, stick* myStick){
 void StickFigure::setMaster(stick* toMaster){
     QList<stick*> figli;
     QList<stick*> figliastri;
+    masterStick->stickHandle[0]->setBrush(QBrush(Qt::red));
+    masterStick->stickHandle[0]->setZValue(100);
     //prima, considerando il master, vedi quanti sick nascono dal suo punto di origine (figliastri) e quanti nascono dal suo estremo libero (figli)
     for(stick*s:stickList){
         if(s->parent == masterStick && s->stepchild){
@@ -1212,6 +1232,8 @@ void StickFigure::setMaster(stick* toMaster){
         setStepChildAsMaster(toMaster);
     else
         setDirectChainAsMaster(toMaster); // masterscelto fa parte dei vecchi stepchild
+    masterStick->stickHandle[0]->setBrush(QBrush(Qt::green));
+    masterStick->stickHandle[0]->setZValue(101);
 }
 void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
     // crea una lista parallela con gli stick corrispondenti nella stickfigure originale

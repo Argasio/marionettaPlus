@@ -89,6 +89,8 @@ public:
     void arrowSelection();
     void moveStickFigureZ(int increment, int mode);
     void updateFrameOrder(Frame *f);
+    void addHandles(StickFigure*S);
+    void removeHandles(StickFigure*S);
 public slots:
     void saveLibrary(QString fileName);
 signals:

@@ -713,6 +713,7 @@ void Widget::on_addItemFromLibraryToSceneBtn_clicked()
     for(stick*s:added->stickList){
         CURRENTFRAME->totalSticks.append(s);
     }
+    view->addHandles(added);
     added->linkedItem->setData(Qt::DisplayRole,added->name);
     view->myAnimation->updateSelection(added);
     myStickFigureWidgetList->setCurrentRow(myStickFigureWidgetList->row(added->linkedItem));
@@ -1059,7 +1060,9 @@ void Widget::on_pasteStickFigureBtn_clicked()
        added->refresh(0);
        for(stick*s:added->stickList){
            CURRENTFRAME->totalSticks.append(s);
+
        }
+       view->addHandles(added);
    }
    else{
        QMessageBox::about(this,"error","no stickfigure was copied in memory");
