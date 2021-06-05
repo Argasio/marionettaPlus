@@ -1113,16 +1113,18 @@ void myView::storeUndo(int command, int mode){
         return;
     updateFrameOrder(CURRENTFRAME);
     opCount++;
+    qDebug() << "beforetrigger autosav";
     // se il file è stato salvato, ed esiste, e sono passati un numero sufficiente di istruzioni, procedi con láutosave
     if(QFile::exists(animationPath) && opCount%autoSaveInterval == 0){
         emit autoSaveTrigger();
     }
+    qDebug() << "after trigger autosav";
     undoFlag = true;
     // inizializza la struttura di undo/redo
     undoInfoStruct myUndo;
     myUndo.frame = new Frame();
     myUndo.command = command;
-
+    qDebug() << "after new frame";
     //CLONE FRAME
     // byte array stores serialized data
     QByteArray* byteArray = new QByteArray(myAnimation->currentFrame->stickFigures.count()*20000000,0x00);
@@ -1130,15 +1132,20 @@ void myView::storeUndo(int command, int mode){
     QBuffer buffer1(byteArray);
     // use this buffer to store data from the object
     buffer1.open(QIODevice::WriteOnly);
+    qDebug() << "open buffer";
     QDataStream myStream(&buffer1);
+    qDebug() << "after stream obj";
     myStream<<*(myAnimation->currentFrame);
+    qDebug() << "stream frame";
     // now create a seconds buffer from which to read data of the bytearray
     QBuffer buffer2(byteArray);
     buffer2.open(QIODevice::ReadOnly);
     // a new data stream to deserialize
+    qDebug() << "buffer 2";
     QDataStream myStream2(&buffer2);
     // hydrate new frame with previous frame data
     myStream2>>*myUndo.frame;
+    qDebug() << "after clone frame";
     //popola il buffer appropriato
     if(mode == MODE_UNDO){
         if(undoBuffer.count()>=MAXUNDO){
@@ -1152,6 +1159,7 @@ void myView::storeUndo(int command, int mode){
         }
         redoBuffer.append(myUndo);
     }
+    qDebug() << "after uno/redo store";
     undoFlag = false;
     delete byteArray;
 }

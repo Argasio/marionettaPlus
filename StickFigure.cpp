@@ -319,7 +319,7 @@ void StickFigure::deleteStick(int idx)
 {
     stick *selectedStick = stickList[idx];   //oggetto stick che contiene l'oggetto grafico
     scene->removeItem(stickList[idx]); //rimuovi l'oggetto dalla scena
-    if(stickList[idx]->master)
+    if(stickList[idx]->master) //todo master replacement
         this->masterStick = nullptr;
     //per ogni figlio dell'oggetto, rimuovi gli oggetti dalla scena e cancellali
     for(stick * s : selectedStick->children){
@@ -362,7 +362,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
     stream<<myStick.parentIdx;
     stream<<myStick.Pen;
     stream<<myStick.Brush;
-    stream<<myStick.master;
+    stream<<myStick.master; //todo master replacement
     stream<<myStick.order;
     if((myStick.stickType == stick::CIRCLE)||(myStick.stickType == stick::IMAGE)||(myStick.stickType == stick::RECT)||(myStick.stickType == stick::TRAPEZOID)||(myStick.stickType == stick::TAPER)){
         if(myStick.stickType == stick::IMAGE){
@@ -400,7 +400,7 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
     stream>>myStick.parentIdx;
     stream>>myStick.Pen;
     stream>>myStick.Brush;
-    stream>>myStick.master;
+    stream>>myStick.master; //todo master replacement
     stream>>myStick.order;
     if((myStick.stickType == stick::IMAGE)||(myStick.stickType == stick::CIRCLE)||(myStick.stickType == stick::RECT)||(myStick.stickType == stick::TRAPEZOID)||(myStick.stickType == stick::TAPER)){
         QSize mysize;
@@ -420,7 +420,6 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
             int stickImgIdx;
             stream>>numOfImgs;
             stream>>stickImgIdx;
-            int j = 0;
             for(int i = 0; i<numOfImgs;i++){
                 QImage *img = new QImage(mysize,QImage::Format_ARGB32);
                 stream>>*img;
@@ -437,21 +436,29 @@ QDataStream & operator>> (QDataStream& stream, stick& myStick){
 // serializzatore per stickfigure
 QDataStream & operator<< (QDataStream& stream, const StickFigure& myStickFigure){
     // per prima cosa registra il numero di stick che lo compongono
+
     stream<<myStickFigure.version;
+    qDebug() << "before stream version";
     stream<<myStickFigure.stickList.count();
     stream<<myStickFigure.name;
+    qDebug() << "before stream stick idx";
     // per ogni stick nella lista scrivi l'indice del genitore e poi serializza il tutto
     for(stick* s:myStickFigure.stickList){
-        if(!s->master)
+        if(!s->master) //todo master replacement
         {
+            qDebug() << "stk master idx";
             s->parentIdx = myStickFigure.stickList.indexOf(s->parent);
+            qDebug() << "after streaming stick idx";
         }
         else{
+            qDebug() << "stk non master idx";
             s->parentIdx = -1;
         }
+        qDebug() << "before streaming stick";
         stream<<*s;
+        qDebug() << "after streaming stick";
     }
-
+    return stream;
 }
 // deserializza lo stickfigure
 QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
@@ -486,7 +493,7 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
         else{ // se stiamo considerando lo stickmaster
             s->parent = nullptr;
         }
-        if(s->master){
+        if(s->master){ //todo master replacement
             myStickFigure.masterStick = s;
             s->stickHandle[0]->setBrush(QBrush(Qt::green));
         }
@@ -547,7 +554,7 @@ QList<stick*> StickFigure::weld(stick* master){
 
     //populate the list with the immediate children of the selected stick
     for(stick* s:master->children){
-        if(s->parent == master && !(s->stepchild && master->master) ){
+        if(s->parent == master && !(s->stepchild && master->master) ){ //todo master replacement
             toWeld.append(s);
         }
     }
@@ -592,13 +599,13 @@ stick*  StickFigure::chop(stick* origin){
     origin->myLine.setP2(newP2);
     stick* toAdd = new stick();
     cloneStick(toAdd,origin);
-    if(origin->master){
+    if(origin->master){ //todo master replacement
         toAdd->master = false;
     }
     toAdd->myLine = QLineF(newP2,oldP2);
     toAdd->parent = origin;
     // nel caso sia un master considera solo i figli diretti e non gli stepchild
-    if(origin->master){
+    if(origin->master){ //todo master replacement
         for(stick*s: stickList){
             if(!s->stepchild && s!=origin){
                 toAdd->children.append(s);
@@ -691,7 +698,7 @@ void StickFigure::scale(QPointF *coord){
     //step 1 calcola la distanza tra la coordinata iniziale e quella corrente, se si allontana dal master stick ingrandisci, senno rimpicicolisci
     QLineF connect(masterStick->myLine.p1(),*coord); //crea la linea connettendo i punti
     float actualDistance = connect.length();
-    float distanceDifference = actualDistance-startingDist;
+    //float distanceDifference = actualDistance-startingDist;
     scale = actualDistance/startingDist;
     for(stick* s:stickList){
         s->scale(scale);
@@ -723,7 +730,7 @@ void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigur
     for(stick* s: toJoin->stickList){
         stick* toAdd = new stick(s);
         mainStickFigure->stickList.append(toAdd);
-        toAdd->master = false;
+        toAdd->master = false; //todo master replacement
         toAdd->stepchild = false;
         matchIndexes.append(toAdd);
         mainStickFigure->scene->addItem(toAdd);
@@ -736,12 +743,12 @@ void mergeStickFigures(StickFigure* mainStickFigure, stick* mainStick,StickFigur
         stick* toAdd = matchIndexes[i];
         if(mainStick->stepchild)
             toAdd->stepchild = true;
-        if(s->master){
+        if(s->master){ //todo master replacement
             toAdd->master = false;
             toAdd->parent = linker;
 
         }
-        else if(s->stepchild && s->parent->master)
+        else if(s->stepchild && s->parent->master) //todo master replacement
         {
 
             toAdd->parent = linker;
@@ -865,13 +872,15 @@ void StickFigure::setStepChildAsMaster(stick* toMaster){
             p2Buf = s->myLine.p2();
             s->myLine.setP2(s->myLine.p1());
             s->myLine.setP1(p2Buf);
-            if(s->stickType == stick::CIRCLE||s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID)
+            if(s->stickType == stick::CIRCLE||s->stickType == stick::RECT || s->stickType == stick::TAPER || s->stickType == stick::TRAPEZOID){
                 if(s->stickType != stick::CIRCLE && s->stickType != stick::IMAGE ){
                     float buf = s->imgHScale;
                     s->imgHScale = s->imgWScale;
                     s->imgWScale= buf;
                 }
+
                 s->imgAngle = s->imgAngle-180;
+            }
         }
         stick* recursive = s->parent; // segna lo stick corrente come figlio di tutti i suoi genitori
         int n = 0;
@@ -920,7 +929,7 @@ void StickFigure::setStepChildAsMaster(stick* toMaster){
     }
     //riassegna il ruolo del master
     masterStick = toMaster;
-    toMaster->master = true;
+    toMaster->master = true; //todo master replacement
     oldMaster->master = false;
 
     refresh(0);
@@ -1069,7 +1078,7 @@ void StickFigure::setDirectChainAsMaster(stick* toMaster){
     }
     toMaster->stepchild = false;
     masterStick = toMaster;
-    toMaster->master = true;
+    toMaster->master = true; //todo master replacement
     oldMaster->master = false;
     refresh(0);
 }
@@ -1123,7 +1132,7 @@ void StickFigure::invertMaster(stick* toMaster){
     }
     // aggiorna lo status di master..ma non serve neanche
     masterStick = toMaster;
-    toMaster->master = true;
+    toMaster->master = true; //todo master replacement
     toMaster->stepchild = false;
     refresh(0);
 }
@@ -1178,7 +1187,7 @@ void StickFigure::stepDownMaster(stick* toMaster){
 
     masterStick = toMaster;
     oldMaster->master = false;
-    toMaster->master = true;
+    toMaster->master = true; //todo master replacement
     toMaster->stepchild = false;
     toMaster->parent = nullptr;
 
@@ -1192,7 +1201,7 @@ void StickFigure::elongate(QPointF newEndPoint, stick* myStick){
     float dy = newEndPoint.y()-myStick->myLine.p2().y();
     myStick->myLine.setP2(newEndPoint);
     for(stick*s: myStick->children){
-        if(!(myStick->master && s->stepchild)){
+        if(!(myStick->master && s->stepchild)){ //todo master replacement
             s->myLine.translate(dx,dy);
 
         }
@@ -1252,7 +1261,7 @@ void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
             }
         }
 
-    branch->stickList[matchingIndex.indexOf(origin)]->master = true;
+    branch->stickList[matchingIndex.indexOf(origin)]->master = true; //todo master replacement
     branch->masterStick = branch->stickList[matchingIndex.indexOf(origin)];
 
     int i = 0;

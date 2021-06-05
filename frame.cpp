@@ -207,11 +207,13 @@ QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
     stream<<myFrame.numOfItems;
     stream<< myFrame.frameNumber;
     stream<< myFrame.stickFigures.indexOf(myFrame.currentStickFigure);
+    qDebug() << "before streaming sf";
     if(!libFlag)
         stream<< myFrame.currentStickFigure->stickList.indexOf(myFrame.currentStickFigure->currentStick);
     for(StickFigure* S: myFrame.stickFigures){
         stream<< *S;
     }
+    qDebug() << "after stream sf";
     return stream;
 }
 QDataStream & operator>> (QDataStream& stream, Frame& myFrame){

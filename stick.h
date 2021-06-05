@@ -46,6 +46,7 @@ public:
     void setLine(QLineF* line);
     void rotate(QPointF* point);
     void manipulate(QPointF* point);
+    bool isMaster();
 //-------- variables----------//
     bool highlight = false;
     bool selected = false;

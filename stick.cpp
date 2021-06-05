@@ -2,6 +2,7 @@
 #include <QGraphicsItem>
 #include <QVector>
 #include <QListWidget>
+#include <StickFigure.h>
 bool onionRender = false;
 extern QGraphicsRectItem* myRect;
 extern QPixmap * imageDrawBuffer ;
@@ -528,6 +529,13 @@ void stick::manipulate(QPointF *point)
         imgAngle= -atan2(myLine.dx(),myLine.dy())*180/M_PI;
     }
     refresh(0);
+}
+
+bool stick::isMaster()
+{
+    if(this->myStickFigure != nullptr)
+        return this->myStickFigure->masterStick == this;
+    return false;
 }
 // è stato rilasciato il mouse termina la rotazione
 void stick::endRotation()
