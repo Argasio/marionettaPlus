@@ -54,7 +54,7 @@ stick::stick(stick* S)
     this->setZValue(S->Z);
     this->br = S->boundingRect();
     this->stickType = S->stickType;
-    this->master = S->master;
+    //this->master = S->master;
     this->order = S->order;
     hardTop = S->hardTop;
     hardBottom = S->hardBottom;
@@ -434,7 +434,7 @@ void stick::rotate(QPointF *point)
     QPointF oldEndPos   = myLine.p2();
     // lo stick punta al cursore che lo trascina
     //calcola se stiamo lavorando con l'origine del master stick
-    if(this->master &&
+    if(this->isMaster() && // todo master replacement
             QLineF(*point,myLine.p1()).length()<QLineF(*point,myLine.p2()).length()) // se la selezione è più prossima all'orgine che al secondo punto
     {
         oldEndPos   = myLine.p1();
@@ -512,7 +512,7 @@ void stick::manipulate(QPointF *point)
     for(int i= 0; i<children.length();i++)
     {
         //effettua la traslazione dovuta alla manipolazione dell'estremo libero
-        if(!(children[i]->stepchild && this->master) && children[i]->parent == this){
+        if(!(children[i]->stepchild && this->isMaster()) && children[i]->parent == this){ // todo master replacement
             QPointF pfBuf = children[i]->myLine.p2();
             children[i]->myLine = QLineF(*point,pfBuf);
             if(children[i]->stickType == stick::IMAGE || children[i]->stickType == RECT
@@ -531,7 +531,7 @@ void stick::manipulate(QPointF *point)
     refresh(0);
 }
 
-bool stick::isMaster()
+bool stick::isMaster() const
 {
     if(this->myStickFigure != nullptr)
         return this->myStickFigure->masterStick == this;

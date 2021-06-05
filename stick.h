@@ -46,12 +46,12 @@ public:
     void setLine(QLineF* line);
     void rotate(QPointF* point);
     void manipulate(QPointF* point);
-    bool isMaster();
+    bool isMaster() const;
 //-------- variables----------//
     bool highlight = false;
     bool selected = false;
     bool stepchild = false;
-    bool master = false;
+    //bool master = false;
     bool hardTop = false;
     bool hardBottom = false;
     int parentIdx = 0;

@@ -345,7 +345,7 @@ void myView::keyPressEvent(QKeyEvent *event)
                 stick *item = (stick*)scene()->selectedItems()[0];//oggetto selezionato nella scnea
                 int idx = CURRENTSTICKFIGURE->stickList.indexOf(item);        // indice corrispondente nella lista ordinata degli oggetti
                 // se si tratta dello stick master e ci sono altri stickfigure, cancella l'intero stickfigure
-                if(CURRENTSTICKFIGURE->stickList[idx]->master &&
+                if(CURRENTSTICKFIGURE->stickList[idx]->isMaster() && // todo master replacement
                         myAnimation->currentFrame->stickFigures.count()>1)
                 {
                     //estrai dalla lista grafica l'elemento selezionato collegato allo stickfigure
@@ -649,7 +649,7 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                         }
                         else{
                             QList<stick*> toRotate;
-                            if(CS->master){
+                            if(CS->isMaster()){ // // todo master replacement
                                 for(stick*s:CURRENTSTICKFIGURE->stickList){
                                     if(!s->stepchild){
                                         toRotate.append(s);
@@ -1194,7 +1194,7 @@ void myView::addHandles(StickFigure *S)
         scene()->addItem(s->stickHandle[0]);
         scene()->addItem(s->stickHandle[1]);
         handles.append((QGraphicsEllipseItem*)s->stickHandle);
-        if(s->master){
+        if(s->isMaster()){ // todo master replacement
             s->stickHandle[0]->setBrush(QBrush(Qt::green));
             s->stickHandle[0]->setZValue(101);
         }
@@ -1328,7 +1328,7 @@ void myView::setGraphics(bool all, int attribute){
 void myView::splitStickFigure(){
     if(CURRENTSTICKFIGURE== nullptr || CS == nullptr)
         return;
-    if(CS->master){
+    if(CS->isMaster()){ // todo master replacement
         QMessageBox::about(this,"error","cannot split a stickfigure from his master node");
         return;
     }

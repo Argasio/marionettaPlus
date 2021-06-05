@@ -39,7 +39,7 @@ public:
     QPointF originPosBuffer;
     float sceneRotationBuffer = 0;
     QString name;
-
+    
     void updateIcon();
     bool selectingOrigin = false;
     void loadStickFigure(QString name);
