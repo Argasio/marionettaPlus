@@ -95,7 +95,6 @@ void StickFigure::startDrawing(QPointF *point, QPen pen, QBrush brush)
     }
     else //se ci sono altri stick in questo stickfigure i dalla estremità più vicinaz al click
     {
-        //p0 = selectOrigin(point); //seleziona punto di origine
         parentBuffer = stickList[selectOrigin(point)]; //seleziona genitore (potremmo già farlo al rigo precedente visto che la funzione viene chiamata)
         if(selectingOrigin)
             p0 = parentBuffer->myLine.p1();
@@ -230,27 +229,30 @@ int StickFigure::selectOrigin( QPointF * point)
     //seleziona lo stick più vicino
     int idx = selectStick(point);
     // se è il master stick
-    if(stickList[idx] == masterStick)
-    {
+    //if(stickList[idx] == masterStick)
+    //{
         //controlla quale estremità è la più vicina e aseconda di quale essa sia restituisci il punto
-        if(measureDistanceFromLine(*point,stickList[idx]->myLine) >QLineF(stickList[idx]->myLine.p1(),*point).length())
+        if(measureDistanceFromLine(*point,stickList[idx]->myLine) >
+                QLineF(stickList[idx]->myLine.p1(),*point).length())
                //QLineF(stickList[idx]->myLine.p1(),*point).length()/sqrtf(stickList[idx]->myLine.length()) )
         {
-            // segnala che stiamo toccando l'orgine
+            // il p1 del masterstick è un eccezione e va considerata come possibile origine
             selectingOrigin = true;
-            return idx;
+            idx = stickList.indexOf(masterStick);
+            //return idx;
 
         }
         else{
             selectingOrigin = false;
-            return idx;
+            //return idx;
         }
-    }
+     return idx;
+    //}
     // se non è il master stick ignora P1
-    else{
-        stickList[idx]->myLine.p2();
-        return idx;
-    }
+    //else{
+        //stickList[idx]->myLine.p2();
+        //return idx;
+    //}
 }
 float StickFigure::measureDistanceFromLine(QPointF p, QLineF l){
     /*

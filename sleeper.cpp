@@ -12,11 +12,12 @@ mySleeper::mySleeper(myView * V, int time)
     v = V;
     counter = 0;
     intervalTime = time;
-    previewGenerator = new imageExport(this,"",PREVIEW);
+    previewGenerator = new imageExport(this,"",PREVIEW); // è un thread
+    // connetti il segnale del thread di fine elaborazione allo slot che partire la riproduzione
     QObject::connect(previewGenerator,&imageExport::imageExportFinished,this,&mySleeper::startPlaying);
     playBack = true;
     sceneRemover(v->scene());
-    previewGenerator->start();
+    previewGenerator->start(); // fai partire il thread
 
 
 }

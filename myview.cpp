@@ -1050,10 +1050,10 @@ void myView::undoRedo(int mode){
     QDataStream myStream2(&buffer2);
 
     Frame* undoFrame = new Frame();
-    if(mode == MODE_UNDO){
+    if(mode == MODE_UNDO){// memorizza l'undo nel buffer dei redo
         storeUndo(myUndo.command,MODE_REDO);
     }
-    else if(mode == MODE_REDO){
+    else if(mode == MODE_REDO){ // se siamo in redo immetti lo stato negli undo
         storeUndo(myUndo.command,MODE_UNDO);
     }
     // hydrate new frame with previous frame data
