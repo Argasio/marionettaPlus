@@ -30,7 +30,7 @@ void checkUpdate::run(){
         if(output.length()<3){
             return;
         }
-        QStringList release = output.split(QLatin1Char(','), QString::SkipEmptyParts);
+        QStringList release = output.split(QLatin1Char(','), Qt::SkipEmptyParts);
         int V = release[0].toInt();
         int SubV = release[1].toInt();
         int Rel = release[2].toInt();

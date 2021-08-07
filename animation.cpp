@@ -248,7 +248,7 @@ void Animation::updateSliders(){
 }
 Frame* Animation::setupFrame(int pos){
     QString name;
-    name.sprintf("%d",pos);
+    name.asprintf("%d",pos);
 
     // prepara il widget associato
     QListWidgetItem * addedItem = new QListWidgetItem();

@@ -44,7 +44,7 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
                 intName = myStickFigureWidgetList->currentRow()+1;
             }
 
-            myName.sprintf("%d",intName);
+            myName.asprintf("%d",intName);
         }
         else{
             myName = name;
@@ -89,7 +89,7 @@ StickFigure* Frame::addStickFigure(QListWidget * myListWidget, QString name)
         }
         int tempIndex = myListWidget->currentRow();
         myListWidget->clearSelection();
-        myListWidget->setItemSelected(addedItem, true);
+        addedItem->setSelected( true);
         myListWidget->setCurrentRow(tempIndex+1);
     }
     currentStickFigure->scene = scene;
@@ -129,7 +129,7 @@ StickFigure* Frame::addStickFigureToLibrary(StickFigure*S){
         myCurrentLibraryWidget->insertItem(newIdx,addedItem);
 
         myCurrentLibraryWidget->clearSelection();
-        myCurrentLibraryWidget->setItemSelected(addedItem, true);
+        addedItem->setSelected( true);
         myCurrentLibraryWidget->setCurrentRow(newIdx);
         S->updateIcon();
     }

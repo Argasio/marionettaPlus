@@ -99,7 +99,7 @@ void myView::deleteStickFigure()
         {
             myAnimation->updateSelection(ns);
             myStickFigureWidgetList->clearSelection();
-            myStickFigureWidgetList->setItemSelected(ns->linkedItem,true);
+            ns->linkedItem->setSelected(true);
         }
         myAnimation->currentFrame->updateIcon();
         if(updateCurrentStickFigure){
@@ -156,7 +156,7 @@ void myView::moveStickFigureZ(int increment, int mode)
         //sposta nella lista grafica il layer dello stickfigure
         QListWidgetItem * item = myStickFigureWidgetList->takeItem(currentIndex);
         myStickFigureWidgetList->insertItem(newIdx,item);
-        myStickFigureWidgetList->setItemSelected(item,true);
+        item->setSelected(true);
         myStickFigureWidgetList->setCurrentRow(newIdx);
 
         myAnimation->currentFrame->updateIcon();
@@ -178,7 +178,7 @@ void myView::moveStickFigureZ(int increment, int mode)
                 //sposta nella lista grafica il layer dello stickfigure
                 QListWidgetItem * item = myStickFigureWidgetList->takeItem(currentIndex);
                 myStickFigureWidgetList->insertItem(currentIndex+increment,item);
-                myStickFigureWidgetList->setItemSelected(item,true);
+                myStickFigureWidgetList->setSelected(item,true);
                 myStickFigureWidgetList->setCurrentRow(currentIndex+increment);
             }
             myAnimation->currentFrame->updateIcon();
@@ -351,7 +351,7 @@ void myView::keyPressEvent(QKeyEvent *event)
                     //estrai dalla lista grafica l'elemento selezionato collegato allo stickfigure
                     QListWidgetItem * associatedItem = CURRENTSTICKFIGURE->linkedItem;
                     myStickFigureWidgetList->clearSelection();
-                    myStickFigureWidgetList->setItemSelected(associatedItem,true);
+                    associatedItem->setSelected(true);
                     //cancella lo stickfigure
                     deleteStickFigure();
                 }
@@ -407,7 +407,7 @@ void myView::arrowSelection(){
         return;
     myAnimation->updateSelection(coord);
     myStickFigureWidgetList->clearSelection();
-    myStickFigureWidgetList->setItemSelected(CURRENTSTICKFIGURE->linkedItem,true);
+    CURRENTSTICKFIGURE->linkedItem->setSelected(true);
     myStickFigureWidgetList->setCurrentRow(myStickFigureWidgetList->row(CURRENTSTICKFIGURE->linkedItem));
     if(CS!=nullptr && CURRENTSTICKFIGURE->stickList.count()>0)
         CS->populateImageListWidget();
@@ -866,7 +866,7 @@ void myView::deleteFrame(Frame* frame){
             f->linkedItem->setData(Qt::DisplayRole, QString::number(f->frameNumber));
         }
     }
-    myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
+    myAnimation->currentFrame->linkedItem->setSelected(true);
 }
 // routine per passare da un frame ad un altro, svuota la scena, svuota le widget list, ripopola entrambi, aggiorna onion skins e selezioni
 void myView::moveToFrame(Frame* frame){
@@ -947,7 +947,7 @@ void myView::moveToFrame(Frame* frame){
     //scene()->update(myR);
     // se non siamo in modalità playback aggiorna le selezioni nelle widgetlists e delle iconee
     if(playBack == false){
-        myFrameWidgetList->setItemSelected(myAnimation->currentFrame->linkedItem,true);
+        myAnimation->currentFrame->linkedItem->setSelected(true);
         myFrameWidgetList->setCurrentItem(myAnimation->currentFrame->linkedItem);
         if(!myAnimation->frameList.isEmpty() && !myAnimation->currentFrame->stickFigures.isEmpty()){
             //CURRENTSTICKFIGURE->updateIcon();

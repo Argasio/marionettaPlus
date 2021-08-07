@@ -702,8 +702,10 @@ void Widget::on_addItemFromLibraryToSceneBtn_clicked()
     StickFigure * added = addStick();
     // get selected item
     int idx = myCurrentLibraryWidget->currentRow();
-    if(!myCurrentLibraryWidget->isItemSelected(myCurrentLibraryWidget->item(idx)))
+
+    if(!myCurrentLibraryWidget->item(idx)->isSelected()){
         return;
+    }
     QListWidgetItem *itemToAdd = myCurrentLibraryWidget->item(idx);
     // estrai il dato utente salvato in esso, puntatore ad uno stickfigure
     QVariant  retrievedData = (itemToAdd->data(Qt::UserRole));
