@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Marionetta V1.0.0</string>
+   <string>Marionetta V0.9.0</string>
   </property>
   <property name="styleSheet">
    <string notr="true">/*
@@ -328,7 +328,13 @@ QMenu::separator {
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout"/>
+    <widget class="QMenu" name="menuAbout">
+     <property name="title">
+      <string>About</string>
+     </property>
+    </widget>
+    <addaction name="menuAbout"/>
+    <addaction name="actionTerms_and_Conditions"/>
    </widget>
    <addaction name="menufile"/>
    <addaction name="menuHelp"/>
@@ -384,9 +390,9 @@ QMenu::separator {
     <string>Export video using FFMPEG</string>
    </property>
   </action>
-  <action name="actionAbout">
+  <action name="actionTerms_and_Conditions">
    <property name="text">
-    <string>About</string>
+    <string>Terms and Conditions</string>
    </property>
   </action>
  </widget>

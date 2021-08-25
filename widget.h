@@ -25,6 +25,7 @@ public:
     void createJson(QString path);
     void readJson(QString path);
     void writeJson();
+    void termsAndConditions();
 private slots:
     void on_drawBtn_clicked();
 

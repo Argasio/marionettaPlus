@@ -53,6 +53,9 @@ private slots:
 
     void on_actionAbout_triggered();
 
+
+    void on_actionTerms_and_Conditions_triggered();
+
 private:
     Ui::myMainWindow *ui;
 

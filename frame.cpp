@@ -208,8 +208,12 @@ QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
     stream<< myFrame.frameNumber;
     stream<< myFrame.stickFigures.indexOf(myFrame.currentStickFigure);
     qDebug() << "before streaming sf";
-    if(!libFlag)
-        stream<< myFrame.currentStickFigure->stickList.indexOf(myFrame.currentStickFigure->currentStick);
+    if(!libFlag){
+        if(myFrame.currentStickFigure)
+            stream<< myFrame.currentStickFigure->stickList.indexOf(myFrame.currentStickFigure->currentStick);
+        else
+            stream<<0;
+    }
     for(StickFigure* S: myFrame.stickFigures){
         stream<< *S;
     }

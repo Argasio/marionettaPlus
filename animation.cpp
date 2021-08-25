@@ -110,8 +110,10 @@ void Animation::updateSelection(QPointF point)
             }
         }
     }
-    if(selectedStickFigure->stickList[selectedIdx]->stickType != CS->stickType){
-        updateTab(selectedStickFigure->stickList[selectedIdx]->stickType );
+    if(CS){
+        if(selectedStickFigure->stickList[selectedIdx]->stickType != CS->stickType){
+            updateTab(selectedStickFigure->stickList[selectedIdx]->stickType );
+        }
     }
 
     CURRENTSTICKFIGURE = selectedStickFigure;

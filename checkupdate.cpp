@@ -2,9 +2,9 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QProcess>
-#define VERSION 1
-#define SUBVERSION 1
-#define R 1
+#define VERSION 0
+#define SUBVERSION 9
+#define R 0
 extern QDir programFolder;
 checkUpdate::checkUpdate()
 {

@@ -43,6 +43,23 @@
 #define DEFAULTHANDLES 10
 //#include "QVideoEncoder.h"
 //#include "QVideoDecoder.h"
+QString license = "The software package Marionetta is distributed as a free of charge Software,\r\n \
+   user must hereby acknowledges accept the following conditions to use Marionetta: \r\n\
+-The only official distribution of Marionetta is under the authorship of Matteo Vittorio Ricciutelli \r\n\
+-The user confirms he has acquired this software package from either: \r\n\
+    https://matteovittorioricc.wixsite.com/marionetta \r\n\
+    or \r\n\
+    https://sites.google.com/view/marionetta/home \r\n\
+-The user will not upload this software package, the user will not share this software package via p2p,ftp or email \r\n\
+    and  he will not under any mean redistirbute this software.\r\n\
+-To get other people to know Marionetta the user is allowed to share links to official sources such as \r\n\
+    https://matteovittorioricc.wixsite.com/marionetta \r\n\
+    https://sites.google.com/view/marionetta/home \r\n\
+-The user agrees not to modify the software package and its contents in any way.\r\n\
+-The user acknowledges Marionetta is released as-is, \r\n\
+   and that the author does not assume any resposability on the usage of the software or on the content created using the software.\r\n\
+";
+int termsAccepted = 0;
 QString imageNameBuffer;
 QGraphicsScene *scene;
 Ui::Widget *myUi;
@@ -206,6 +223,14 @@ Widget::Widget(QWidget *parent)
     else{
         readJson(jsonConfigPath);
     }
+    if(termsAccepted == 0){
+        termsAndConditions();
+    }
+    if(termsAccepted == 0)
+        exit(EXIT_FAILURE);
+
+
+
     //crea la cornice
     myRect = new QGraphicsRectItem(0, 0, W, H);
     myRect->setBrush(QBrush(QColor(Qt::white)));
@@ -245,7 +270,8 @@ void Widget::readJson(QString path ){
         recordObject.value(QString("First time opened"))    == QJsonValue::Undefined||
         recordObject.value(QString("FFMPEG path"))          == QJsonValue::Undefined||
         recordObject.value(QString("Autosave operation interval"))  == QJsonValue::Undefined||
-        recordObject.value(QString("Handles size"))                 == QJsonValue::Undefined
+        recordObject.value(QString("Handles size"))                 == QJsonValue::Undefined||
+            recordObject.value(QString("Terms Accepted"))                 == QJsonValue::Undefined
        )
     {
         file.remove();
@@ -259,8 +285,25 @@ void Widget::readJson(QString path ){
     FFMPEGPath          = recordObject.value("FFMPEG path").toString();
     autoSaveInterval    = recordObject.value(QString("Autosave operation interval")).toInt();
     HANDLESIZE          = recordObject.value(QString("Handles size")).toInt();
+    termsAccepted       = recordObject.value(QString("Terms Accepted")).toInt();
     file.close();
 
+}
+void Widget::termsAndConditions(){
+    QMessageBox* myBox =  new QMessageBox(QMessageBox::Question, "Terms And Conditions",
+license+" Click on the \"Yes\" button if you accept the above terms, click on the \"No\" button if you don't agree (the program will be closed). \r\n\
+                                  ",
+                                  QMessageBox::Yes|QMessageBox::No);
+
+    myBox->setWindowFlag(Qt::FramelessWindowHint);
+    if (myBox->exec() == QMessageBox::Yes) {
+       termsAccepted = 1;       //cicciottaEasterEgg!!!!
+       QMessageBox::information(this,"info"," you can review the terms accepted in the help menu",QMessageBox::Ok);
+    } else {
+        termsAccepted = 0;
+    }
+    delete myBox;
+    writeJson();
 }
 void Widget::writeJson( ){
     QString path = programFolder.path()+"/config.json";
@@ -277,6 +320,7 @@ void Widget::createJson(QString path ){
     recordObject.insert("FFMPEG path", QJsonValue::fromVariant(FFMPEGPath));
     recordObject.insert("Autosave operation interval", QJsonValue::fromVariant(autoSaveInterval));
     recordObject.insert("Handles size", QJsonValue::fromVariant(HANDLESIZE));
+    recordObject.insert("Terms Accepted", QJsonValue::fromVariant((int)termsAccepted));
     QJsonDocument doc(recordObject);
     QFile file(path);
     if(!file.open(QIODevice::WriteOnly))
@@ -1078,9 +1122,17 @@ void Widget::on_joinBtn_clicked()
         QMessageBox::about(this,"Error","First you must select a stickfigure");
         return;
 
+    }else{
+        if(CURRENTSTICKFIGURE->stickList.count()==0){
+            QMessageBox::about(this,"Error","current stickfigure is empty cannot join an empty stickfigure");
+            return;
+        }else{
+            // conditions are met, set the tool
+            view->setTool(JOIN);
+            QMessageBox::about(this,"Info","select which stickfigure must be joined with the current one");
+        }
     }
-    view->setTool(JOIN);
-    QMessageBox::about(this,"Info","select which stickfigure must be joined with the current one");
+
 }
 
 void Widget::on_splitBtn_clicked()

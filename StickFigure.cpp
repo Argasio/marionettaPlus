@@ -1289,6 +1289,9 @@ void splitStickFigures(StickFigure* split, stick* origin,StickFigure* branch){
     split->deleteStick( split->stickList.indexOf(origin));
 }
 float StickFigure::minZ(){
+    if(stickList.isEmpty()){
+        return 0;
+    }
     float minVal = stickList[0]->Z;
     for(stick*s:stickList){
         if(s->Z<minVal)
@@ -1297,6 +1300,9 @@ float StickFigure::minZ(){
     return minVal;
 }
 float StickFigure::maxZ(){
+    if(stickList.isEmpty()){
+        return 0;
+    }
     float maxVal = stickList[0]->Z;
     for(stick*s:stickList){
         if(s->Z>maxVal)

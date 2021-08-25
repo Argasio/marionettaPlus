@@ -264,10 +264,13 @@ void myView::mousePressEvent(QMouseEvent *event)
             {
                 storeUndo();
                 for(StickFigure* S: myAnimation->currentFrame->stickFigures){
-                    S->originPosBuffer = S->masterStick->myLine.p1();
-                    S->sceneRotationBuffer = 0;
-                    for(stick*s:S->stickList){
-                        s->angleBuffer2 = s->myLine.angle();
+                    //check it is not an empty layer
+                    if(S->masterStick && S->stickList.count()>0){
+                        S->originPosBuffer = S->masterStick->myLine.p1();
+                        S->sceneRotationBuffer = 0;
+                        for(stick*s:S->stickList){
+                            s->angleBuffer2 = s->myLine.angle();
+                        }
                     }
                 }
                 break;
@@ -275,10 +278,13 @@ void myView::mousePressEvent(QMouseEvent *event)
             case(SCALESCENE):
             {
                 for(StickFigure* S: myAnimation->currentFrame->stickFigures){
-                    S->originPosBuffer = S->masterStick->myLine.p1();
-                    for(stick*s:S->stickList){
-                        s->scaleBuffer = s->myLine.length();
-                        s->widthBuffer = s->Pen.width();
+                    //check it is not an empty layer
+                    if(S->masterStick && S->stickList.count()>0){
+                        S->originPosBuffer = S->masterStick->myLine.p1();
+                        for(stick*s:S->stickList){
+                            s->scaleBuffer = s->myLine.length();
+                            s->widthBuffer = s->Pen.width();
+                        }
                     }
                 }
                 storeUndo();
@@ -286,23 +292,24 @@ void myView::mousePressEvent(QMouseEvent *event)
             }
             case(JOIN):{
                 if(CURRENTSTICKFIGURE!= nullptr){
+                    //check layer is not empty
+                    if(CURRENTSTICKFIGURE->stickList.count()>0){
+                        joinToStickFigure = CURRENTSTICKFIGURE;
+                        joinToStick = joinToStickFigure->currentStick;
+                        storeUndo();
+                        arrowSelection();
 
-
-                    joinToStickFigure = CURRENTSTICKFIGURE;
-                    joinToStick = joinToStickFigure->currentStick;
-                    storeUndo();
-                    arrowSelection();
-
-                    if(CURRENTSTICKFIGURE!=joinToStickFigure){
-                        removeHandles(joinToStickFigure);
-                        mergeStickFigures(joinToStickFigure,joinToStick,CURRENTSTICKFIGURE);
-                        addHandles(joinToStickFigure);
-                        deleteStickFigure();
-                        for(stick*s:CURRENTSTICKFIGURE->stickList){
-                            if(!CURRENTFRAME->totalSticks.contains(s))
-                                CURRENTFRAME->totalSticks.append(s);
+                        if(CURRENTSTICKFIGURE!=joinToStickFigure && CURRENTSTICKFIGURE->stickList.count()>0){
+                            removeHandles(joinToStickFigure);
+                            mergeStickFigures(joinToStickFigure,joinToStick,CURRENTSTICKFIGURE);
+                            addHandles(joinToStickFigure);
+                            deleteStickFigure();
+                            for(stick*s:CURRENTSTICKFIGURE->stickList){
+                                if(!CURRENTFRAME->totalSticks.contains(s))
+                                    CURRENTFRAME->totalSticks.append(s);
+                            }
+                            qDebug("merge ok\r\n");
                         }
-                        qDebug("merge ok\r\n");
                     }
                 }
                 break;
@@ -723,7 +730,10 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                 int dy = -startingCoord.y()+coord.y();
                 startingCoord = coord;
                 for(StickFigure*S:myAnimation->currentFrame->stickFigures){
-                    S->traslate(dx,dy);
+                    //check it is not an empty layer
+                    if( S->stickList.count()>0 && S->masterStick){
+                        S->traslate(dx,dy);
+                    }
                 }
             }
             break;
@@ -740,22 +750,24 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                 float angle = actualAngle-startingAngle; // incremento in angolo rispetto a prima
                 startingCoord = coord; // le coordinate attuali vengono memorizzate per la prossima iterazione
                 for(StickFigure*S:myAnimation->currentFrame->stickFigures){
+                    //check it is not an empty layer
+                    if( S->stickList.count()>0 && S->masterStick){
+                        QLineF connectCenter(center,S->masterStick->myLine.p1()); // linea che connette il master dello stick al centro
 
-                    QLineF connectCenter(center,S->masterStick->myLine.p1()); // linea che connette il master dello stick al centro
+                        connectCenter.setAngle(connectCenter.angle()+angle); // ruotiamola dell'angolo di incremento
+                        // ruota ogni singolo stick
+                        for(stick *s:S->stickList){
 
-                    connectCenter.setAngle(connectCenter.angle()+angle); // ruotiamola dell'angolo di incremento
-                    // ruota ogni singolo stick
-                    for(stick *s:S->stickList){
+                            s->rotate(angle);
+                            s->angleBuffer2+=angle; // aggiorna il buffer interno dell'angolo dello stick
+                        }
 
-                        s->rotate(angle);
-                        s->angleBuffer2+=angle; // aggiorna il buffer interno dell'angolo dello stick
+                        QLineF Delta(S->originPosBuffer,connectCenter.p2()); // traslazione della punta della lineacentro-master ruotata
+                        //trasla lo stickfigure dell'ammontare
+                        S->traslate(Delta.dx(),Delta.dy());
+                        S->originPosBuffer = S->masterStick->myLine.p1(); // agiorna il buffer di posizione dello stickfigure
                     }
-
-                    QLineF Delta(S->originPosBuffer,connectCenter.p2()); // traslazione della punta della lineacentro-master ruotata
-                    //trasla lo stickfigure dell'ammontare
-                    S->traslate(Delta.dx(),Delta.dy());
-                    S->originPosBuffer = S->masterStick->myLine.p1(); // agiorna il buffer di posizione dello stickfigure
-                }
+                    }
             }
             break;
         }
@@ -771,22 +783,25 @@ void myView::mouseMoveEvent(QMouseEvent *event)
                 dist = QLineF(coord,center).length();
                 scaleAmount = dist/startDist;
                 for(StickFigure * S:myAnimation->currentFrame->stickFigures){
-                    // per traslare lo stick verso il centro [W/2,H/2] proporzionalmente
-                    // serve calcolare la distanza del masterstick da essa
-                    // moltiplicare dx e dy per lo scale factor
-                    // usarli come traslazione
-                    float dx = 0;
-                    float dy = 0;
-                    // il dx e dy deve essere una quantità tale da non far eccedere ad actual dist ilv alore  di originaldist
-                    QLineF actualDistFromCenter(S->masterStick->myLine.p1(),center);
-                    QLineF originalDistFromCenter(S->originPosBuffer,center);
-                    // quindi fai la differenza fra il valore di distaza originale (max) e la distanza attuale modificata dal fattore di scala per dx e dy
-                    dx = -originalDistFromCenter.dx()*scaleAmount+actualDistFromCenter.dx();
-                    dy = -originalDistFromCenter.dy()*scaleAmount+actualDistFromCenter.dy();
-                    S->traslate(dx,dy);
-                    for(stick* s:S->stickList){
-                        s->scale(scaleAmount);
+                    //check it is not an empty layer
+                        if( S->stickList.count()>0 && S->masterStick){
+                        // per traslare lo stick verso il centro [W/2,H/2] proporzionalmente
+                        // serve calcolare la distanza del masterstick da essa
+                        // moltiplicare dx e dy per lo scale factor
+                        // usarli come traslazione
+                        float dx = 0;
+                        float dy = 0;
+                        // il dx e dy deve essere una quantità tale da non far eccedere ad actual dist ilv alore  di originaldist
+                        QLineF actualDistFromCenter(S->masterStick->myLine.p1(),center);
+                        QLineF originalDistFromCenter(S->originPosBuffer,center);
+                        // quindi fai la differenza fra il valore di distaza originale (max) e la distanza attuale modificata dal fattore di scala per dx e dy
+                        dx = -originalDistFromCenter.dx()*scaleAmount+actualDistFromCenter.dx();
+                        dy = -originalDistFromCenter.dy()*scaleAmount+actualDistFromCenter.dy();
+                        S->traslate(dx,dy);
+                        for(stick* s:S->stickList){
+                            s->scale(scaleAmount);
 
+                        }
                     }
                 }
             }

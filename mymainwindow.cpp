@@ -42,6 +42,7 @@ myMainWindow::myMainWindow(QWidget *parent) :
     checkUpdate* Check = new checkUpdate();
     QObject::connect(Check, &checkUpdate::updatePresent,this, &myMainWindow::updatePresent);
     Check->start();
+
 }
 
 
@@ -270,7 +271,8 @@ void myMainWindow::updatePresent(QString ver)
 // se questa funzione è stata chiamata per l'auto render avi, chiama una funzione che apra il processo
 // stessa cosa se originariamente l'esportazione delle immagini dovrà invece essere usata da ffmpeg
 void myMainWindow::imageRenderOver(int option){
-
+    // added delete exporter
+    delete exporter;
     switch(option){
     case NONE:
 
@@ -327,5 +329,36 @@ void myMainWindow::closeEvent(QCloseEvent *event)
 
 void myMainWindow::on_actionAbout_triggered()
 {
-    delete exporter;
+    QMessageBox::about(this, "About Marionetta 1.00",
+                                  "Marionetta is a FREE stickfigure animation software designed and created"
+                                  " by Matteo Vittorio Ricciutelli.\r\n\r\n"
+                                  "Get the latest updates and infos at Marionetta official website: \r\n"
+                                  "https://sites.google.com/view/marionetta/home \r\n\n"
+                                  "Like Marionetta official facebook page! \r\n"
+                                  "https://www.facebook.com/Marionetta-StickFigure-Animation-Studio-2330682093680488"
+                       "\r\n\r\nAny distribution of this software must undergo authorization from its orginal creator"
+                                                         "you may contact him via email at the address  \r\nmatteoricciutelli(at)mail.com"
+                                                         " \r\n"
+                       );
 }
+
+
+extern QString license;
+extern int termsAccepted;
+void myMainWindow::on_actionTerms_and_Conditions_triggered()
+{
+    //QMessageBox::information(this, " conditions",license);
+    license_info_begin:
+    myWidget->termsAndConditions();
+    if(termsAccepted == 0){
+        QMessageBox* confirm =  new QMessageBox(QMessageBox::Question, "Warning",
+        " are you sure? (the program will be closed). \r\n" ,
+                                      QMessageBox::Yes|QMessageBox::No);
+        if(confirm->exec() == QMessageBox::Yes){
+            exit(EXIT_FAILURE);
+        }else{
+            goto license_info_begin;
+        }
+    }
+}
+
