@@ -1142,24 +1142,28 @@ void myView::storeUndo(int command, int mode){
     qDebug() << "after new frame";
     //CLONE FRAME
     // byte array stores serialized data
-    QByteArray* byteArray = new QByteArray(myAnimation->currentFrame->stickFigures.count()*20000000,0x00);
+    QByteArray byteArray;
     // buffer temporarily holds serialized data
-    QBuffer buffer1(byteArray);
+    QBuffer buffer1(&byteArray);
     // use this buffer to store data from the object
     buffer1.open(QIODevice::WriteOnly);
     qDebug() << "open buffer";
     QDataStream myStream(&buffer1);
+
     qDebug() << "after stream obj";
     myStream<<*(myAnimation->currentFrame);
+    buffer1.close();
     qDebug() << "stream frame";
     // now create a seconds buffer from which to read data of the bytearray
-    QBuffer buffer2(byteArray);
+    QBuffer buffer2(&byteArray);
     buffer2.open(QIODevice::ReadOnly);
     // a new data stream to deserialize
     qDebug() << "buffer 2";
     QDataStream myStream2(&buffer2);
+
     // hydrate new frame with previous frame data
     myStream2>>*myUndo.frame;
+    buffer2.close();
     qDebug() << "after clone frame";
     //popola il buffer appropriato
     if(mode == MODE_UNDO){
@@ -1176,7 +1180,7 @@ void myView::storeUndo(int command, int mode){
     }
     qDebug() << "after uno/redo store";
     undoFlag = false;
-    delete byteArray;
+
 }
 void myView::updateFrameOrder(Frame* f){
     int j = 0;

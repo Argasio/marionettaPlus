@@ -380,7 +380,7 @@ QDataStream & operator<< (QDataStream& stream, const stick& myStick){
         stream<<myStick.hardBottom;
 
         if(myStick.stickType == stick::IMAGE){
-            stream<< myStick.stickImgList.length();
+            stream<< (int)myStick.stickImgList.length();
             stream<< myStick.stickImgList.indexOf(myStick.stickImg);
             int j = 0;
             for(QImage*i:myStick.stickImgList){
@@ -442,19 +442,19 @@ QDataStream & operator<< (QDataStream& stream, const StickFigure& myStickFigure)
 
     stream<<myStickFigure.version;
     qDebug() << "before stream version";
-    stream<<myStickFigure.stickList.count();
+    stream<<(int)myStickFigure.stickList.count();// beware, stream types must correspond! qsizetype != int
     stream<<myStickFigure.name;
     qDebug() << "before stream stick idx";
     // per ogni stick nella lista scrivi l'indice del genitore e poi serializza il tutto
     for(stick* s:myStickFigure.stickList){
         if(!s->isMaster()) //todo master replacement
         {
-            qDebug() << "stk master idx";
-            s->parentIdx = myStickFigure.stickList.indexOf(s->parent);
+            qDebug() << "stk non master idx";
+            s->parentIdx = (int)myStickFigure.stickList.indexOf(s->parent);
             qDebug() << "after streaming stick idx";
         }
         else{
-            qDebug() << "stk non master idx";
+            qDebug() << "stk  master idx";
             s->parentIdx = -1;
         }
         qDebug() << "before streaming stick";
@@ -488,10 +488,12 @@ QDataStream & operator>> (QDataStream& stream,StickFigure& myStickFigure){
             // procedi a ritroso per i genitori del genitore
             while(currentParent != nullptr){
                 currentParent->children.append(s);
-                if(currentParent->parentIdx>= 0 )
+                if(currentParent->parentIdx>= 0 ){
                     currentParent = myStickFigure.stickList[currentParent->parentIdx];
-                else // arrivati allo stickmaster vai al prossimo
+                }
+                else{ // arrivati allo stickmaster vai al prossimo
                     break;
+                }
             }
         }
         else{ // se stiamo considerando lo stickmaster

@@ -202,17 +202,19 @@ stick *Frame::selectStick(QPointF point)
     return selectedStickFigure->stickList[selectedIdx];
 }
 QDataStream & operator<< (QDataStream& stream, const Frame& myFrame){
-    int num = myFrame.stickFigures.count();
+    int num = (int)myFrame.stickFigures.count();
     stream<< num ;
     stream<<myFrame.numOfItems;
     stream<< myFrame.frameNumber;
-    stream<< myFrame.stickFigures.indexOf(myFrame.currentStickFigure);
+    stream<< (int)myFrame.stickFigures.indexOf(myFrame.currentStickFigure);
     qDebug() << "before streaming sf";
     if(!libFlag){
         if(myFrame.currentStickFigure)
-            stream<< myFrame.currentStickFigure->stickList.indexOf(myFrame.currentStickFigure->currentStick);
-        else
+        {
+            stream<< (int)myFrame.currentStickFigure->stickList.indexOf(myFrame.currentStickFigure->currentStick);
+        }else{
             stream<<0;
+        }
     }
     for(StickFigure* S: myFrame.stickFigures){
         stream<< *S;
@@ -229,8 +231,13 @@ QDataStream & operator>> (QDataStream& stream, Frame& myFrame){
     stream>>myFrame.numOfItems;
     stream>> myFrame.frameNumber;
     stream>>currentStickFigureIdx;
-    if(!libFlag)
+    if(!libFlag){
         stream>>currentStickIdx;
+    }else{
+        int buff;
+        stream>>buff;
+    }
+
 
     myFrame.totalSticks.clear();
     QListWidget * Widget;

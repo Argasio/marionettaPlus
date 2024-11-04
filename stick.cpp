@@ -644,11 +644,11 @@ void sceneRemover(QGraphicsScene *sceneToClear){
     }
 }
 
-QPolygonF getRegularPolygon(int n, QPointF center){
+QPolygonF getRegularPolygon(int n, QPointF center, float radius){
     QVector<QPointF> vertex;
     for(int i = 0;i<n;i++){
-        float xoffset = cosf(M_PI/n*i);
-        float yoffset = sinf(M_PI/n*i);
+        float xoffset = cosf(M_PI/n*i)*radius;
+        float yoffset = sinf(M_PI/n*i)*radius;
         vertex.append(QPointF(center+QPointF(xoffset,yoffset)));
     }
     return QPolygonF(vertex);
